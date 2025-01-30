@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Facecoin Internal Development Setup
 
-## Getting Started
+This guide is for `metal` developers setting up the Facecoin development environment.
 
-First, run the development server:
+## Production
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- [Vercel](https://vercel.com/0xmetropolis/facecoin)
+- [Figma](https://www.figma.com/design/wDWg1J43kq72CYVljeJE39/Facecoin?node-id=0-1&p=f&t=gxgnaka8EZ5RIl9Z-0)
+- [Linear Project](https://linear.app/metropolis/project/facecoin-46ac8a25e8c6/overview)
+- Production site: [facecoin.metal.build](https://facecoin.metal.build)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Prerequisites
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Vercel CLI (`pnpm i -g vercel`)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Initial Setup
 
-## Learn More
+1. Clone the repository:
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   git clone git@github.com:0xmetropolis/facecoin.git
+   cd facecoin
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Install dependencies:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   pnpm i
+   ```
 
-## Deploy on Vercel
+3. Link to Vercel project:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   vercel link
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. Pull environment variables:
+
+   ```bash
+   vercel env pull
+   ```
+
+## Development
+
+Start the development server:
+
+- Using VSCode: Press F5 to start with debugger
+- Using CLI: `pnpm run dev`
+
+The app will be available at `http://localhost:3000`
