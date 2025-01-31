@@ -11,4 +11,4 @@ export const colors = {
     DEFAULT: "#E4E6EB",
     foreground: "#65676B",
   },
-};
+} as const;
