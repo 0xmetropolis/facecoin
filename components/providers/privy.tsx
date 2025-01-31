@@ -2,7 +2,7 @@
 
 import { colors } from "@/lib/colors";
 import { PrivyProvider as PrivyProviderBase } from "@privy-io/react-auth";
-
+import { base } from "viem/chains";
 export default function PrivyProvider({
   children,
 }: {
@@ -27,6 +27,9 @@ export default function PrivyProvider({
         embeddedWallets: {
           createOnLogin: "users-without-wallets",
         },
+        defaultChain: base,
+        supportedChains: [base],
+        loginMethods: ["farcaster"],
       }}
     >
       {children}
