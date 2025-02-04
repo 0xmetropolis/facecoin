@@ -1,64 +1,163 @@
 "use client";
 
+import { uploadImageAction } from "@/actions/uploadImage";
+import { InfoSection } from "@/components/info-section";
+import { Profile } from "@/components/profile";
 import { Button } from "@/components/shadcn/button";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/shadcn/drawer";
+import { cn } from "@/lib/utils";
 import { usePrivy } from "@privy-io/react-auth";
-import Image from "next/image";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { X } from "lucide-react";
+import { useActionState, useRef, useState } from "react";
+import { Camera, CameraType } from "react-camera-pro";
 
-export function ProfileInfo({ onNext }: { onNext: () => void }) {
-  const { user } = usePrivy();
-
-  const twitter = user?.twitter;
+const SelfieSnap = ({ onSnap }: { onSnap: (photo: string) => void }) => {
+  const camera = useRef<CameraType>(null);
+  const [cameraLoading, setCameraLoading] = useState(true);
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-lg overflow-hidden">
-      {/* Header */}
-      <div className="bg-[#4267B2] text-white p-4 text-center">
-        <h1 className="text-4xl font-bold">facecoin</h1>
+    <DrawerContent
+      className="h-[calc(100%_-_44px)] rounded-none"
+      aria-describedby="selfie"
+    >
+      <DrawerClose asChild>
+        <button className="absolute top-2 left-2 z-10 ">
+          <X />
+        </button>
+      </DrawerClose>
+      <VisuallyHidden>
+        <DrawerTitle>Selfie</DrawerTitle>
+      </VisuallyHidden>
+      <div className="h-full w-full flex px-[40.5px] py-[26px] justify-between flex-col">
+        <div className="absolute top-0 left-0 w-full h-full animate-pulse bg-primary/30" />
+        <div className="flex justify-between w-full">
+          <div className="h-[14.5px] w-[14.5px] border-t border-l border-t-white border-l-white z-10" />
+          <div className="h-[14.5px] w-[14.5px] border-t border-r border-t-white border-r-white z-10" />
+        </div>
+        <Camera
+          videoReadyCallback={() => setCameraLoading(false)}
+          aspectRatio={"cover"}
+          ref={camera}
+          errorMessages={{
+            noCameraAccessible:
+              "No camera device accessible. Please connect your camera or try a different browser.",
+            permissionDenied:
+              "Permission denied. Please refresh and give camera permission.",
+            switchCamera:
+              "It is not possible to switch camera to different one because there is only one video device accessible.",
+            canvas: "Canvas is not supported.",
+          }}
+        />
+        <div className="flex justify-between w-full">
+          <div className="h-[14.5px] w-[14.5px] border-b border-l border-b-white border-l-white z-10" />
+          <div className="h-[14.5px] w-[14.5px] border-b border-r border-b-white border-r-white z-10" />
+        </div>
       </div>
-
-      <div className="p-6 space-y-6">
-        {/* Profile Section */}
-        <div className="flex flex-col items-center space-y-4">
-          <div className="relative w-24 h-24 bg-gray-200 rounded-full overflow-hidden">
-            <Image
-              src={twitter?.profilePictureUrl || "/facebook-avatar.webp"}
-              alt={`${twitter?.name} profile picture`}
-              fill
-              className="object-cover"
+      <div className="flex justify-center items-center h-1/5 w-screen z-10">
+        <DrawerClose asChild>
+          <button
+            disabled={cameraLoading}
+            className="bg-white w-[20%] aspect-square rounded-full p-1"
+            onClick={() => {
+              const photo = camera.current!.takePhoto();
+              if (photo) onSnap(photo as string);
+            }}
+          >
+            <div
+              className={cn(
+                "w-full h-full rounded-full bg-white border border-black",
+                cameraLoading && "bg-primary/10 border-black/10"
+              )}
             />
-          </div>
-
-          <div className="text-center">
-            <h2 className="text-xl font-semibold">
-              @{twitter?.username || "username"}
-            </h2>
-            <p className="text-gray-600">
-              {twitter?.followers || "3234"} followers
-            </p>
-          </div>
-
-          <Button className="font-bold">Upload picture</Button>
-        </div>
-
-        {/* FaceCoin ID Section */}
-        <div className="text-center space-y-2">
-          <h3 className="text-xl">Your FaceCoin ID is:</h3>
-        </div>
-
-        {/* Bonus Section */}
-        <div className="bg-gray-50 p-4 rounded-lg text-center space-y-2">
-          <h3 className="text-lg font-semibold text-green-600">
-            Get 10X more coins
-          </h3>
-          <p className="text-gray-700">
-            Show your FaceCoin ID to the FaceCoin terminal at the Metal booth
-          </p>
-        </div>
-
-        <Button onClick={onNext} className="w-full">
-          Continue
-        </Button>
+          </button>
+        </DrawerClose>
       </div>
+    </DrawerContent>
+  );
+};
+
+export function ProfileInfo({ onUpload }: { onUpload: () => void }) {
+  const { user } = usePrivy();
+  const [processedImage, action] = useActionState(uploadImageAction, "");
+
+  /** base64 img data */
+  const [selfie, setSelfie] = useState<string | null>(null);
+
+  const finalPhoto = processedImage || selfie;
+
+  const twitter = user?.twitter;
+  const facecoinId = 88888;
+
+  return (
+    <div className="flex-1 flex flex-col items-center gap-4 justify-between">
+      <Drawer>
+        <div className="flex flex-col gap-4 items-center">
+          <div className="flex flex-row items-center space-x-4">
+            <Profile pfp="/facebook-avatar.webp" />
+            <div className="text-left">
+              <h2 className=" font-semibold">
+                @{twitter?.username || "username"}
+              </h2>
+              <p className="text-sm">
+                {twitter?.followers || "3234"} followers
+              </p>
+            </div>
+          </div>
+        </div>
+        {selfie ? (
+          <>
+            <div className="flex justify-center items-center w-60">
+              {finalPhoto && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={finalPhoto}
+                  alt="Selfie"
+                  className="object-cover object-top aspect-[2/3] -scale-x-100"
+                />
+              )}
+            </div>
+            <div className="flex gap-2">
+              <DrawerTrigger asChild>
+                <Button className="font-bold">Retake</Button>
+              </DrawerTrigger>
+              <Button
+                className="font-bold"
+                onClick={async () => {
+                  action(selfie);
+                  onUpload();
+                }}
+              >
+                Upload picture
+              </Button>
+            </div>
+            <div className="flex-1" />
+          </>
+        ) : (
+          <>
+            <DrawerTrigger asChild>
+              <Button className="font-bold">Take picture</Button>
+            </DrawerTrigger>
+            <div className="text-center space-y-2">
+              <h3>Your FaceCoin ID is:</h3>
+              <p className="text-2xl font-bold">{facecoinId}</p>
+            </div>
+            <InfoSection
+              title="Get 10X more coins"
+              body="Show your FaceCoin ID to the FaceCoin terminal at the Metal booth"
+            />
+          </>
+        )}
+
+        {/* Camera section */}
+        <SelfieSnap onSnap={setSelfie} />
+      </Drawer>
     </div>
   );
 }

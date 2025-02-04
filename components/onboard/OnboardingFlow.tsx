@@ -53,13 +53,13 @@ export function OnboardingFlow() {
     <div className="flex flex-col justify-center items-center flex-1">
       {currentStep === "connect" && <FarcasterConnect />}
       {currentStep === "profile" && (
-        <ProfileInfo onNext={() => handleNext("profile")} />
+        <ProfileInfo onUpload={() => handleNext("profile")} />
       )}
       {currentStep === "selfie" && (
         <SelfieUpload onNext={() => handleNext("selfie")} />
       )}
       {currentStep === "processing" && <FaceProcessing />}
-      <pre className="text-xs">{JSON.stringify(user, null, 2)}</pre>
+      {/* <pre className="text-xs">{JSON.stringify(user, null, 2)}</pre> */}
       {userIsLoggedIn ? <Button onClick={logout}>Logout</Button> : null}
     </div>
   );
