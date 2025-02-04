@@ -16,12 +16,14 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "min-h-screen bg-[#F0F2F5] font-sans antialiased",
+          "min-h-screen bg-theme-background font-sans antialiased flex flex-col",
           inter.className
         )}
       >
         <Header />
-        <main className="container mx-auto px-4 py-6">{children}</main>
+        <main className="container mx-auto px-4 py-6 flex-grow flex flex-col">
+          {children}
+        </main>
       </body>
     </html>
   );

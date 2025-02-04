@@ -20,6 +20,7 @@ export default {
     },
     extend: {
       colors: {
+        theme: colors,
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -33,9 +34,6 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
-        },
-        theme: {
-          ...colors,
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",

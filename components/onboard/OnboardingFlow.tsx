@@ -1,20 +1,39 @@
 "use client";
 
-import { usePrivy } from "@privy-io/react-auth";
+import { useLogin, useLogout, usePrivy } from "@privy-io/react-auth";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaceProcessing } from "./steps/FaceProcessing";
 import { FarcasterConnect } from "./steps/FarcasterConnect";
 import { ProfileInfo } from "./steps/ProfileInfo";
 import { SelfieUpload } from "./steps/SelfieUpload";
+import { Button } from "../shadcn/button";
 
-const STEPS = ["connect", "profile", "selfie", "processing"] as const;
+const STEPS = ["init", "connect", "profile", "selfie", "processing"] as const;
 type Step = (typeof STEPS)[number];
 
 export function OnboardingFlow() {
-  const [currentStep, setCurrentStep] = useState<Step>("connect");
-  const { ready } = usePrivy();
+  const [currentStep, setCurrentStep] = useState<Step>("init");
+  const { ready, user } = usePrivy();
   const router = useRouter();
+
+  const userIsLoggedIn = ready && user && (user.twitter || user.farcaster);
+
+  useLogin({
+    onComplete: (data) => {
+      console.log("from hook", data);
+    },
+    onError: (error) => {
+      console.error("from hook", error);
+    },
+  });
+
+  const { logout } = useLogout();
+
+  useEffect(() => {
+    if (!userIsLoggedIn && ready) setCurrentStep("connect");
+    if (userIsLoggedIn && ready) setCurrentStep("profile");
+  }, [userIsLoggedIn, ready]);
 
   const handleNext = (step: Step) => {
     if (step === "processing") {
@@ -31,19 +50,17 @@ export function OnboardingFlow() {
   if (!ready) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm">
-        {currentStep === "connect" && (
-          <FarcasterConnect onNext={() => handleNext("connect")} />
-        )}
-        {currentStep === "profile" && (
-          <ProfileInfo onNext={() => handleNext("profile")} />
-        )}
-        {currentStep === "selfie" && (
-          <SelfieUpload onNext={() => handleNext("selfie")} />
-        )}
-        {currentStep === "processing" && <FaceProcessing />}
-      </div>
+    <div className="flex flex-col justify-center items-center flex-1">
+      {currentStep === "connect" && <FarcasterConnect />}
+      {currentStep === "profile" && (
+        <ProfileInfo onNext={() => handleNext("profile")} />
+      )}
+      {currentStep === "selfie" && (
+        <SelfieUpload onNext={() => handleNext("selfie")} />
+      )}
+      {currentStep === "processing" && <FaceProcessing />}
+      <pre className="text-xs">{JSON.stringify(user, null, 2)}</pre>
+      {userIsLoggedIn ? <Button onClick={logout}>Logout</Button> : null}
     </div>
   );
 }

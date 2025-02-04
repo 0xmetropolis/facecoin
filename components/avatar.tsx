@@ -1,0 +1,32 @@
+import { User } from "@prisma/client";
+import Image from "next/image";
+
+export const Avatar = ({ user }: { user: Partial<User> }) => {
+  // const { data: balance, isLoading: isBalanceLoading } = useFacecoinBalance({
+  //   userId: user.id,
+  // });
+
+  return (
+    <div className="flex flex-col gap-2 w-32">
+      <div className="relative aspect-square">
+        <Image
+          blurDataURL="/facebook-avatar.webp"
+          src={user?.pfp || "/facebook-avatar.webp"}
+          alt={user?.socialHandle || "loading user..."}
+          className="rounded-full aspect-square object-cover"
+          fill
+        />
+      </div>
+      <div className="flex flex-col items-center">
+        <div className="flex flex-row items-center text-black font-semibold">
+          <p>@</p>
+          <p>{user?.socialHandle}</p>
+        </div>
+        <p className="text-black whitespace-break-spaces text-center">
+          {"1,000"} $facecoin
+        </p>
+        <p className="text-black">($3000)</p>
+      </div>
+    </div>
+  );
+};

@@ -3,6 +3,7 @@
 import { colors } from "@/lib/colors";
 import { PrivyProvider as PrivyProviderBase } from "@privy-io/react-auth";
 import { base } from "viem/chains";
+
 export default function PrivyProvider({
   children,
 }: {
@@ -17,19 +18,17 @@ export default function PrivyProvider({
         })()
       }
       config={{
-        // Customize Privy's appearance in your app
         appearance: {
           theme: "light",
           accentColor: colors.primary.DEFAULT,
           logo: "/facecoin.png",
         },
-        // Create embedded wallets for users who don't have a wallet
         embeddedWallets: {
           createOnLogin: "users-without-wallets",
         },
         defaultChain: base,
         supportedChains: [base],
-        loginMethods: ["farcaster"],
+        loginMethods: ["farcaster", "twitter"],
       }}
     >
       {children}

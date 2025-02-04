@@ -1,42 +1,21 @@
 "use client";
 
 import { Button } from "@/components/shadcn/button";
-import { useLogin } from "@privy-io/react-auth";
+import { usePrivy } from "@privy-io/react-auth";
 
-export function FarcasterConnect({ onNext }: { onNext: () => void }) {
-  const { login } = useLogin({
-    onComplete: ({
-      user,
-      isNewUser,
-      wasAlreadyAuthenticated,
-      loginMethod,
-      loginAccount,
-    }) => {
-      console.log(
-        user,
-        isNewUser,
-        wasAlreadyAuthenticated,
-        loginMethod,
-        loginAccount
-      );
-      onNext();
-      // Any logic you'd like to execute if the user is/becomes authenticated while this
-      // component is mounted
-    },
-    onError: (error) => {
-      console.log(error);
-      // Any logic you'd like to execute after a user exits the login flow or there is an error
-    },
-  });
+export function FarcasterConnect() {
+  const { login } = usePrivy();
 
-  const handleConnect = () => login();
+  const handleLink = (provider: "farcaster" | "twitter") => () =>
+    login({ loginMethods: [provider], disableSignup: true });
 
   return (
-    <div className="text-center">
-      <h2 className="text-2xl font-bold mb-6">Connect Farcaster</h2>
-      <p className="text-gray-600 mb-8">Sign up with Farcaster to continue</p>
-      <Button onClick={handleConnect} className="w-full">
-        Connect Farcaster Account
+    <div className="flex flex-col gap-2">
+      <Button onClick={handleLink("twitter")} className="font-bold">
+        Sign up with Twitter
+      </Button>
+      <Button onClick={handleLink("farcaster")} className="font-bold">
+        Sign up with Farcaster
       </Button>
     </div>
   );

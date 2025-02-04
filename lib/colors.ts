@@ -1,14 +1,10 @@
 export const colors = {
   primary: {
-    DEFAULT: "#4267B2", // Facebook-style blue
-    foreground: "#FFFFFF",
+    DEFAULT: "#4061A6", // Facebook-style blue
+    foreground: "#FFFFFF", // White foreground
+    success: "#E6E8F5", // Green success color
   },
   background: {
-    DEFAULT: "#F0F2F5", // Light gray background
-    foreground: "#1C1E21",
-  },
-  muted: {
-    DEFAULT: "#E4E6EB",
-    foreground: "#65676B",
+    DEFAULT: "#E6E8F5", // light blue foreground
   },
 } as const;
