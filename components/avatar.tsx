@@ -10,10 +10,11 @@ export const Avatar = ({ user }: { user: Partial<User> }) => {
     <div className="flex flex-col gap-2 w-32">
       <div className="relative aspect-square">
         <Image
-          blurDataURL="/facebook-avatar.webp"
-          src={user?.pfp || "/facebook-avatar.webp"}
-          alt={user?.socialHandle || "loading user..."}
           className="rounded-full aspect-square object-cover"
+          alt={user?.socialHandle || "loading user..."}
+          src={user?.pfp || "/facebook-avatar.webp"}
+          blurDataURL="/facebook-avatar.webp"
+          placeholder="blur"
           fill
         />
       </div>
