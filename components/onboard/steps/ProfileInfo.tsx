@@ -115,9 +115,7 @@ export function ProfileInfo({ onUpload }: { onUpload: () => void }) {
                   <h2 className=" font-semibold">
                     @{twitter?.username || "username"}
                   </h2>
-                  <p className="text-sm">
-                    {twitter?.followers || "3234"} followers
-                  </p>
+                  <p className="text-sm">{"3234"} followers</p>
                 </div>
               </div>
             </div>
