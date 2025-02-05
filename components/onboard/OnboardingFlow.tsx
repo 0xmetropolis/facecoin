@@ -1,7 +1,6 @@
 "use client";
 
 import { useLogin, useLogout, usePrivy } from "@privy-io/react-auth";
-import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { Button } from "../shadcn/button";
 import { FarcasterConnect } from "./steps/FarcasterConnect";
@@ -14,7 +13,6 @@ type Step = (typeof STEPS)[number];
 export function OnboardingFlow() {
   const [currentStep, setCurrentStep] = useState<Step>("init");
   const { ready, user } = usePrivy();
-  const router = useRouter();
 
   const userIsLoggedIn = ready && user && (user.twitter || user.farcaster);
 
@@ -34,9 +32,9 @@ export function OnboardingFlow() {
     if (userIsLoggedIn && ready) setCurrentStep("profile");
   }, [userIsLoggedIn, ready]);
 
-  const handleNext = (step: Step) => {
+  const handleNext = (step?: Step) => {
     const currentIndex = STEPS.indexOf(currentStep);
-    setCurrentStep(STEPS[currentIndex + 1]);
+    setCurrentStep(step ?? STEPS[currentIndex + 1]);
   };
 
   if (!ready) return null;
