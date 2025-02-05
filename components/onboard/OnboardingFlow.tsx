@@ -2,14 +2,13 @@
 
 import { useLogin, useLogout, usePrivy } from "@privy-io/react-auth";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { FaceProcessing } from "./steps/FaceProcessing";
+import { Suspense, useEffect, useState } from "react";
+import { Button } from "../shadcn/button";
 import { FarcasterConnect } from "./steps/FarcasterConnect";
 import { ProfileInfo } from "./steps/ProfileInfo";
-import { SelfieUpload } from "./steps/SelfieUpload";
-import { Button } from "../shadcn/button";
+import { Review } from "./steps/Review";
 
-const STEPS = ["init", "connect", "profile", "selfie", "processing"] as const;
+const STEPS = ["init", "connect", "profile", "review"] as const;
 type Step = (typeof STEPS)[number];
 
 export function OnboardingFlow() {
@@ -36,13 +35,6 @@ export function OnboardingFlow() {
   }, [userIsLoggedIn, ready]);
 
   const handleNext = (step: Step) => {
-    if (step === "processing") {
-      // Simulate processing time before redirect
-      setTimeout(() => {
-        router.push("/onboard/success");
-      }, 3000);
-      return;
-    }
     const currentIndex = STEPS.indexOf(currentStep);
     setCurrentStep(STEPS[currentIndex + 1]);
   };
@@ -55,10 +47,11 @@ export function OnboardingFlow() {
       {currentStep === "profile" && (
         <ProfileInfo onUpload={() => handleNext("profile")} />
       )}
-      {currentStep === "selfie" && (
-        <SelfieUpload onNext={() => handleNext("selfie")} />
+      {currentStep === "review" && (
+        <Suspense fallback="loading...">
+          <Review />
+        </Suspense>
       )}
-      {currentStep === "processing" && <FaceProcessing />}
       {/* <pre className="text-xs">{JSON.stringify(user, null, 2)}</pre> */}
       {userIsLoggedIn ? <Button onClick={logout}>Logout</Button> : null}
     </div>

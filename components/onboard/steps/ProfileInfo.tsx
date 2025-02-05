@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { usePrivy } from "@privy-io/react-auth";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { X } from "lucide-react";
-import { useActionState, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Camera, CameraType } from "react-camera-pro";
 
 const SelfieSnap = ({ onSnap }: { onSnap: (photo: string) => void }) => {
@@ -85,78 +85,84 @@ const SelfieSnap = ({ onSnap }: { onSnap: (photo: string) => void }) => {
 
 export function ProfileInfo({ onUpload }: { onUpload: () => void }) {
   const { user } = usePrivy();
-  const [processedImage, action] = useActionState(uploadImageAction, "");
+  type ImgUrl = `https://${string}`;
 
-  /** base64 img data */
-  const [selfie, setSelfie] = useState<string | null>(null);
-
-  const finalPhoto = processedImage || selfie;
-
-  const twitter = user?.twitter;
+  const [processedImageState, setProcessedImageState] = useState<
+    | "init"
+    | "processing"
+    // or url
+    | ImgUrl
+    | { error: Error }
+  >("init");
   const facecoinId = 88888;
+  const twitter = user?.twitter;
 
   return (
     <div className="flex-1 flex flex-col items-center gap-4 justify-between">
       <Drawer>
-        <div className="flex flex-col gap-4 items-center">
-          <div className="flex flex-row items-center space-x-4">
-            <Profile pfp="/facebook-avatar.webp" />
-            <div className="text-left">
-              <h2 className=" font-semibold">
-                @{twitter?.username || "username"}
-              </h2>
-              <p className="text-sm">
-                {twitter?.followers || "3234"} followers
-              </p>
-            </div>
+        {processedImageState === "processing" ? (
+          <div className="flex-1 flex items-center">
+            <h3 className="font-semibold">
+              FaceCoin is processing your face...
+            </h3>
           </div>
-        </div>
-        {selfie ? (
-          <>
-            <div className="flex justify-center items-center w-60">
-              {finalPhoto && (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={finalPhoto}
-                  alt="Selfie"
-                  className="object-cover object-top aspect-[2/3] -scale-x-100"
-                />
-              )}
-            </div>
-            <div className="flex gap-2">
-              <DrawerTrigger asChild>
-                <Button className="font-bold">Retake</Button>
-              </DrawerTrigger>
-              <Button
-                className="font-bold"
-                onClick={async () => {
-                  action(selfie);
-                  onUpload();
-                }}
-              >
-                Upload picture
-              </Button>
-            </div>
-            <div className="flex-1" />
-          </>
         ) : (
           <>
+            <div className="flex flex-col gap-4 items-center">
+              <div className="flex flex-row items-center space-x-4">
+                <Profile pfp="/facebook-avatar.webp" />
+                <div className="text-left">
+                  <h2 className=" font-semibold">
+                    @{twitter?.username || "username"}
+                  </h2>
+                  <p className="text-sm">
+                    {twitter?.followers || "3234"} followers
+                  </p>
+                </div>
+              </div>
+            </div>
             <DrawerTrigger asChild>
               <Button className="font-bold">Take picture</Button>
             </DrawerTrigger>
+            {typeof processedImageState === "object" &&
+              "error" in processedImageState && (
+                <div className="flex flex-col items-center ">
+                  <h3 className="text-red-500 font-semibold">
+                    An error occured!
+                  </h3>
+                  <p className="text-red-500 text-sm">
+                    {processedImageState.error.message}
+                  </p>
+                </div>
+              )}
             <div className="text-center space-y-2">
               <h3>Your FaceCoin ID is:</h3>
               <p className="text-2xl font-bold">{facecoinId}</p>
             </div>
             <InfoSection
               title="Get 10X more coins"
-              body="Show your FaceCoin ID to the FaceCoin terminal at the Metal booth"
+              body={
+                <p className="text-sm">
+                  Show your FaceCoin ID to the FaceCoin terminal at the Metal
+                  booth
+                </p>
+              }
             />
           </>
         )}
 
-        {/* Camera section */}
-        <SelfieSnap onSnap={setSelfie} />
+        <SelfieSnap
+          onSnap={async (photo) => {
+            setProcessedImageState("processing");
+            await uploadImageAction(photo)
+              .then(() => onUpload())
+              .catch((error: Error) => {
+                console.error(error);
+                setProcessedImageState({ error });
+              });
+            // onUpload();
+          }}
+        />
       </Drawer>
     </div>
   );
