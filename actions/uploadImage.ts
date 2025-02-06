@@ -1,10 +1,8 @@
-"use server";
+import { redirect } from "next/navigation";
 
-const uploadImageAction = async (photo: string) => {
+export const uploadImage = async (photo: string) => {
   await new Promise((r) => setTimeout(() => r(null), 3_000));
   console.log(photo);
 
-  return photo;
+  redirect("/onboard/success");
 };
-
-export { uploadImageAction };

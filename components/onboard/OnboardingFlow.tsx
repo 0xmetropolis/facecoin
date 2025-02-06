@@ -1,55 +1,68 @@
 "use client";
 
-import { useLogin, useLogout, usePrivy } from "@privy-io/react-auth";
-import { Suspense, useEffect, useState } from "react";
+import { updateUserFromPrivyAction } from "@/actions";
+import {
+  useLogin,
+  useLoginWithOAuth,
+  useLogout,
+  usePrivy,
+} from "@privy-io/react-auth";
+import { useEffect, useState } from "react";
 import { Button } from "../shadcn/button";
-import { FarcasterConnect } from "./steps/FarcasterConnect";
-import { ProfileInfo } from "./steps/ProfileInfo";
-import { Review } from "./steps/Review";
+import { ConnectSocials } from "./steps/ConnectSocial";
+import { UploadSelfie } from "./steps/UploadSelfie";
 
-const STEPS = ["init", "connect", "profile", "review"] as const;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const STEPS = ["init", "connect", "selfie", "review"] as const;
 type Step = (typeof STEPS)[number];
 
 export function OnboardingFlow() {
-  const [currentStep, setCurrentStep] = useState<Step>("init");
+  //
+  //// PRIVY HOOKS + FUNCTIONS
   const { ready, user } = usePrivy();
-
-  const userIsLoggedIn = ready && user && (user.twitter || user.farcaster);
-
-  useLogin({
-    onComplete: (data) => {
-      console.log("from hook", data);
-    },
-    onError: (error) => {
-      console.error("from hook", error);
-    },
+  const { logout } = useLogout();
+  const { initOAuth } = useLoginWithOAuth({
+    onComplete: updateUserFromPrivyAction,
+    onError: (error) => setError(error.split("_").join(" ")),
   });
 
-  const { logout } = useLogout();
+  const { login } = useLogin({
+    onComplete: updateUserFromPrivyAction,
+    onError: (error) => setError(error.split("_").join(" ")),
+  });
 
+  const initFC = () =>
+    login({ loginMethods: ["farcaster"], disableSignup: true });
+
+  const initTwitter = () =>
+    initOAuth({ provider: "twitter", disableSignup: true });
+
+  //
+  //// STATE
+  const [currentStep, setCurrentStep] = useState<Step>("init");
+  const [error, setError] = useState<string | null>(null);
+
+  //
+  //// DERIVED VALUES
+  const userIsLoggedIn = ready && user && (user.twitter || user.farcaster);
+
+  //
+  //// EFFECTS
   useEffect(() => {
     if (!userIsLoggedIn && ready) setCurrentStep("connect");
-    if (userIsLoggedIn && ready) setCurrentStep("profile");
+    if (userIsLoggedIn && ready) setCurrentStep("selfie");
   }, [userIsLoggedIn, ready]);
-
-  const handleNext = (step?: Step) => {
-    const currentIndex = STEPS.indexOf(currentStep);
-    setCurrentStep(step ?? STEPS[currentIndex + 1]);
-  };
 
   if (!ready) return null;
 
   return (
     <div className="flex flex-col justify-center items-center flex-1">
-      {currentStep === "connect" && <FarcasterConnect />}
-      {currentStep === "profile" && (
-        <ProfileInfo onUpload={() => handleNext("profile")} />
+      {error && <div className="text-red-500 capitalize">{error}</div>}
+      {currentStep === "connect" && (
+        <ConnectSocials initFC={initFC} initTwitter={initTwitter} />
       )}
-      {currentStep === "review" && (
-        <Suspense fallback="loading...">
-          <Review />
-        </Suspense>
-      )}
+      {currentStep === "selfie" && <UploadSelfie />}
+
       {/* <pre className="text-xs">{JSON.stringify(user, null, 2)}</pre> */}
       {userIsLoggedIn ? <Button onClick={logout}>Logout</Button> : null}
     </div>

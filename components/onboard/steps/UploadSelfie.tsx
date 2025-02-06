@@ -1,6 +1,6 @@
 "use client";
 
-import { uploadImageAction } from "@/actions/uploadImage";
+import { uploadImage } from "@/actions/uploadImage";
 import { InfoSection } from "@/components/info-section";
 import { Profile } from "@/components/profile";
 import { Button } from "@/components/shadcn/button";
@@ -64,7 +64,7 @@ const SelfieSnap = ({ onSnap }: { onSnap: (photo: string) => void }) => {
         <DrawerClose asChild>
           <button
             disabled={cameraLoading}
-            className="bg-white w-[20%] aspect-square rounded-full p-1"
+            className="bg-white w-[20%] max-w-[100px] aspect-square rounded-full p-1"
             onClick={() => {
               const photo = camera.current!.takePhoto();
               if (photo) onSnap(photo as string);
@@ -83,7 +83,7 @@ const SelfieSnap = ({ onSnap }: { onSnap: (photo: string) => void }) => {
   );
 };
 
-export function ProfileInfo({ onUpload }: { onUpload: () => void }) {
+export function UploadSelfie() {
   const { user } = usePrivy();
   type ImgUrl = `https://${string}`;
 
@@ -152,12 +152,10 @@ export function ProfileInfo({ onUpload }: { onUpload: () => void }) {
         <SelfieSnap
           onSnap={async (photo) => {
             setProcessedImageState("processing");
-            await uploadImageAction(photo)
-              .then(() => onUpload())
-              .catch((error: Error) => {
-                console.error(error);
-                setProcessedImageState({ error });
-              });
+            await uploadImage(photo).catch((error: Error) => {
+              console.error(error);
+              setProcessedImageState({ error });
+            });
             // onUpload();
           }}
         />
