@@ -11,10 +11,12 @@ generator client {
 }
 
 model User {
-    id            Int      @id @default(autoincrement())
-    createdAt     DateTime @default(now())
-    privyId       String   @unique
-    socialHandle  String   @unique
-    followerCount Int?
-    pfp           String?
+    id                  Int      @id @default(autoincrement())
+    createdAt           DateTime @default(now())
+    privyId             String   @unique
+    socialHandle        String   @unique
+    socialPlatform      String
+    followerCount       Int?
+    pfp                 String?
+    tokenAllocation_wei String?
 }
