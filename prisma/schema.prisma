@@ -16,6 +16,7 @@ model User {
     privyId             String   @unique
     socialHandle        String   @unique
     socialPlatform      String
+    facecoinCode        String      @unique
     followerCount       Int?
     pfp                 String?
     tokenAllocation_wei String?

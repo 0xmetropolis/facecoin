@@ -32,7 +32,6 @@ export const isValidSocial = (
 const getXAuthToken = async () => {
   // get the a nonce or 0 from redis
   const xAuthTokenNonce = (await redis.get<number>("x_auth_token_nonce")) || 0;
-  console.log("xAuthTokenNonce", xAuthTokenNonce);
 
   const authTokens = process.env.X_AUTH_TOKENS;
   if (!authTokens) return FollowerCountFetchError("X_AUTH_TOKENS is not set");

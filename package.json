@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "pnpx prisma generate"
+    "postinstall": "pnpx prisma generate",
+    "db:browse": "dotenv -e .env.local -- pnpx prisma studio"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
@@ -41,6 +42,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/ws": "^8.5.14",
+    "dotenv": "^16.4.7",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
     "postcss": "^8",

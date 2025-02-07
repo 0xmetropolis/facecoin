@@ -1,10 +1,11 @@
 import { User } from "@prisma/client";
+import { type User as PrivyUser } from "@privy-io/react-auth";
 import { skipToken, useQuery } from "@tanstack/react-query";
 
 //
 // Query Key Definitions
 // ----------------------------------------
-function userQueryId(id?: User["id"]) {
+function userQueryId(id?: PrivyUser["id"]) {
   return ["user", id];
 }
 
@@ -18,8 +19,12 @@ function facecoinBalanceQueryKey(userId?: User["id"]) {
 /**
  * @throws if response was not 200 from server
  */
-async function getUser({ userId }: { userId: number }): Promise<User> {
-  const response = await fetch(`/user/${userId}`, {
+async function getUserByPrivyId({
+  privyId,
+}: {
+  privyId: string;
+}): Promise<User> {
+  const response = await fetch(`/api/user/by/privyId/${privyId}`, {
     headers: {
       Accept: "application/json",
     },
@@ -59,10 +64,10 @@ async function getFacecoinBalance({
 //
 //// React Query Hooks
 // ----------------------------------------
-export const useUser = ({ id }: { id?: number }) =>
+export const useUserByPrivyId = ({ id }: { id?: PrivyUser["id"] }) =>
   useQuery({
     queryKey: userQueryId(id),
-    queryFn: id ? () => getUser({ userId: id }) : skipToken,
+    queryFn: id ? () => getUserByPrivyId({ privyId: id }) : skipToken,
     staleTime: 1000 * 60 * 5,
     enabled: !!id,
   });

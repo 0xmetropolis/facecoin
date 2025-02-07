@@ -35,6 +35,25 @@ const MissingUserFieldsError = (message: string) =>
 export type MissingUserFieldsError = ReturnType<typeof MissingUserFieldsError>;
 
 //
+//// UTILS
+
+function mapUserCountToFacecoinCode(userCount: number) {
+  // eg: 9 users means
+  const nextUserId = userCount.toString();
+
+  const trailingUserIdNumber = nextUserId.at(-1)!;
+
+  const facecoinCode = nextUserId.padEnd(
+    // facecoin codes will be 5 digs long
+    // 88888
+    5,
+    trailingUserIdNumber
+  );
+
+  return facecoinCode;
+}
+
+//
 //// ACTION
 
 export const updateUserFromPrivy = async ({
@@ -45,6 +64,7 @@ export const updateUserFromPrivy = async ({
 }: PrivyOnCompleteParams): Promise<
   "OK" | InvalidSocialError | MissingUserFieldsError | FollowerCountFetchError
 > => {
+  debugger;
   // if the user was already authenticated, we don't need to do anything
   if (wasAlreadyAuthenticated) return "OK";
   // check if the social is valid
@@ -65,14 +85,17 @@ export const updateUserFromPrivy = async ({
   if (!socialHandle) return MissingUserFieldsError("Social handle is missing");
 
   // check if the user exists based on privy id
-  const maybeSavedUser: User | null = await prisma.user.findUnique({
-    where: {
-      privyId: user.id,
-    },
-  });
+  const [maybeSavedUser, userCount] = await Promise.all([
+    prisma.user.findUnique({
+      where: {
+        privyId: user.id,
+      },
+    }),
+    prisma.user.count(),
+  ]);
 
   const userIsUpdatingTheirSocial =
-    maybeSavedUser && maybeSavedUser?.socialHandle !== socialHandle;
+    !!maybeSavedUser && maybeSavedUser?.socialHandle !== socialHandle;
 
   // return OK if they've been created and they're not reauthenticating their social platform
   if (maybeSavedUser && !userIsUpdatingTheirSocial) return "OK";
@@ -90,6 +113,8 @@ export const updateUserFromPrivy = async ({
           throw Error("unimplmented social account");
         })();
 
+  const facecoinCode = mapUserCountToFacecoinCode(userCount);
+
   // user does not exist create the user
   const newUser: Omit<User, "id"> = {
     createdAt: new Date(),
@@ -97,6 +122,7 @@ export const updateUserFromPrivy = async ({
     socialHandle,
     socialPlatform,
     followerCount,
+    facecoinCode,
     pfp: null,
     tokenAllocation_wei: null,
   };

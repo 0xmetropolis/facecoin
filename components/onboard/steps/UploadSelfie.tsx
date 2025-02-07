@@ -11,8 +11,10 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/shadcn/drawer";
+import { Skeleton } from "@/components/shadcn/skeleton";
+import { useUserByPrivyId } from "@/lib/queries/user";
 import { cn } from "@/lib/utils";
-import { usePrivy } from "@privy-io/react-auth";
+import { useUser } from "@privy-io/react-auth";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { X } from "lucide-react";
 import { useRef, useState } from "react";
@@ -84,7 +86,9 @@ const SelfieSnap = ({ onSnap }: { onSnap: (photo: string) => void }) => {
 };
 
 export function UploadSelfie() {
-  const { user } = usePrivy();
+  const { user: privyUser } = useUser();
+  const { data: user } = useUserByPrivyId({ id: privyUser?.id });
+
   type ImgUrl = `https://${string}`;
 
   const [processedImageState, setProcessedImageState] = useState<
@@ -94,8 +98,10 @@ export function UploadSelfie() {
     | ImgUrl
     | { error: Error }
   >("init");
-  const facecoinId = 88888;
-  const twitter = user?.twitter;
+
+  const facecoinId = user?.facecoinCode;
+  const socialHandle = user?.socialHandle;
+  const followerCount = user?.followerCount;
 
   return (
     <div className="flex-1 flex flex-col items-center gap-4 justify-between">
@@ -109,19 +115,30 @@ export function UploadSelfie() {
         ) : (
           <>
             <div className="flex flex-col gap-4 items-center">
-              <div className="flex flex-row items-center space-x-4">
-                <Profile pfp="/facebook-avatar.webp" />
-                <div className="text-left">
-                  <h2 className=" font-semibold">
-                    @{twitter?.username || "username"}
-                  </h2>
-                  <p className="text-sm">{"3234"} followers</p>
+              <div className="flex flex-col gap-4 items-center">
+                <div className="flex flex-row items-center space-x-4">
+                  <Profile pfp="/facebook-avatar.webp" />
+                  <div className="text-left">
+                    <h2 className="font-semibold flex items-center gap-1">
+                      @
+                      {socialHandle || (
+                        <Skeleton className="w-14 h-5 inline-flex" />
+                      )}
+                    </h2>
+                    {followerCount ? (
+                      <p className="text-sm flex items-center gap-1">
+                        {followerCount} followers
+                      </p>
+                    ) : (
+                      <Skeleton className="w-20 h-5" />
+                    )}
+                  </div>
                 </div>
               </div>
+              <DrawerTrigger asChild>
+                <Button className="font-bold">Upload picture</Button>
+              </DrawerTrigger>
             </div>
-            <DrawerTrigger asChild>
-              <Button className="font-bold">Take picture</Button>
-            </DrawerTrigger>
             {typeof processedImageState === "object" &&
               "error" in processedImageState && (
                 <div className="flex flex-col items-center ">

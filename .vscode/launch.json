@@ -11,34 +11,18 @@
       "name": "Next.js: debug client-side",
       "type": "chrome",
       "request": "launch",
+      "preLaunchTask": "prisma studio",
       "url": "http://localhost:3000"
     },
     {
-      "name": "Next.js: debug client-side (Firefox)",
-      "type": "chrome",
-      "request": "launch",
-      "url": "http://localhost:3000",
-      "reAttach": true,
-      "pathMappings": [
-        {
-          "url": "webpack://_N_E",
-          "path": "${workspaceFolder}"
-        }
-      ]
-    },
-    {
       "name": "Next.js: debug full stack",
-      "type": "node",
+      "type": "node-terminal",
       "request": "launch",
-      "program": "${workspaceFolder}/node_modules/.bin/next",
-      "runtimeArgs": ["--inspect"],
-      "skipFiles": ["<node_internals>/**"],
+      "command": "pnpm dev",
       "serverReadyAction": {
-        "action": "debugWithChrome",
-        "killOnServerStop": true,
         "pattern": "- Local:.+(https?://.+)",
         "uriFormat": "%s",
-        "webRoot": "${workspaceFolder}"
+        "action": "debugWithChrome"
       }
     }
   ]
