@@ -3,7 +3,7 @@
 import { TTL } from "@/lib/TTL-timestamp";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { CountdownTimer } from "./CountdownTimer";
+import { CountdownTimer } from "./countdown-timer";
 import { usePathname } from "next/navigation";
 
 export function Header() {
