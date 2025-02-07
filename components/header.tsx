@@ -1,9 +1,15 @@
 "use client";
+
+import { TTL } from "@/lib/TTL-timestamp";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { CountdownTimer } from "./countdown-timer";
+import { usePathname } from "next/navigation";
 
 export function Header() {
-  const showTTL = !window.location.href?.includes("onboard");
+  const pathname = usePathname();
+  const showTTL = !pathname?.includes("onboard");
+
   return (
     <>
       <header className="w-full bg-theme-primary text-primary-foreground py-2 top-0 fixed overscroll-contain">
@@ -18,7 +24,7 @@ export function Header() {
           </Link>
           {showTTL && (
             <div className="flex items-center gap-4">
-              <span className="text-sm">3:16:09:09</span>
+              <CountdownTimer endTime={TTL} />
               <span className="text-sm">Till Liquidity</span>
             </div>
           )}

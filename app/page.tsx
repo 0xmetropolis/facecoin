@@ -1,5 +1,5 @@
-import { UserGrid } from "@/components/user-grid";
 import { Button } from "@/components/shadcn/button";
+import { UserGrid } from "@/components/user-grid";
 import Link from "next/link";
 
 export default function Home() {
