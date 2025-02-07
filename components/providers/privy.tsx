@@ -12,7 +12,7 @@ export default function PrivyProvider({
   return (
     <PrivyProviderBase
       appId={
-        process.env.NEXT_PUBLIC_PRIVY_APP_ID ||
+        process.env["NEXT_PUBLIC_PRIVY_APP_ID"] ||
         (() => {
           throw new Error("NEXT_PUBLIC_PRIVY_APP_ID is not set");
         })()
