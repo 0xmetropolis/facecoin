@@ -1,6 +1,6 @@
 "use client";
 
-import { uploadImage } from "@/actions/uploadImage";
+import { uploadImageAction } from "@/actions";
 import { InfoSection } from "@/components/info-section";
 import { Profile } from "@/components/profile";
 import { Button } from "@/components/shadcn/button";
@@ -152,7 +152,7 @@ export function UploadSelfie() {
         <SelfieSnap
           onSnap={async (photo) => {
             setProcessedImageState("processing");
-            await uploadImage(photo).catch((error: Error) => {
+            await uploadImageAction(photo).catch((error: Error) => {
               console.error(error);
               setProcessedImageState({ error });
             });

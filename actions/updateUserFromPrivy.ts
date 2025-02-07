@@ -40,10 +40,13 @@ export type MissingUserFieldsError = ReturnType<typeof MissingUserFieldsError>;
 export const updateUserFromPrivy = async ({
   user,
   loginAccount,
+  wasAlreadyAuthenticated,
   loginMethod,
 }: PrivyOnCompleteParams): Promise<
   "OK" | InvalidSocialError | MissingUserFieldsError | FollowerCountFetchError
 > => {
+  // if the user was already authenticated, we don't need to do anything
+  if (wasAlreadyAuthenticated) return "OK";
   // check if the social is valid
   if (
     !isValidSocial(loginAccount) ||
@@ -69,7 +72,7 @@ export const updateUserFromPrivy = async ({
   });
 
   const userIsUpdatingTheirSocial =
-    maybeSavedUser && maybeSavedUser?.socialHandle === socialHandle;
+    maybeSavedUser && maybeSavedUser?.socialHandle !== socialHandle;
 
   // return OK if they've been created and they're not reauthenticating their social platform
   if (maybeSavedUser && !userIsUpdatingTheirSocial) return "OK";

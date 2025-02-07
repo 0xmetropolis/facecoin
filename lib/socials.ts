@@ -4,6 +4,7 @@ import {
   FarcasterWithMetadata,
 } from "@privy-io/react-auth";
 import { inlineDecrypt } from "./utils/encryption";
+import redis from "./redis";
 
 export const FollowerCountFetchError = (message: string) =>
   ({
@@ -28,6 +29,28 @@ export const isValidSocial = (
   );
 };
 
+const getXAuthToken = async () => {
+  // get the a nonce or 0 from redis
+  const xAuthTokenNonce = (await redis.get<number>("x_auth_token_nonce")) || 0;
+  console.log("xAuthTokenNonce", xAuthTokenNonce);
+
+  const authTokens = process.env.X_AUTH_TOKENS;
+  if (!authTokens) return FollowerCountFetchError("X_AUTH_TOKENS is not set");
+
+  const tokens: string[] = authTokens.split(",");
+  // get the token at the index of the nonce
+  const token = tokens.at(xAuthTokenNonce % tokens.length);
+
+  if (!token)
+    return FollowerCountFetchError(
+      "No token found - most likely array out of bounds issue"
+    );
+
+  await redis.set("x_auth_token_nonce", xAuthTokenNonce + 1);
+
+  return token;
+};
+
 const getXFollowerCount = async (
   handle: string
 ): Promise<number | FollowerCountFetchError> => {
@@ -37,6 +60,9 @@ const getXFollowerCount = async (
       cache: "force-cache",
       // revalidate every 24 hours
       next: { revalidate: 60 * 60 * 24 },
+      headers: {
+        Authorization: `Bearer ${await getXAuthToken()}`,
+      },
     }
   );
   const body = await response.json();
