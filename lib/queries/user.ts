@@ -5,7 +5,7 @@ import { skipToken, useQuery } from "@tanstack/react-query";
 //
 // Query Key Definitions
 // ----------------------------------------
-function userQueryId(id?: PrivyUser["id"]) {
+function userQueryId(id?: PrivyUser["id"] | User["id"]) {
   return ["user", id];
 }
 
@@ -16,6 +16,7 @@ function facecoinBalanceQueryKey(userId?: User["id"]) {
 //
 // Query Functions
 // ----------------------------------------
+
 /**
  * @throws if response was not 200 from server
  */
@@ -25,6 +26,30 @@ async function getUserByPrivyId({
   privyId: string;
 }): Promise<User> {
   const response = await fetch(`/api/user/by/privyId/${privyId}`, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  if (!response.ok)
+    throw new Error(
+      `Failed to fetch user: ${response.status} ${response.statusText}`
+    );
+
+  const data = await response.json();
+
+  return data as User;
+}
+
+/**
+ * @throws if response was not 200 from server
+ */
+async function getUserById({
+  userId: userId,
+}: {
+  userId: User["id"];
+}): Promise<User> {
+  const response = await fetch(`/api/user/by/userId/${userId}`, {
     headers: {
       Accept: "application/json",
     },
@@ -64,6 +89,15 @@ async function getFacecoinBalance({
 //
 //// React Query Hooks
 // ----------------------------------------
+
+export const useUser = ({ id }: { id?: number }) =>
+  useQuery({
+    queryKey: userQueryId(id),
+    queryFn: id ? () => getUserById({ userId: id }) : skipToken,
+    staleTime: 1000 * 60 * 5,
+    enabled: !!id,
+  });
+
 export const useUserByPrivyId = ({ id }: { id?: PrivyUser["id"] }) =>
   useQuery({
     queryKey: userQueryId(id),

@@ -5,7 +5,7 @@ import {
   isValidSocial,
   type FollowerCountFetchError,
 } from "@/lib/socials";
-import { User } from "@/prisma/types";
+import { User } from "@/lib/types";
 import { PrivyEvents } from "@privy-io/react-auth";
 
 //
@@ -64,7 +64,6 @@ export const updateUserFromPrivy = async ({
 }: PrivyOnCompleteParams): Promise<
   "OK" | InvalidSocialError | MissingUserFieldsError | FollowerCountFetchError
 > => {
-  debugger;
   // if the user was already authenticated, we don't need to do anything
   if (wasAlreadyAuthenticated) return "OK";
   // check if the social is valid

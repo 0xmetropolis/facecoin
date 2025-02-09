@@ -11,6 +11,13 @@ const nextConfig: NextConfig = {
         pathname: "/**",
         search: "",
       },
+      {
+        protocol: "https",
+        hostname: "replicate.delivery",
+        port: "",
+        pathname: "/**",
+        search: "",
+      },
     ],
   },
 };

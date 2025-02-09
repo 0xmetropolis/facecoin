@@ -1,6 +1,5 @@
 "use client";
 
-import { uploadImageAction } from "@/actions";
 import { InfoSection } from "@/components/info-section";
 import { Profile } from "@/components/profile";
 import { Button } from "@/components/shadcn/button";
@@ -8,6 +7,7 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
+  DrawerDescription,
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/shadcn/drawer";
@@ -17,7 +17,8 @@ import { cn } from "@/lib/utils";
 import { useUser } from "@privy-io/react-auth";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { Camera, CameraType } from "react-camera-pro";
 
 const SelfieSnap = ({ onSnap }: { onSnap: (photo: string) => void }) => {
@@ -25,10 +26,10 @@ const SelfieSnap = ({ onSnap }: { onSnap: (photo: string) => void }) => {
   const [cameraLoading, setCameraLoading] = useState(true);
 
   return (
-    <DrawerContent
-      className="h-[calc(100%_-_44px)] rounded-none"
-      aria-describedby="selfie"
-    >
+    <DrawerContent className="h-[calc(100%_-_44px)] rounded-none">
+      <VisuallyHidden>
+        <DrawerDescription>selfie</DrawerDescription>
+      </VisuallyHidden>
       <DrawerClose asChild>
         <button className="absolute top-2 left-2 z-10 ">
           <X />
@@ -88,6 +89,7 @@ const SelfieSnap = ({ onSnap }: { onSnap: (photo: string) => void }) => {
 export function UploadSelfie() {
   const { user: privyUser } = useUser();
   const { data: user } = useUserByPrivyId({ id: privyUser?.id });
+  const router = useRouter();
 
   type ImgUrl = `https://${string}`;
 
@@ -102,14 +104,28 @@ export function UploadSelfie() {
   const facecoinId = user?.facecoinCode;
   const socialHandle = user?.socialHandle;
   const followerCount = user?.followerCount;
+  const isProcessing = processedImageState === "processing";
+
+  const [dots, setDots] = useState("");
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isProcessing) {
+      interval = setInterval(() => {
+        setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
+      }, 800);
+    }
+    return () => interval && clearInterval(interval);
+  }, [isProcessing]);
 
   return (
     <div className="flex-1 flex flex-col items-center gap-4 justify-between">
       <Drawer>
         {processedImageState === "processing" ? (
           <div className="flex-1 flex items-center">
-            <h3 className="font-semibold">
-              FaceCoin is processing your face...
+            <h3 className="font-semibold flex items-center">
+              <span>FaceCoin is processing your face</span>
+              <span className="w-[18px]">{dots}</span>
             </h3>
           </div>
         ) : (
@@ -168,12 +184,17 @@ export function UploadSelfie() {
 
         <SelfieSnap
           onSnap={async (photo) => {
+            if (!user?.id) return;
             setProcessedImageState("processing");
-            await uploadImageAction(photo).catch((error: Error) => {
-              console.error(error);
-              setProcessedImageState({ error });
-            });
-            // onUpload();
+            await fetch("/api/uploadSelfie", {
+              method: "POST",
+              body: JSON.stringify({ photo }),
+            })
+              .then(() => router.replace(`/onboard/${user.id}/success`))
+              .catch((error: Error) => {
+                console.error(error);
+                setProcessedImageState({ error });
+              });
           }}
         />
       </Drawer>
