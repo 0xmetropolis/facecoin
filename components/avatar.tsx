@@ -20,7 +20,7 @@ export const Avatar = ({ userId }: { userId: number }) => {
           alt={user?.socialHandle || "loading user..."}
           src={
             !isLoading && user?.pfp
-              ? `${user.pfp}?${new Date().toISOString()}`
+              ? `${user.pfp}?lastmod=${new Date().toISOString()}`
               : "/facebook-avatar.webp"
           }
           fill
