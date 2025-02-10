@@ -4,12 +4,11 @@ import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
 import { Textarea } from "@/components/shadcn/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { type StyleizePhotoInput } from "@/lib/replicate";
+import { STYLE_OPTIONS, type StyleizePhotoInput } from "@/lib/replicate";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Toaster } from "../shadcn/toaster";
-import { STYLE_OPTIONS } from "@/app/api/replicate-params/route";
 
 type Props = {
   initialParams: StyleizePhotoInput;

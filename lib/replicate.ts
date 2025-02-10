@@ -1,5 +1,6 @@
 import Replicate from "replicate";
 import redis from "./redis";
+import { z } from "zod";
 
 export type StyleizePhotoInput = {
   prompt: string;
@@ -10,6 +11,29 @@ export type StyleizePhotoInput = {
   negative_prompt: string;
   style_strength_ratio: number;
 };
+
+export const STYLE_OPTIONS = [
+  "(No style)",
+  "Cinematic",
+  "Disney Charactor",
+  "Digital Art",
+  "Photographic (Default)",
+  "Fantasy art",
+  "Neonpunk",
+  "Enhance",
+  "Comic book",
+  "Lowpoly",
+  "Line art",
+] as const;
+
+export const styleizeInputSchema = z.object({
+  prompt: z.string().min(1),
+  num_steps: z.number().int().min(1).max(100),
+  style_name: z.enum(STYLE_OPTIONS),
+  guidance_scale: z.number().min(1).max(20),
+  negative_prompt: z.string(),
+  style_strength_ratio: z.number().min(0).max(100),
+});
 
 export const DEFAULT_MODEL_INPUT: StyleizePhotoInput = {
   prompt:
