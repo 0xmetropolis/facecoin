@@ -12,10 +12,12 @@ import {
   DrawerTrigger,
 } from "@/components/shadcn/drawer";
 import { Skeleton } from "@/components/shadcn/skeleton";
-import { useUserByPrivyId } from "@/lib/queries/user";
+import { userQueryId, useUserByPrivyId } from "@/lib/queries/user";
+import { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useUser } from "@privy-io/react-auth";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -90,6 +92,7 @@ export function UploadSelfie() {
   const { user: privyUser } = useUser();
   const { data: user } = useUserByPrivyId({ id: privyUser?.id });
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   type ImgUrl = `https://${string}`;
 
@@ -133,7 +136,7 @@ export function UploadSelfie() {
             <div className="flex flex-col gap-4 items-center">
               <div className="flex flex-col gap-4 items-center">
                 <div className="flex flex-row items-center space-x-4">
-                  <Profile pfp="/facebook-avatar.webp" />
+                  <Profile pfp={user?.pfp || "/facebook-avatar.webp"} />
                   <div className="text-left">
                     <h2 className="font-semibold flex items-center gap-1">
                       @
@@ -190,7 +193,22 @@ export function UploadSelfie() {
               method: "POST",
               body: JSON.stringify({ photo }),
             })
-              .then(() => router.replace(`/onboard/${user.id}/success`))
+              .then(async (response) => ({
+                ...response,
+                body: (await response.json()) as {
+                  message: string;
+                  updatedUser: User;
+                },
+              }))
+              .then((res) => {
+                if (res.body.message === "OK") {
+                  queryClient.setQueryData(
+                    userQueryId(user.id),
+                    res.body.updatedUser
+                  );
+                  router.replace(`/onboard/${user.id}/success`);
+                } else throw new Error(res.body.message);
+              })
               .catch((error: Error) => {
                 console.error(error);
                 setProcessedImageState({ error });

@@ -18,7 +18,11 @@ export const Avatar = ({ userId }: { userId: number }) => {
             isLoading && "animate-pulse opacity-50"
           )}
           alt={user?.socialHandle || "loading user..."}
-          src={isLoading ? "/facebook-avatar.webp" : user?.pfp || ""}
+          src={
+            !isLoading && user?.pfp
+              ? `${user.pfp}?${new Date().toISOString()}`
+              : "/facebook-avatar.webp"
+          }
           fill
         />
       </div>

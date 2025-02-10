@@ -1,25 +1,46 @@
-import { deleteImageFromBlob, saveImageToBlob } from "@/lib/blob-store";
+import { deleteFromBlob, saveDataToBlob } from "@/lib/blob-store";
 import prisma from "@/lib/prisma";
 import privy from "@/lib/privy";
-import { styleizePhoto } from "@/lib/replicate";
+import * as Replicate from "@/lib/replicate";
 import { determineTokenAllocation } from "@/lib/tokenAllocation";
 import { User } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-const saveSelfieToBlobStore = async (userId: User["id"], selfie: string) => {
-  const filename = `selfie/${userId}`;
-  const url = await saveImageToBlob(filename, selfie);
+const saveReplicatePhotoToBlobStore = async (
+  userId: User["id"],
+  replicateUrl: string
+) => {
+  const photo: ArrayBuffer = await fetch(replicateUrl).then((res) =>
+    res.arrayBuffer()
+  );
+
+  const filename = `pfp/${userId}.jpeg`;
+  const url = await saveDataToBlob(filename, photo);
+
+  return url;
+};
+
+const saveSelfieToBlobStore = async (
+  userId: User["id"],
+  photoDataUrl: string
+) => {
+  const photo: ArrayBuffer = await fetch(photoDataUrl).then((res) =>
+    res.arrayBuffer()
+  );
+
+  const filename = `selfie/${userId}.jpeg`;
+  const url = await saveDataToBlob(filename, photo);
 
   return url;
 };
 
 const deleteSelfieFromBlobStore = async (userId: User["id"]) => {
-  const filename = `selfie/${userId}`;
-  await deleteImageFromBlob(filename);
+  const filename = `selfie/${userId}.jpeg`;
+  await deleteFromBlob(filename);
 };
 
 export const POST = async (req: NextRequest) => {
-  const { photo } = await req.json();
+  const { photo: photoDataUrl } = await req.json();
 
   const privyToken = req.cookies.get("privy-token")?.value;
 
@@ -43,25 +64,34 @@ export const POST = async (req: NextRequest) => {
   if (!user)
     return NextResponse.json({ error: "User not found" }, { status: 401 });
 
-  const savedImgUrl = await saveSelfieToBlobStore(user.id, photo);
+  const savedImgUrl = await saveSelfieToBlobStore(user.id, photoDataUrl);
 
-  const [tokenAllocation, styledPhoto] = await Promise.all([
+  const output = await Promise.all([
+    // determine their token allocation
     determineTokenAllocation(user),
-    styleizePhoto({ imgUrl: savedImgUrl }),
+    // style the photo
+    Replicate.styleizePhoto({ imgUrl: savedImgUrl }).then((img) =>
+      saveReplicatePhotoToBlobStore(user.id, img)
+    ),
   ]).catch(async (e) => {
+    console.error(e);
     // delete the selfie from blob store if the photo is not styled
     deleteSelfieFromBlobStore(user.id);
-    throw e;
+    return e as Error;
   });
 
-  // do not await
-  prisma.user.update({
+  if (output instanceof Error)
+    return NextResponse.json({ error: output.message }, { status: 500 });
+
+  const [tokenAllocation, pfpFromReplicate] = output;
+
+  const updatedUser = await prisma.user.update({
     where: {
       privyId: privyResponse,
     },
     data: {
       tokenAllocation_wei: tokenAllocation,
-      pfp: styledPhoto,
+      pfp: pfpFromReplicate,
     },
   });
 
@@ -69,5 +99,5 @@ export const POST = async (req: NextRequest) => {
   // delete the selfie from blob store after stylization
   deleteSelfieFromBlobStore(user.id);
 
-  return NextResponse.json({ message: "OK" });
+  return NextResponse.json({ message: "OK", updatedUser });
 };

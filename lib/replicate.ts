@@ -32,7 +32,6 @@ const replicate = new Replicate({
 export const styleizePhoto = async ({ imgUrl }: { imgUrl: string }) => {
   const input =
     (await redis.get(REPLICATE_INPUT_PARAM_CACHE_KEY)) || DEFAULT_MODEL_INPUT;
-
   const output = await replicate.run(
     "tencentarc/photomaker-style:467d062309da518648ba89d226490e02b8ed09b5abc15026e54e31c5a8cd0769",
     {

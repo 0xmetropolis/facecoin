@@ -5,7 +5,7 @@ import { z } from "zod";
 export const STYLE_OPTIONS = [
   "(No style)",
   "Cinematic",
-  "Disney Character",
+  "Disney Charactor",
   "Digital Art",
   "Photographic (Default)",
   "Fantasy art",

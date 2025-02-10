@@ -5,7 +5,7 @@ import { skipToken, useQuery } from "@tanstack/react-query";
 //
 // Query Key Definitions
 // ----------------------------------------
-function userQueryId(id?: PrivyUser["id"] | User["id"]) {
+export function userQueryId(id?: PrivyUser["id"] | User["id"]) {
   return ["user", id];
 }
 
