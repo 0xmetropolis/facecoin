@@ -19,7 +19,11 @@ export function Header() {
             showTTL ? "justify-between" : "justify-center"
           )}
         >
-          <Link href="/" className="text-[32px] font-bold w-fit">
+          <Link
+            href="/"
+            className="text-[32px] font-bold w-fit"
+            prefetch={false}
+          >
             facecoin
           </Link>
           {showTTL && (
