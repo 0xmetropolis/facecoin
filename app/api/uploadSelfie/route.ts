@@ -90,7 +90,7 @@ export const POST = async (req: NextRequest) => {
   });
 
   if (output instanceof Error)
-    return NextResponse.json({ error: output.message }, { status: 500 });
+    return NextResponse.json({ message: output.message }, { status: 500 });
 
   const [tokenAllocation, pfpFromReplicate] = output;
 

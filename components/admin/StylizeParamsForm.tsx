@@ -142,13 +142,13 @@ export function StylizeParamsForm({ initialParams }: Props) {
               value={params.guidance_scale}
               onChange={handleChange}
               min={1}
-              max={20}
+              max={10}
               step="0.1"
               required
             />
             <p className="text-sm text-gray-500">
               Guidance scale. A guidance scale of 1 corresponds to doing no
-              classifier free guidance. Range: 1-20
+              classifier free guidance. Range: 1-10
             </p>
           </div>
 

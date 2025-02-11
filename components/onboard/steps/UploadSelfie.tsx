@@ -165,7 +165,7 @@ export function UploadSelfie() {
                     An error occured!
                   </h3>
                   <p className="text-red-500 text-sm">
-                    {JSON.stringify(processedImageState.error)}
+                    {processedImageState.error.message}
                   </p>
                 </div>
               )}
@@ -207,7 +207,10 @@ export function UploadSelfie() {
                     res.body.updatedUser
                   );
                   router.replace(`/onboard/${user.id}/success`);
-                } else throw new Error(res.body.message);
+                } else
+                  setProcessedImageState({
+                    error: new Error(res.body.message),
+                  });
               })
               .catch((error: Error) => {
                 console.error(error);
