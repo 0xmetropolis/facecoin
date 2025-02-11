@@ -165,7 +165,7 @@ export function UploadSelfie() {
                     An error occured!
                   </h3>
                   <p className="text-red-500 text-sm">
-                    {processedImageState.error.message}
+                    {JSON.stringify(processedImageState.error)}
                   </p>
                 </div>
               )}

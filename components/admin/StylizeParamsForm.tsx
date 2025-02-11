@@ -149,11 +149,11 @@ export function StylizeParamsForm({ initialParams }: Props) {
               name="style_strength_ratio"
               value={params.style_strength_ratio}
               onChange={handleChange}
-              min={0}
+              min={15}
               max={100}
               required
             />
-            <p className="text-sm text-gray-500">Range: 0-100</p>
+            <p className="text-sm text-gray-500">Range: 15-100</p>
           </div>
         </div>
 
