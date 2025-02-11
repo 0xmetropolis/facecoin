@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { Avatar, LoadingAvatar } from "./avatar/avatar";
 
 const LoadingUserGrid = () =>
-  Array.from({ length: 6 }).map((_, index) => <LoadingAvatar key={index} />);
+  Array.from({ length: 3 }).map((_, index) => <LoadingAvatar key={index} />);
 
 const ResolvedUserGrid = async () => {
   const users = await prisma.user.findMany({
