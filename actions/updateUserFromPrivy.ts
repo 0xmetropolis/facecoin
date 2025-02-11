@@ -80,15 +80,6 @@ export const updateUserFromPrivy = async ({
       : // or the twitter handle
         loginAccount.username;
 
-  const socialPlatform: "twitter" | "farcaster" =
-    loginMethod === "twitter"
-      ? "twitter"
-      : loginMethod === "farcaster"
-      ? "farcaster"
-      : (() => {
-          throw Error("unimplmented social account");
-        })();
-
   // check if the social handle exists
   if (!socialHandle) return MissingUserFieldsError("Social handle is missing");
 
@@ -96,8 +87,7 @@ export const updateUserFromPrivy = async ({
   const [maybeSavedUser, userCount] = await Promise.all([
     prisma.user.findUnique({
       where: {
-        socialHandle: socialHandle,
-        socialPlatform: socialPlatform,
+        privyId: privyUser.id,
       },
     }),
     prisma.user.count(),
@@ -113,11 +103,19 @@ export const updateUserFromPrivy = async ({
   const followerCount = await getFollowerCount(loginMethod, socialHandle);
   if (isFollowerCountError(followerCount)) return followerCount;
 
+  const socialPlatform: "twitter" | "farcaster" =
+    loginMethod === "twitter"
+      ? "twitter"
+      : loginMethod === "farcaster"
+      ? "farcaster"
+      : (() => {
+          throw Error("unimplmented social account");
+        })();
+
   const facecoinCode = mapUserCountToFacecoinCode(userCount);
 
   // user does not exist create the user
-  const newUser: Omit<User, "id"> = {
-    createdAt: new Date(),
+  const newUser: Omit<User, "id" | "createdAt"> = {
     privyId: privyUser.id,
     socialHandle,
     socialPlatform,
@@ -129,10 +127,7 @@ export const updateUserFromPrivy = async ({
 
   // upsert the user
   await prisma.user.upsert({
-    where: {
-      socialHandle: socialHandle,
-      socialPlatform: socialPlatform,
-    },
+    where: { privyId: privyUser.id },
     update: newUser,
     create: newUser,
   });
