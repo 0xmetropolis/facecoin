@@ -6,6 +6,12 @@ import { determineTokenAllocation } from "@/lib/tokenAllocation";
 import { User } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
+//
+//// CONFIG
+export const maxDuration = 30;
+
+//
+//// HELPERS
 const saveReplicatePhotoToBlobStore = async (
   userId: User["id"],
   replicateUrl: string
@@ -39,6 +45,8 @@ const deleteSelfieFromBlobStore = async (userId: User["id"]) => {
   await deleteFromBlob(filename);
 };
 
+//
+//// ROUTE HANDLER
 export const POST = async (req: NextRequest) => {
   const { photo: photoDataUrl } = await req.json();
 

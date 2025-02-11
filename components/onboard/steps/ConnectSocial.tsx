@@ -15,6 +15,7 @@ export function ConnectSocials({
 }) {
   const { logout } = useLogout();
   if (isLoading) return <LoadingIcon />;
+
   return (
     <div className="flex flex-col gap-2">
       <Button onClick={initTwitter} className="font-bold">

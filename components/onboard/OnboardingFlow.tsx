@@ -12,6 +12,7 @@ import { Button } from "../shadcn/button";
 import { ConnectSocials } from "./steps/ConnectSocial";
 import { UploadSelfie } from "./steps/UploadSelfie";
 import { useUserByPrivyId } from "@/lib/queries/user";
+import { LoadingIcon } from "../loading-icon";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const STEPS = ["init", "connect", "selfie", "review"] as const;
@@ -45,11 +46,11 @@ export function OnboardingFlow() {
   //
   //// HANDLERS
   const initFC = () => {
-    login({ loginMethods: ["farcaster"], disableSignup: true });
+    login({ loginMethods: ["farcaster"], disableSignup: false });
   };
 
   const initTwitter = () => {
-    initOAuth({ provider: "twitter", disableSignup: true });
+    initOAuth({ provider: "twitter", disableSignup: false });
   };
 
   //
@@ -64,7 +65,12 @@ export function OnboardingFlow() {
     if (userIsLoggedIn && ready) setCurrentStep("selfie");
   }, [userIsLoggedIn, ready]);
 
-  if (!ready) return null;
+  if (!ready || currentStep === "init" || isLoading)
+    return (
+      <div className="flex flex-col justify-center items-center flex-1">
+        <LoadingIcon />
+      </div>
+    );
 
   return (
     <div className="flex flex-col justify-center items-center flex-1">
