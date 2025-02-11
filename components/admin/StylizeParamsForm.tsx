@@ -89,7 +89,8 @@ export function StylizeParamsForm({ initialParams }: Props) {
             required
           />
           <p className="text-sm text-gray-500">
-            The main prompt for image generation
+            Prompt. Example: &quot;a photo of a man/woman img&quot;. The phrase
+            &quot;img&quot; is the trigger word.
           </p>
         </div>
 
@@ -101,11 +102,13 @@ export function StylizeParamsForm({ initialParams }: Props) {
               name="num_steps"
               value={params.num_steps}
               onChange={handleChange}
-              min={1}
+              min={20}
               max={100}
               required
             />
-            <p className="text-sm text-gray-500">Range: 1-100</p>
+            <p className="text-sm text-gray-500">
+              Number of sample steps: Range: 20-100
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -123,6 +126,10 @@ export function StylizeParamsForm({ initialParams }: Props) {
                 </option>
               ))}
             </select>
+            <p className="text-sm text-gray-500">
+              Style template. The style template will add a style-specific
+              prompt and negative prompt to the users prompt.
+            </p>
           </div>
         </div>
 
@@ -139,7 +146,10 @@ export function StylizeParamsForm({ initialParams }: Props) {
               step="0.1"
               required
             />
-            <p className="text-sm text-gray-500">Range: 1-20</p>
+            <p className="text-sm text-gray-500">
+              Guidance scale. A guidance scale of 1 corresponds to doing no
+              classifier free guidance. Range: 1-20
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -150,10 +160,12 @@ export function StylizeParamsForm({ initialParams }: Props) {
               value={params.style_strength_ratio}
               onChange={handleChange}
               min={15}
-              max={100}
+              max={50}
               required
             />
-            <p className="text-sm text-gray-500">Range: 15-100</p>
+            <p className="text-sm text-gray-500">
+              Style strength (%): Range: 15-50
+            </p>
           </div>
         </div>
 
@@ -166,7 +178,8 @@ export function StylizeParamsForm({ initialParams }: Props) {
             placeholder="Elements to exclude from generation"
           />
           <p className="text-sm text-gray-500">
-            Elements to exclude from generation
+            Negative Prompt. The negative prompt should NOT contain the trigger
+            word.
           </p>
         </div>
 
