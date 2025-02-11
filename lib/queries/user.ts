@@ -86,6 +86,15 @@ async function getFacecoinBalance({
   return data as { balance: number; usdValue: number };
 }
 
+async function getUsers() {
+  const users = await fetch(`/api/user/all`);
+  const usersData: User[] | { error: string; details: string } =
+    await users.json();
+  if (!users.ok || "error" in usersData) throw usersData; // will be an error
+
+  return usersData;
+}
+
 //
 //// React Query Hooks
 // ----------------------------------------
@@ -112,4 +121,12 @@ export const useFacecoinBalance = ({ userId }: { userId?: number }) =>
     queryFn: userId ? () => getFacecoinBalance({ userId }) : skipToken,
     // staleTime: 1000 * 60 * 4,
     enabled: !!userId,
+  });
+
+export const useUsers = () =>
+  useQuery({
+    queryKey: ["users"],
+    queryFn: () => getUsers(),
+    // 1 minute
+    staleTime: 1000 * 60 * 1,
   });

@@ -4,6 +4,7 @@ import privy from "@/lib/privy";
 import * as Replicate from "@/lib/replicate";
 import { determineTokenAllocation } from "@/lib/tokenAllocation";
 import { User } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 //
@@ -106,6 +107,9 @@ export const POST = async (req: NextRequest) => {
   // do not await
   // delete the selfie from blob store after stylization
   deleteSelfieFromBlobStore(user.id);
+
+  // revalidate the home page
+  revalidatePath("/");
 
   return NextResponse.json({ message: "OK", updatedUser });
 };

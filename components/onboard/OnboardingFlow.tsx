@@ -1,6 +1,7 @@
 "use client";
 
 import { updateUserFromPrivyAction } from "@/actions";
+import { useUserByPrivyId } from "@/lib/queries/user";
 import {
   useLogin,
   useLoginWithOAuth,
@@ -8,11 +9,10 @@ import {
   usePrivy,
 } from "@privy-io/react-auth";
 import { useEffect, useState } from "react";
+import { LoadingIcon } from "../loading-icon";
 import { Button } from "../shadcn/button";
 import { ConnectSocials } from "./steps/ConnectSocial";
 import { UploadSelfie } from "./steps/UploadSelfie";
-import { useUserByPrivyId } from "@/lib/queries/user";
-import { LoadingIcon } from "../loading-icon";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const STEPS = ["init", "connect", "selfie", "review"] as const;
@@ -76,16 +76,11 @@ export function OnboardingFlow() {
     <div className="flex flex-col justify-center items-center flex-1">
       {error && <div className="text-red-500 capitalize">{error}</div>}
       {currentStep === "connect" && (
-        <ConnectSocials
-          initFC={initFC}
-          initTwitter={initTwitter}
-          isLoading={isLoading}
-        />
+        <ConnectSocials initFC={initFC} initTwitter={initTwitter} />
       )}
       {currentStep === "selfie" && <UploadSelfie />}
 
-      {/* <pre className="text-xs">{JSON.stringify(user, null, 2)}</pre> */}
-      {userIsLoggedIn ? <Button onClick={logout}>Logout</Button> : null}
+      {!!userIsLoggedIn ? <Button onClick={logout}>Logout</Button> : null}
     </div>
   );
 }

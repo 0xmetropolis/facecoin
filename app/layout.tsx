@@ -3,7 +3,6 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { cn } from "../lib/utils";
 import { Header } from "@/components/header";
-import type React from "react"; // Added import for React
 
 const inter = Inter({ subsets: ["latin"] });
 

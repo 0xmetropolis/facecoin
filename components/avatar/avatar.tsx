@@ -1,13 +1,11 @@
-"use client";
-
-import { useUser } from "@/lib/queries/user";
+import { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { formatEther } from "viem";
-import { Skeleton } from "./shadcn/skeleton";
+import { Skeleton } from "../shadcn/skeleton";
 
-export const Avatar = ({ userId }: { userId: number }) => {
-  const { data: user, isLoading } = useUser({ id: userId });
+export const Avatar = ({ user }: { user?: User }) => {
+  const isLoading = !user;
 
   return (
     <div className="flex flex-col gap-2 w-32">
@@ -53,3 +51,5 @@ export const Avatar = ({ userId }: { userId: number }) => {
     </div>
   );
 };
+
+export const LoadingAvatar = () => <Avatar />;
