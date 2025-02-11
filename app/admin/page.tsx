@@ -2,6 +2,8 @@ import { StylizeParamsForm } from "@/components/admin/StylizeParamsForm";
 import redis from "@/lib/redis";
 import { DEFAULT_MODEL_INPUT, type StyleizePhotoInput } from "@/lib/replicate";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPage() {
   // Fetch initial values from Redis
   const paramsStr = await redis.get<StyleizePhotoInput>(
