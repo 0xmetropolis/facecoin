@@ -93,11 +93,11 @@ export const updateUserFromPrivy = async ({
     prisma.user.count(),
   ]);
 
-  const userIsUpdatingTheirSocial =
-    !!maybeSavedUser && maybeSavedUser?.socialHandle !== socialHandle;
-
+  console.log("maybeSavedUser", maybeSavedUser);
+  console.log("socialHandle", socialHandle);
   // return OK if they've been created and they're not reauthenticating their social platform
-  if (maybeSavedUser && !userIsUpdatingTheirSocial) return "OK";
+  if (maybeSavedUser && maybeSavedUser.socialHandle === socialHandle)
+    return "OK";
 
   // snag their follower count from the platform of choice
   const followerCount = await getFollowerCount(loginMethod, socialHandle);
