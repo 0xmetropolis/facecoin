@@ -1,13 +1,14 @@
+import { FACECOIN_TOKEN_ADDRESS } from "@/lib/facecoin-token";
 import prisma from "@/lib/prisma";
 import privy from "@/lib/privy";
 import * as Replicate from "@/lib/replicate";
-import { determineTokenAllocation } from "@/lib/tokenAllocation";
+import TokenAllocator from "@/lib/tokenAllocation";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import {
-  saveSelfieToBlobStore,
-  saveReplicatePhotoToBlobStore,
   deleteSelfieFromBlobStore,
+  saveReplicatePhotoToBlobStore,
+  saveSelfieToBlobStore,
 } from "./utils";
 
 //
@@ -39,42 +40,54 @@ export const POST = async (req: NextRequest) => {
   });
 
   if (!user)
-    return NextResponse.json({ error: "User not found" }, { status: 401 });
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+  if (user.followerCount === null || user.followerCount === 0)
+    return NextResponse.json(
+      { error: "User has no followers :/" },
+      { status: 401 }
+    );
 
   const savedImgUrl = await saveSelfieToBlobStore(user.id, photoDataUrl);
 
   const output = await Promise.all([
     // determine their token allocation
-    determineTokenAllocation(user),
+    TokenAllocator.new(FACECOIN_TOKEN_ADDRESS).then((allocator) =>
+      allocator.addUser({
+        followerCount: user.followerCount!,
+        // they're at the booth
+        isInPerson: true,
+      })
+    ),
     // style the photo
     Replicate.styleizePhoto({ imgUrl: savedImgUrl }).then((img) =>
       saveReplicatePhotoToBlobStore(user.id, img)
     ),
-  ]).catch(async (e) => {
-    console.error(e);
-    // delete the selfie from blob store if the photo is not styled
-    deleteSelfieFromBlobStore(user.id);
-    return e as Error;
-  });
+  ])
+    .catch((e) => {
+      console.error(e);
+
+      return e as Error;
+    })
+    .finally(() =>
+      // delete the selfie from blob store
+      deleteSelfieFromBlobStore(user.id)
+    );
 
   if (output instanceof Error)
     return NextResponse.json({ message: output.message }, { status: 500 });
 
-  const [tokenAllocation, pfpFromReplicate] = output;
+  const [allacatorResult, pfpFromReplicate] = output;
 
   const updatedUser = await prisma.user.update({
     where: {
       privyId: privyResponse,
     },
     data: {
-      tokenAllocation_wei: tokenAllocation,
+      tokenAllocation_wei: allacatorResult.allocation_wei.toString(),
       pfp: pfpFromReplicate,
     },
   });
-
-  // do not await
-  // delete the selfie from blob store after stylization
-  deleteSelfieFromBlobStore(user.id);
 
   // revalidate the home page
   revalidatePath("/");
