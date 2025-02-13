@@ -1,10 +1,9 @@
-import { AdminDashboard } from "@/components/admin/Dashboard";
 import { protectPageWithAdminAuth } from "@/lib/adminAuth";
 
 export default async function AdminPage() {
   await protectPageWithAdminAuth({
-    callbackToOnComplete: "/admin",
+    callbackToOnComplete: "/admin/distribution-weights",
   });
 
-  return <AdminDashboard />;
+  return <p className="text-white">todo</p>;
 }

@@ -1,45 +1,37 @@
 import prisma from "@/lib/prisma";
-import privy from "@/lib/privy";
 import * as Replicate from "@/lib/replicate";
 import { determineTokenAllocation } from "@/lib/tokenAllocation";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import {
-  saveSelfieToBlobStore,
-  saveReplicatePhotoToBlobStore,
   deleteSelfieFromBlobStore,
-} from "./utils";
+  saveReplicatePhotoToBlobStore,
+  saveSelfieToBlobStore,
+} from "../utils";
 
 //
 //// CONFIG
 export const maxDuration = 30;
 
 //
-//// ROUTE HANDLER
+//// ROUTE HANDLER FOR ADMIN IS BOOTH FLOW
 export const POST = async (req: NextRequest) => {
-  const { photo: photoDataUrl } = await req.json();
+  const { photo: photoDataUrl, facecoinId } = await req.json();
 
-  const privyToken = req.cookies.get("privy-token")?.value;
+  const admin_token = req.cookies.get("admin_token");
+  const isAuthenticated = admin_token?.value === process.env.ADMIN_PASSWORD;
 
-  if (!privyToken)
-    return NextResponse.json({ error: "No privy token" }, { status: 401 });
-
-  const privyResponse = await privy
-    .verifyAuthToken(privyToken)
-    .then((user) => user.userId)
-    .catch((e) => e as Error);
-
-  if (privyResponse instanceof Error)
-    return NextResponse.json({ error: privyResponse.message }, { status: 401 });
+  if (!isAuthenticated)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const user = await prisma.user.findUnique({
     where: {
-      privyId: privyResponse,
+      facecoinCode: facecoinId,
     },
   });
 
   if (!user)
-    return NextResponse.json({ error: "User not found" }, { status: 401 });
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
 
   const savedImgUrl = await saveSelfieToBlobStore(user.id, photoDataUrl);
 
@@ -64,7 +56,7 @@ export const POST = async (req: NextRequest) => {
 
   const updatedUser = await prisma.user.update({
     where: {
-      privyId: privyResponse,
+      facecoinCode: facecoinId,
     },
     data: {
       tokenAllocation_wei: tokenAllocation,

@@ -5,7 +5,7 @@ import { Input } from "@/components/shadcn/input";
 import { Textarea } from "@/components/shadcn/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { STYLE_OPTIONS, type StyleizePhotoInput } from "@/lib/replicate";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Toaster } from "../shadcn/toaster";
@@ -14,7 +14,7 @@ type Props = {
   initialParams: StyleizePhotoInput;
 };
 
-export function StylizeParamsForm({ initialParams }: Props) {
+export function ReplicateParamsForm({ initialParams }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [params, setParams] = useState<StyleizePhotoInput>(initialParams);
   const { toast } = useToast();
@@ -53,9 +53,7 @@ export function StylizeParamsForm({ initialParams }: Props) {
 
       const data = await response.json();
 
-      if (!data.success) {
-        throw new Error(data.error);
-      }
+      if (!data.success) throw new Error(data.error);
 
       toast({
         title: "Settings saved",
@@ -184,9 +182,16 @@ export function StylizeParamsForm({ initialParams }: Props) {
         </div>
 
         <div className="flex gap-2 justify-between">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Updating..." : "Update Parameters"}
-          </Button>
+          <div className="flex gap-2">
+            <Link href="/admin">
+              <Button type="button" variant="secondary">
+                <ArrowLeft />
+              </Button>
+            </Link>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Updating..." : "Update Parameters"}
+            </Button>
+          </div>
           <Link href="/onboard" target="_blank">
             <Button type="button" variant="secondary">
               Try out /onboard <ArrowRight />

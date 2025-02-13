@@ -1,0 +1,81 @@
+@keyframes shine {
+  from {
+    transform: translateY(100%) rotate(45deg);
+  }
+  to {
+    transform: translateY(-100%) rotate(45deg);
+  }
+}
+
+.xbox-menu-item {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.xbox-menu-item:hover {
+  transform: translateX(5px);
+  background: linear-gradient(
+    90deg,
+    rgba(133, 196, 65, 0.1),
+    rgba(133, 196, 65, 0.2)
+  );
+}
+
+.xbox-menu-item::before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: #85c441;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.xbox-menu-item.selected::before {
+  opacity: 1;
+}
+
+.xbox-menu-item.selected::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(133, 196, 65, 0.1),
+    rgba(133, 196, 65, 0.2)
+  );
+  filter: blur(4px);
+  opacity: 0.5;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+}
+
+.xbox-orb {
+  animation: float 6s ease-in-out infinite;
+}
+
+.admin-background {
+  transition: transform 0.5s ease-out;
+}
+
+.parallax-container {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.parallax-layer {
+  transition: transform 100ms ease-out;
+  will-change: transform;
+}
