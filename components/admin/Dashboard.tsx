@@ -30,6 +30,12 @@ const MENU_OPTIONS: MenuOption[] = [
     type: "button",
     link: "/admin/distribution-weights",
   },
+  {
+    id: 3,
+    label: "LIQUIDITY PARAMETERS",
+    type: "button",
+    link: "/admin/liquidity-params",
+  },
 ];
 
 const useMousePosition = () => {
@@ -52,27 +58,30 @@ const useMousePosition = () => {
 
 export function AdminDashboard() {
   const mousePosition = useMousePosition();
-  
+
   // Add useEffect for initial focus
   useEffect(() => {
     // Focus the first menu item on component mount
-    const firstMenuItem = document.querySelector<HTMLAnchorElement>('[role="menuitem"]');
+    const firstMenuItem =
+      document.querySelector<HTMLAnchorElement>('[role="menuitem"]');
     firstMenuItem?.focus();
   }, []);
 
   // Add keyboard navigation handler
   const handleKeyDown = (event: React.KeyboardEvent, currentIndex: number) => {
-    const menuItems = document.querySelectorAll<HTMLAnchorElement>('[role="menuitem"]');
-    
+    const menuItems =
+      document.querySelectorAll<HTMLAnchorElement>('[role="menuitem"]');
+
     switch (event.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         event.preventDefault();
         const nextIndex = (currentIndex + 1) % menuItems.length;
         menuItems[nextIndex]?.focus();
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         event.preventDefault();
-        const prevIndex = currentIndex - 1 < 0 ? menuItems.length - 1 : currentIndex - 1;
+        const prevIndex =
+          currentIndex - 1 < 0 ? menuItems.length - 1 : currentIndex - 1;
         menuItems[prevIndex]?.focus();
         break;
     }
@@ -133,11 +142,7 @@ export function AdminDashboard() {
       </div>
 
       {/* Updated menu items */}
-      <nav 
-        className="space-y-3" 
-        role="navigation"
-        aria-label="Admin menu"
-      >
+      <nav className="space-y-3" role="navigation" aria-label="Admin menu">
         {MENU_OPTIONS.map((option, index) => (
           <Link
             key={option.id}

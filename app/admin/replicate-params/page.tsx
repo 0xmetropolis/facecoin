@@ -1,10 +1,15 @@
 import { ReplicateParamsForm } from "@/components/admin/ReplicateParamsForm";
+import { protectPageWithAdminAuth } from "@/lib/adminAuth";
 import redis from "@/lib/redis";
 import { DEFAULT_MODEL_INPUT, type StyleizePhotoInput } from "@/lib/replicate";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
+  await protectPageWithAdminAuth({
+    callbackToOnComplete: "/admin/replicate-params",
+  });
+
   // Fetch initial values from Redis
   const paramsStr = await redis.get<StyleizePhotoInput>(
     "replicate-input-params"
