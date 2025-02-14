@@ -1,7 +1,6 @@
 import { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { formatEther } from "viem";
 import { Skeleton } from "../shadcn/skeleton";
 
 export const Avatar = ({ user }: { user?: User }) => {
@@ -34,9 +33,9 @@ export const Avatar = ({ user }: { user?: User }) => {
         <div className={cn("flex flex-col items-center gap-1")}>
           {isLoading ? (
             <Skeleton className="w-24 h-5 inline-flex m-0.5" />
-          ) : user?.tokenAllocation_wei ? (
+          ) : user?.tokenAllocation ? (
             <p className="text-black whitespace-break-spaces text-center">
-              {`${formatEther(BigInt(user.tokenAllocation_wei))} $facecoin`}
+              {`${Number(user.tokenAllocation).toLocaleString()} $facecoin`}
             </p>
           ) : null}
         </div>

@@ -4,7 +4,7 @@ import { z } from "zod";
 const orderByParamValidation = z.enum([
   "createdAt",
   "updatedAt",
-  "tokenAllocation_wei",
+  "tokenAllocation",
   "followerCount",
 ]);
 

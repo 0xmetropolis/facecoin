@@ -1,15 +1,20 @@
-import { FACECOIN_TOKEN_ADDRESS } from "@/lib/facecoin-token";
+import * as Metal from "@/lib/metal";
 import prisma from "@/lib/prisma";
 import privy from "@/lib/privy";
 import * as Replicate from "@/lib/replicate";
 import TokenAllocator from "@/lib/tokenAllocation";
-import { revalidatePath } from "next/cache";
+import {
+  LinkedAccountWithMetadata,
+  WalletWithMetadata,
+} from "@privy-io/server-auth";
 import { NextRequest, NextResponse } from "next/server";
+import { Address } from "viem";
 import {
   deleteSelfieFromBlobStore,
   saveReplicatePhotoToBlobStore,
   saveSelfieToBlobStore,
 } from "./utils";
+import { revalidatePath } from "next/cache";
 
 //
 //// CONFIG
@@ -27,7 +32,7 @@ export const POST = async (req: NextRequest) => {
 
   const privyResponse = await privy
     .verifyAuthToken(privyToken)
-    .then((user) => user.userId)
+    .then((user) => user)
     .catch((e) => e as Error);
 
   if (privyResponse instanceof Error)
@@ -35,12 +40,14 @@ export const POST = async (req: NextRequest) => {
 
   const user = await prisma.user.findUnique({
     where: {
-      privyId: privyResponse,
+      privyId: privyResponse.userId,
     },
   });
 
   if (!user)
     return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+  // const userPreviouslyHadADistribution = user.tokenAllocation !== null;
 
   if (user.followerCount === null || user.followerCount === 0)
     return NextResponse.json(
@@ -52,11 +59,11 @@ export const POST = async (req: NextRequest) => {
 
   const output = await Promise.all([
     // determine their token allocation
-    TokenAllocator.new(FACECOIN_TOKEN_ADDRESS).then((allocator) =>
+    TokenAllocator.new().then((allocator) =>
       allocator.addUser({
         followerCount: user.followerCount!,
         // they're at the booth
-        isInPerson: true,
+        isInPerson: false,
       })
     ),
     // style the photo
@@ -81,16 +88,42 @@ export const POST = async (req: NextRequest) => {
 
   const updatedUser = await prisma.user.update({
     where: {
-      privyId: privyResponse,
+      privyId: privyResponse.userId,
     },
     data: {
-      tokenAllocation_wei: allacatorResult.allocation_wei.toString(),
+      tokenAllocation: allacatorResult.allocation.toString(),
       pfp: pfpFromReplicate,
     },
   });
 
   // revalidate the home page
   revalidatePath("/");
+
+  const privyUser = await privy.createWallets({
+    userId: privyResponse.userId,
+    createEthereumWallet: true,
+    numberOfEthereumWalletsToCreate: 1,
+  });
+
+  const isPrivyWallet = (
+    account: LinkedAccountWithMetadata
+  ): account is WalletWithMetadata => account.type === "wallet";
+
+  const privyUserAddress = privyUser.linkedAccounts.find(isPrivyWallet)
+    ?.address as Address;
+
+  if (!privyUserAddress)
+    return NextResponse.json(
+      { error: "No privy user address" },
+      { status: 500 }
+    );
+
+  // if (!userPreviouslyHadADistribution)
+  await Metal.sendReward({
+    // userId: user.id,
+    to: privyUserAddress,
+    amount: allacatorResult.allocation,
+  });
 
   return NextResponse.json({ message: "OK", updatedUser });
 };

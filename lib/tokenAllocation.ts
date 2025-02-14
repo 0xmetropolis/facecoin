@@ -1,5 +1,5 @@
-import { Address, formatEther, parseEther } from "viem";
-import { getTokenHolders } from "./metal";
+import { formatEther } from "viem";
+import * as Metal from "./metal";
 import prisma from "./prisma";
 
 type FollowerTier = "SUPER" | "HIGH" | "MEDIUM" | "LOW";
@@ -14,7 +14,11 @@ type OverallStats = {
 };
 
 class TokenAllocator {
-  // Make constructor private to enforce factory method usage
+  //
+  //// CONSTRUCTOR
+  ///
+
+  /** (use {@link new}) */
   private constructor(
     private readonly startingRewardTokens: number,
     private remainingRewardTokens: number,
@@ -48,37 +52,52 @@ class TokenAllocator {
     }
   ) {}
 
-  // Static factory method for async initialization
-  public static async new(tokenaddress: Address): Promise<TokenAllocator> {
+  /**
+   * @param tokenAddress - The address of the token to allocate
+   * @returns A new TokenAllocator instance
+   */
+  public static async new(): Promise<TokenAllocator> {
     const userCount = await prisma.user.count();
-    const tokenInfo = await getTokenHolders(tokenaddress);
-    const remainingRewardTokens = +formatEther(BigInt(tokenInfo.totalSupply));
-    const startingRewardTokens =
-      remainingRewardTokens +
+    const tokenInfo = await Metal.getTokenInfo();
+    // TODO: remove
+    const remainingRewardSupply = Number(
+      formatEther(BigInt(tokenInfo.rewardSupply))
+      /**
+       * should be 49,999,977
+       */
+    );
+
+    /**
+     * should be 50,000,000
+     */
+    const startingRewardSupply =
+      // add remaining
+      remainingRewardSupply +
+      // plus all my reward distribution: TODO: remove
       (await prisma.user
         .findMany({
           select: {
-            tokenAllocation_wei: true,
+            tokenAllocation: true,
           },
         })
         .then((users) =>
           users.reduce(
             (acc, user) =>
-              acc +
-              (user.tokenAllocation_wei
-                ? +formatEther(BigInt(user.tokenAllocation_wei))
-                : 0),
+              acc + (user.tokenAllocation ? +user.tokenAllocation : 0),
             0
           )
         ));
 
     return new TokenAllocator(
-      startingRewardTokens,
-      remainingRewardTokens, // remainingTokens starts equal to totalTokens
+      startingRewardSupply,
+      remainingRewardSupply,
       userCount
     );
   }
 
+  //
+  //// PRIVATE HELPERS
+  ///
   private categorizeUser(
     followerCount: number,
     isInPerson: boolean
@@ -133,6 +152,9 @@ class TokenAllocator {
     return Math.max(Math.floor(scaledAmount), minAmount);
   }
 
+  //
+  //// PUBLIC METHODS
+  ///
   addUser({
     followerCount,
     isInPerson,
@@ -140,7 +162,7 @@ class TokenAllocator {
     followerCount: number;
     isInPerson: boolean;
   }): {
-    allocation_wei: bigint;
+    allocation: number;
     remainingTokens: number;
     scalingFactor: number;
   } {
@@ -154,13 +176,8 @@ class TokenAllocator {
 
     const allocation = Math.min(categoryAllocation, this.remainingRewardTokens);
 
-    const allocation_wei = parseEther(allocation.toString());
-
-    this.remainingRewardTokens -= allocation;
-    this.userCount++;
-
     return {
-      allocation_wei,
+      allocation,
       remainingTokens: this.remainingRewardTokens,
       scalingFactor: this.calculatePoolScaling(),
     };

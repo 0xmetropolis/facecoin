@@ -12,15 +12,15 @@ generator client {
 }
 
 model User {
-    id                  Int      @id @default(autoincrement())
-    createdAt           DateTime @default(now())
-    privyId             String   @unique
-    socialHandle        String   @unique
-    socialPlatform      String
-    facecoinCode        String   @unique
-    followerCount       Int?
-    pfp                 String?
-    tokenAllocation_wei String?
+    id              Int      @id @default(autoincrement())
+    createdAt       DateTime @default(now())
+    privyId         String   @unique
+    socialHandle    String   @unique
+    socialPlatform  String
+    facecoinCode    String   @unique
+    followerCount   Int?
+    pfp             String?
+    tokenAllocation String?
 }
 
 model StylizePhotoInput {

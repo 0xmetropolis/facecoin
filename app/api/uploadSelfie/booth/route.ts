@@ -44,7 +44,7 @@ export const POST = async (req: NextRequest) => {
 
   const output = await Promise.all([
     // determine their token allocation
-    TokenAllocator.new(FACECOIN_TOKEN_ADDRESS).then((allocator) =>
+    TokenAllocator.new().then((allocator) =>
       allocator.addUser({
         followerCount: user.followerCount!,
         // they're at the booth
@@ -76,7 +76,7 @@ export const POST = async (req: NextRequest) => {
       facecoinCode: facecoinId,
     },
     data: {
-      tokenAllocation_wei: allacatorResult.allocation_wei.toString(),
+      tokenAllocation: allacatorResult.allocation.toString(),
       pfp: pfpFromReplicate,
     },
   });

@@ -6,7 +6,6 @@ import { Input } from "@/components/shadcn/input";
 import { User } from "@prisma/client";
 import Image from "next/image";
 import { useState } from "react";
-import { formatEther } from "viem";
 import { CameraDrawer } from "../camera-drawer";
 
 export function AdminBooth() {
@@ -80,8 +79,8 @@ export function AdminBooth() {
           <div className="text-center space-y-2">
             <h2>FaceCoin terminal has given you</h2>
             <p className="text-2xl font-bold">
-              {user?.tokenAllocation_wei
-                ? formatEther(BigInt(user.tokenAllocation_wei))
+              {user?.tokenAllocation
+                ? Number(user.tokenAllocation).toLocaleString()
                 : ""}{" "}
               $facecoin
             </p>

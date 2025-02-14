@@ -1,6 +1,7 @@
 import { Address } from "viem";
+import { FACECOIN_TOKEN_ADDRESS } from "./facecoin-token";
 
-export const METAL_API_URL = "https://api.metal.build";
+export const METAL_API_URL = "https://staging.api.metal.build";
 
 export type Holder = {
   /** the id of the holder */
@@ -38,9 +39,9 @@ export type GetTokenHoldersResponse = {
   holders: Holder[];
 };
 
-export const getTokenHolders = async (tokenAddress: Address) => {
+export const getTokenInfo = async () => {
   const response = await fetch(
-    `${METAL_API_URL}/tokens/${tokenAddress}/holders`,
+    `${METAL_API_URL}/token/${FACECOIN_TOKEN_ADDRESS}`,
     {
       headers: {
         "x-api-key": process.env.METAL_API_KEY!,
@@ -48,8 +49,41 @@ export const getTokenHolders = async (tokenAddress: Address) => {
       next: { revalidate: 60 },
     }
   );
-  if (!response.ok) throw new Error("Failed to fetch token holders");
+  if (!response.ok) throw new Error("Failed to fetch token info");
 
   const data = (await response.json()) as GetTokenHoldersResponse;
   return data;
+};
+
+export const sendReward = async ({
+  to,
+  amount,
+}: {
+  to: Address;
+  amount: number;
+}) => {
+  const response = await fetch(
+    `${METAL_API_URL}/token/${FACECOIN_TOKEN_ADDRESS}/reward`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.METAL_API_KEY!,
+      },
+      body: JSON.stringify({
+        sendTo: to,
+        amount,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    console.log(await response.json());
+    console.log(await response.status);
+    console.log(await response.statusText);
+    throw new Error("Failed to send reward");
+  }
+
+  const reward = await response.json();
+  return reward;
 };
