@@ -82,7 +82,7 @@ class TokenAllocator {
   private categorizeUser(
     followerCount: number,
     isInPerson: boolean
-  ): CategoryKey | null {
+  ): CategoryKey | "UNPOPULAR" {
     let tier: FollowerTier | null = null;
 
     if (followerCount >= this.FOLLOWER_TIERS.SUPER) {
@@ -95,7 +95,7 @@ class TokenAllocator {
       tier = "LOW";
     }
 
-    if (!tier) return null;
+    if (!tier) return "UNPOPULAR";
 
     return `${tier}_${isInPerson ? "IN_PERSON" : "ONLINE"}` as CategoryKey;
   }
@@ -140,7 +140,6 @@ class TokenAllocator {
     followerCount: number;
     isInPerson: boolean;
   }): {
-    category: CategoryKey;
     allocation_wei: bigint;
     remainingTokens: number;
     scalingFactor: number;
@@ -149,13 +148,11 @@ class TokenAllocator {
       throw new Error("No more tokens available for distribution");
 
     const category = this.categorizeUser(followerCount, isInPerson);
-    if (!category)
-      throw new Error("User does not meet minimum follower requirement");
 
-    const allocation = Math.min(
-      this.calculateAllocation(category),
-      this.remainingRewardTokens
-    );
+    const categoryAllocation =
+      category === "UNPOPULAR" ? 0 : this.calculateAllocation(category);
+
+    const allocation = Math.min(categoryAllocation, this.remainingRewardTokens);
 
     const allocation_wei = parseEther(allocation.toString());
 
@@ -163,7 +160,6 @@ class TokenAllocator {
     this.userCount++;
 
     return {
-      category,
       allocation_wei,
       remainingTokens: this.remainingRewardTokens,
       scalingFactor: this.calculatePoolScaling(),

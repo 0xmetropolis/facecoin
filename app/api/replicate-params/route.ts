@@ -1,5 +1,5 @@
-import redis from "@/lib/redis";
-import { styleizeInputSchema, type StyleizePhotoInput } from "@/lib/replicate";
+import prisma from "@/lib/prisma";
+import { styleizeInputSchema } from "@/lib/replicate";
 import { z } from "zod";
 
 export async function POST(request: Request) {
@@ -9,14 +9,19 @@ export async function POST(request: Request) {
     // Validate input
     const validatedInput = styleizeInputSchema.parse(body);
 
-    // Save to Redis
-    await redis.set(
-      "replicate-input-params",
-      JSON.stringify({
-        ...(validatedInput as StyleizePhotoInput),
+    // Upsert the configuration
+    await prisma.stylizePhotoInput.upsert({
+      where: { id: 1 },
+      create: {
+        ...validatedInput,
         num_outputs: 1,
-      })
-    );
+        id: 1,
+      },
+      update: {
+        ...validatedInput,
+        num_outputs: 1,
+      },
+    });
 
     return Response.json({
       success: true,
@@ -30,6 +35,7 @@ export async function POST(request: Request) {
       );
     }
 
+    console.error(error);
     return Response.json(
       { success: false, error: "Internal server error" },
       { status: 500 }
@@ -39,9 +45,9 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const params = await redis.get<StyleizePhotoInput>(
-      "replicate-input-params"
-    );
+    const params = await prisma.stylizePhotoInput.findUnique({
+      where: { id: 1 },
+    });
 
     if (!params) {
       return Response.json(

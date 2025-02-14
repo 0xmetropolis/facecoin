@@ -1,6 +1,6 @@
 import { ReplicateParamsForm } from "@/components/admin/ReplicateParamsForm";
 import { protectPageWithAdminAuth } from "@/lib/adminAuth";
-import redis from "@/lib/redis";
+import prisma from "@/lib/prisma";
 import { DEFAULT_MODEL_INPUT, type StyleizePhotoInput } from "@/lib/replicate";
 
 export const dynamic = "force-dynamic";
@@ -10,13 +10,12 @@ export default async function AdminPage() {
     callbackToOnComplete: "/admin/replicate-params",
   });
 
-  // Fetch initial values from Redis
-  const paramsStr = await redis.get<StyleizePhotoInput>(
-    "replicate-input-params"
-  );
-  const initialParams: StyleizePhotoInput = paramsStr
-    ? paramsStr
-    : DEFAULT_MODEL_INPUT;
+  // Fetch the single configuration record
+  const config = await prisma.stylizePhotoInput.findUnique({
+    where: { id: 1 },
+  });
+
+  const initialParams: StyleizePhotoInput = config || DEFAULT_MODEL_INPUT;
 
   return (
     <div className="container max-w-2xl py-8 bg-slate-100 rounded-lg">

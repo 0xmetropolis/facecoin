@@ -22,3 +22,15 @@ model User {
     pfp                 String?
     tokenAllocation_wei String?
 }
+
+model StylizePhotoInput {
+    id                   Int      @id @default(1)
+    updatedAt            DateTime @updatedAt
+    prompt               String
+    num_steps            Int
+    style_name           String
+    num_outputs          Int
+    guidance_scale       Float
+    negative_prompt      String
+    style_strength_ratio Float
+}
