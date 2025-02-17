@@ -58,14 +58,15 @@ class TokenAllocator {
    */
   public static async new(): Promise<TokenAllocator> {
     const userCount = await prisma.user.count();
-    const tokenInfo = await Metal.getTokenInfo();
+    // const tokenInfo = await Metal.getTokenInfo();
+    const remainingRewardSupply = 50000000;
     // TODO: remove
-    const remainingRewardSupply = Number(
-      formatEther(BigInt(tokenInfo.rewardSupply))
-      /**
-       * should be 49,999,977
-       */
-    );
+    // const remainingRewardSupply = Number(
+    //   formatEther(BigInt(rewardSupply))
+    //   /**
+    //    * should be 49,999,977
+    //    */
+    // );
 
     /**
      * should be 50,000,000

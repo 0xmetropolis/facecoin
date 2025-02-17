@@ -120,9 +120,12 @@ export const POST = async (req: NextRequest) => {
 
   // if (!userPreviouslyHadADistribution)
   await Metal.sendReward({
-    // userId: user.id,
     to: privyUserAddress,
     amount: allacatorResult.allocation,
+  }).catch((e) => {
+    console.error(e);
+
+    return NextResponse.json({ error: e.message }, { status: 500 });
   });
 
   return NextResponse.json({ message: "OK", updatedUser });

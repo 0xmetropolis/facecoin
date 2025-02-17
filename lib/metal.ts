@@ -78,10 +78,9 @@ export const sendReward = async ({
   );
 
   if (!response.ok) {
-    console.log(await response.json());
-    console.log(await response.status);
-    console.log(await response.statusText);
-    throw new Error("Failed to send reward");
+    const error = await response.json();
+    console.log(error);
+    throw new Error(error);
   }
 
   const reward = await response.json();
