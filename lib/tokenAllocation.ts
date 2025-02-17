@@ -1,10 +1,40 @@
-import { formatEther } from "viem";
-import * as Metal from "./metal";
 import prisma from "./prisma";
 
 type FollowerTier = "SUPER" | "HIGH" | "MEDIUM" | "LOW";
 type AttendanceType = "IN_PERSON" | "ONLINE";
 type CategoryKey = `${FollowerTier}_${AttendanceType}`;
+
+export const DEFAULT_SETTINGS = {
+  followerTiers: {
+    SUPER: 50000,
+    HIGH: 20000,
+    MEDIUM: 8000,
+    LOW: 100,
+  },
+  baseAllocations: {
+    SUPER_IN_PERSON: 2000,
+    HIGH_IN_PERSON: 1500,
+    SUPER_ONLINE: 1000,
+    MEDIUM_IN_PERSON: 750,
+    HIGH_ONLINE: 500,
+    MEDIUM_ONLINE: 375,
+    LOW_IN_PERSON: 250,
+    LOW_ONLINE: 188,
+  },
+  minimumAllocations: {
+    SUPER_IN_PERSON: 200,
+    HIGH_IN_PERSON: 150,
+    SUPER_ONLINE: 100,
+    MEDIUM_IN_PERSON: 75,
+    HIGH_ONLINE: 50,
+    MEDIUM_ONLINE: 38,
+    LOW_IN_PERSON: 25,
+    LOW_ONLINE: 19,
+  },
+  decayFactor: 0.99,
+};
+
+export type AllocatorSettings = typeof DEFAULT_SETTINGS;
 
 type OverallStats = {
   totalUsersServed: number;
@@ -23,33 +53,7 @@ class TokenAllocator {
     private readonly startingRewardTokens: number,
     private remainingRewardTokens: number,
     private userCount: number,
-    private readonly decayFactor: number = 0.99,
-    private readonly FOLLOWER_TIERS: Record<FollowerTier, number> = {
-      SUPER: 50000,
-      HIGH: 20000,
-      MEDIUM: 8000,
-      LOW: 100,
-    },
-    private readonly baseAllocations: Record<CategoryKey, number> = {
-      SUPER_IN_PERSON: 2000,
-      HIGH_IN_PERSON: 1500,
-      SUPER_ONLINE: 1000,
-      MEDIUM_IN_PERSON: 750,
-      HIGH_ONLINE: 500,
-      MEDIUM_ONLINE: 375,
-      LOW_IN_PERSON: 250,
-      LOW_ONLINE: 188,
-    },
-    private readonly minimumAllocations: Record<CategoryKey, number> = {
-      SUPER_IN_PERSON: 200,
-      HIGH_IN_PERSON: 150,
-      SUPER_ONLINE: 100,
-      MEDIUM_IN_PERSON: 75,
-      HIGH_ONLINE: 50,
-      MEDIUM_ONLINE: 38,
-      LOW_IN_PERSON: 25,
-      LOW_ONLINE: 19,
-    }
+    private readonly settings: AllocatorSettings
   ) {}
 
   /**
@@ -57,29 +61,32 @@ class TokenAllocator {
    * @returns A new TokenAllocator instance
    */
   public static async new(): Promise<TokenAllocator> {
-    const userCount = await prisma.user.count();
-    // const tokenInfo = await Metal.getTokenInfo();
-    const remainingRewardSupply = 50000000;
-    // TODO: remove
-    // const remainingRewardSupply = Number(
-    //   formatEther(BigInt(rewardSupply))
-    //   /**
-    //    * should be 49,999,977
-    //    */
-    // );
+    const [userCount, settings] = await Promise.all([
+      prisma.user.count(),
+      prisma.allocatorSettings.findUnique({ where: { id: 1 } }),
+    ]);
+    // Parse settings from DB or use defaults
+    const allocatorSettings: AllocatorSettings = settings
+      ? {
+          followerTiers: settings.followerTiers as Record<FollowerTier, number>,
+          baseAllocations: settings.baseAllocations as Record<
+            CategoryKey,
+            number
+          >,
+          minimumAllocations: settings.minimumAllocations as Record<
+            CategoryKey,
+            number
+          >,
+          decayFactor: settings.decayFactor,
+        }
+      : DEFAULT_SETTINGS;
 
-    /**
-     * should be 50,000,000
-     */
+    const remainingRewardSupply = 50000000;
     const startingRewardSupply =
-      // add remaining
       remainingRewardSupply +
-      // plus all my reward distribution: TODO: remove
       (await prisma.user
         .findMany({
-          select: {
-            tokenAllocation: true,
-          },
+          select: { tokenAllocation: true },
         })
         .then((users) =>
           users.reduce(
@@ -92,7 +99,8 @@ class TokenAllocator {
     return new TokenAllocator(
       startingRewardSupply,
       remainingRewardSupply,
-      userCount
+      userCount,
+      allocatorSettings
     );
   }
 
@@ -105,13 +113,13 @@ class TokenAllocator {
   ): CategoryKey | "UNPOPULAR" {
     let tier: FollowerTier | null = null;
 
-    if (followerCount >= this.FOLLOWER_TIERS.SUPER) {
+    if (followerCount >= this.settings.followerTiers.SUPER) {
       tier = "SUPER";
-    } else if (followerCount >= this.FOLLOWER_TIERS.HIGH) {
+    } else if (followerCount >= this.settings.followerTiers.HIGH) {
       tier = "HIGH";
-    } else if (followerCount >= this.FOLLOWER_TIERS.MEDIUM) {
+    } else if (followerCount >= this.settings.followerTiers.MEDIUM) {
       tier = "MEDIUM";
-    } else if (followerCount >= this.FOLLOWER_TIERS.LOW) {
+    } else if (followerCount >= this.settings.followerTiers.LOW) {
       tier = "LOW";
     }
 
@@ -121,7 +129,10 @@ class TokenAllocator {
   }
 
   private calculateTimeDecay(): number {
-    return Math.pow(this.decayFactor, Math.floor(this.userCount / 100));
+    return Math.pow(
+      this.settings.decayFactor,
+      Math.floor(this.userCount / 100)
+    );
   }
 
   private calculatePoolScaling(): number {
@@ -141,14 +152,14 @@ class TokenAllocator {
   private calculateAllocation(category: CategoryKey): number {
     // Apply time decay
     const timeDecay = this.calculateTimeDecay();
-    const baseAmount = this.baseAllocations[category] * timeDecay;
+    const baseAmount = this.settings.baseAllocations[category] * timeDecay;
 
     // Apply pool scaling
     const poolScaling = this.calculatePoolScaling();
     const scaledAmount = baseAmount * poolScaling;
 
     // Apply minimum floor
-    const minAmount = this.minimumAllocations[category];
+    const minAmount = this.settings.minimumAllocations[category];
 
     return Math.max(Math.floor(scaledAmount), minAmount);
   }

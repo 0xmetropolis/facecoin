@@ -69,6 +69,13 @@ export const styleizePhoto = async ({ imgUrl }: { imgUrl: string }) => {
     }
   );
 
-  const [styledImg] = output as [string];
-  return styledImg.toString();
+  return (function () {
+    try {
+      const [styledImg] = output as [string];
+      return styledImg.toString();
+    } catch (e) {
+      console.log(e);
+      return output.toString();
+    }
+  })();
 };

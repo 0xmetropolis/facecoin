@@ -34,3 +34,12 @@ model StylizePhotoInput {
     negative_prompt      String
     style_strength_ratio Float
 }
+
+model AllocatorSettings {
+    id                  Int      @id @default(1)
+    updatedAt          DateTime @updatedAt
+    followerTiers      Json     // Record<FollowerTier, number>
+    baseAllocations    Json     // Record<CategoryKey, number>
+    minimumAllocations Json     // Record<CategoryKey, number>
+    decayFactor        Float    @default(0.99)
+}
