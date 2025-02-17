@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import * as Replicate from "@/lib/replicate";
+import TokenAllocator from "@/lib/tokenAllocation";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import {
@@ -7,8 +8,6 @@ import {
   saveReplicatePhotoToBlobStore,
   saveSelfieToBlobStore,
 } from "../utils";
-import TokenAllocator from "@/lib/tokenAllocation";
-import { FACECOIN_TOKEN_ADDRESS } from "@/lib/facecoin-token";
 
 //
 //// CONFIG

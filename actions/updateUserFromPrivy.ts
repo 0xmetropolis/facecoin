@@ -98,7 +98,11 @@ export const updateUserFromPrivy = async ({
     return "OK";
 
   // snag their follower count from the platform of choice
-  const followerCount = await getFollowerCount(loginMethod, socialHandle);
+  const followerCount = await getFollowerCount(
+    loginMethod,
+    socialHandle,
+    userCount
+  );
   if (isFollowerCountError(followerCount)) return followerCount;
 
   const socialPlatform: "twitter" | "farcaster" =

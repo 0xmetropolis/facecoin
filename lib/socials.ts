@@ -1,10 +1,9 @@
 import {
+  FarcasterWithMetadata,
   LinkedAccountWithMetadata,
   TwitterOAuthWithMetadata,
-  FarcasterWithMetadata,
 } from "@privy-io/react-auth";
 import { inlineDecrypt } from "./utils/encryption";
-import redis from "./redis";
 
 export const FollowerCountFetchError = (message: string) =>
   ({
@@ -29,10 +28,7 @@ export const isValidSocial = (
   );
 };
 
-const getXAuthToken = async () => {
-  // get the a nonce or 0 from redis
-  const xAuthTokenNonce = (await redis.get<number>("x_auth_token_nonce")) || 0;
-
+const getXAuthToken = async (xAuthTokenNonce: number) => {
   const authTokens = process.env.X_AUTH_TOKENS;
   if (!authTokens) return FollowerCountFetchError("X_AUTH_TOKENS is not set");
 
@@ -45,13 +41,12 @@ const getXAuthToken = async () => {
       "No token found - most likely array out of bounds issue"
     );
 
-  await redis.set("x_auth_token_nonce", xAuthTokenNonce + 1);
-
   return token;
 };
 
 const getXFollowerCount = async (
-  handle: string
+  handle: string,
+  xAuthTokenNonce: number
 ): Promise<number | FollowerCountFetchError> => {
   const response = await fetch(
     `https://api.twitter.com/2/users/by/username/${handle}?user.fields=public_metrics`,
@@ -60,7 +55,7 @@ const getXFollowerCount = async (
       // revalidate every 24 hours
       next: { revalidate: 60 * 60 * 24 },
       headers: {
-        Authorization: `Bearer ${await getXAuthToken()}`,
+        Authorization: `Bearer ${await getXAuthToken(xAuthTokenNonce)}`,
       },
     }
   );
@@ -104,11 +99,13 @@ const getFarcasterFollowerCount = async (
 
 export const getFollowerCount = async (
   type: "twitter" | "farcaster",
-  handle: string
+  handle: string,
+  userCount: number
 ): Promise<number | FollowerCountFetchError> => {
   switch (type) {
     case "twitter":
-      return getXFollowerCount(handle);
+      // use the user count as a nonce to scramble the x api
+      return getXFollowerCount(handle, userCount);
     case "farcaster":
       return getFarcasterFollowerCount(handle);
   }
