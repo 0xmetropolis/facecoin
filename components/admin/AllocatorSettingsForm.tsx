@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Toaster } from "../shadcn/toaster";
 import { AllocatorSettings } from "@/lib/tokenAllocation";
+import { useRouter } from "next/navigation";
 
 type FollowerTier = "SUPER" | "HIGH" | "MEDIUM" | "LOW";
 type AttendanceType = "IN_PERSON" | "ONLINE";
@@ -21,6 +22,7 @@ export function AllocatorSettingsForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [settings, setSettings] = useState<AllocatorSettings>(initialSettings);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleFollowerTierChange = (tier: FollowerTier, value: string) => {
     setSettings((prev) => ({
@@ -61,6 +63,8 @@ export function AllocatorSettingsForm({
       const data = await response.json();
 
       if (!data.success) throw new Error(data.error);
+
+      router.refresh();
 
       toast({
         title: "Settings saved",

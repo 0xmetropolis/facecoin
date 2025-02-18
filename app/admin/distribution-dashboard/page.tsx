@@ -38,21 +38,21 @@ export default async function AdminPage() {
         defaultValue="item-1"
       >
         <AccordionItem value="item-1">
-          <AccordionTrigger>Stats</AccordionTrigger>
+          <AccordionTrigger>📊 Stats</AccordionTrigger>
           <AccordionContent>
             <AllocatorStats />
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
-          <AccordionTrigger>Settings</AccordionTrigger>
+          <AccordionTrigger>🔬 Simulate</AccordionTrigger>
           <AccordionContent>
-            <AllocatorSettingsForm initialSettings={initialSettings} />
+            <AllocationSimulation />
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-3">
-          <AccordionTrigger>Simulate</AccordionTrigger>
+          <AccordionTrigger>⚙️ Settings</AccordionTrigger>
           <AccordionContent>
-            <AllocationSimulation />
+            <AllocatorSettingsForm initialSettings={initialSettings} />
           </AccordionContent>
         </AccordionItem>
       </Accordion>
