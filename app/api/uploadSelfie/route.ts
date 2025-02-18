@@ -2,11 +2,12 @@ import * as Metal from "@/lib/metal";
 import prisma from "@/lib/prisma";
 import privy from "@/lib/privy";
 import * as Replicate from "@/lib/replicate";
-import TokenAllocator, { getLiveTokenAllocator } from "@/lib/tokenAllocation";
+import { getLiveTokenAllocator } from "@/lib/tokenAllocation";
 import {
   LinkedAccountWithMetadata,
   WalletWithMetadata,
 } from "@privy-io/server-auth";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { Address } from "viem";
 import {
@@ -14,7 +15,6 @@ import {
   saveReplicatePhotoToBlobStore,
   saveSelfieToBlobStore,
 } from "./utils";
-import { revalidatePath } from "next/cache";
 
 //
 //// CONFIG

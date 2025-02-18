@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import * as Replicate from "@/lib/replicate";
-import TokenAllocator, { getLiveTokenAllocator } from "@/lib/tokenAllocation";
+import { getLiveTokenAllocator } from "@/lib/tokenAllocation";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import {
