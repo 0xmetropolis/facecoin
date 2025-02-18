@@ -60,11 +60,15 @@ class TokenAllocator {
    * @param tokenAddress - The address of the token to allocate
    * @returns A new TokenAllocator instance
    */
-  public static async new(): Promise<TokenAllocator> {
-    const [userCount, settings] = await Promise.all([
-      prisma.user.count(),
-      prisma.allocatorSettings.findUnique({ where: { id: 1 } }),
-    ]);
+  public static async new(
+    userCount: number,
+    startingRewardSupply: number,
+    remainingRewardSupply: number
+  ): Promise<TokenAllocator> {
+    const settings = await prisma.allocatorSettings.findUnique({
+      where: { id: 1 },
+    });
+
     // Parse settings from DB or use defaults
     const allocatorSettings: AllocatorSettings = settings
       ? {
@@ -80,21 +84,6 @@ class TokenAllocator {
           decayFactor: settings.decayFactor,
         }
       : DEFAULT_SETTINGS;
-
-    const remainingRewardSupply = 50000000;
-    const startingRewardSupply =
-      remainingRewardSupply +
-      (await prisma.user
-        .findMany({
-          select: { tokenAllocation: true },
-        })
-        .then((users) =>
-          users.reduce(
-            (acc, user) =>
-              acc + (user.tokenAllocation ? +user.tokenAllocation : 0),
-            0
-          )
-        ));
 
     return new TokenAllocator(
       startingRewardSupply,
@@ -208,3 +197,8 @@ class TokenAllocator {
 }
 
 export default TokenAllocator;
+
+export const getLiveTokenAllocator = async () => {
+  const userCount = await prisma.user.count();
+  return TokenAllocator.new(userCount, 50_000_000, 50_000_000);
+};

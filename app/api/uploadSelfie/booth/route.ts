@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import * as Replicate from "@/lib/replicate";
-import TokenAllocator from "@/lib/tokenAllocation";
+import TokenAllocator, { getLiveTokenAllocator } from "@/lib/tokenAllocation";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import {
@@ -43,7 +43,7 @@ export const POST = async (req: NextRequest) => {
 
   const output = await Promise.all([
     // determine their token allocation
-    TokenAllocator.new().then((allocator) =>
+    getLiveTokenAllocator().then((allocator) =>
       allocator.addUser({
         followerCount: user.followerCount!,
         // they're at the booth

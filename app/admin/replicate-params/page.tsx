@@ -6,13 +6,13 @@ import { DEFAULT_MODEL_INPUT, type StyleizePhotoInput } from "@/lib/replicate";
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  await protectPageWithAdminAuth({
-    callbackToOnComplete: "/admin/replicate-params",
-  });
-
   // Fetch the single configuration record
   const config = await prisma.stylizePhotoInput.findUnique({
     where: { id: 1 },
+  });
+
+  await protectPageWithAdminAuth({
+    callbackToOnComplete: "/admin/replicate-params",
   });
 
   const initialParams: StyleizePhotoInput = config || DEFAULT_MODEL_INPUT;
