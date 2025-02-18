@@ -11,7 +11,6 @@ neonConfig.poolQueryViaFetch = true;
 export default (function () {
   if (typeof window !== "undefined")
     throw new Error("DO NOT USE PRISMA IN THE BROWSER");
-
   const connectionString = `${process.env.POSTGRES_PRISMA_URL}`;
   const pool = new Pool({ connectionString });
   const adapter = new PrismaNeon(pool);

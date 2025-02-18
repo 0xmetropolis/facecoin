@@ -9,20 +9,20 @@ const nextConfig: NextConfig = {
   }, 
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "pbs.twimg.com",
-        port: "",
-        pathname: "/**",
-        search: "",
-      },
-      {
-        protocol: "https",
-        hostname: "replicate.delivery",
-        port: "",
-        pathname: "/**",
-        search: "",
-      },
+      // {
+      //   protocol: "https",
+      //   hostname: "pbs.twimg.com",
+      //   port: "",
+      //   pathname: "/**",
+      //   search: "",
+      // },
+      // {
+      //   protocol: "https",
+      //   hostname: "replicate.delivery",
+      //   port: "",
+      //   pathname: "/**",
+      //   search: "",
+      // },
       {
         protocol: "https",
         hostname: "*.public.blob.vercel-storage.com",

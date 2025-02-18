@@ -1,6 +1,6 @@
 import Replicate from "replicate";
-import redis from "./redis";
 import { z } from "zod";
+import prisma from "./prisma";
 
 export type StyleizePhotoInput = {
   prompt: string;
@@ -47,15 +47,18 @@ export const DEFAULT_MODEL_INPUT: StyleizePhotoInput = {
   style_strength_ratio: 27.88,
 };
 
-const REPLICATE_INPUT_PARAM_CACHE_KEY = "replicate-input-params";
-
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
 
 export const styleizePhoto = async ({ imgUrl }: { imgUrl: string }) => {
-  const input =
-    (await redis.get(REPLICATE_INPUT_PARAM_CACHE_KEY)) || DEFAULT_MODEL_INPUT;
+  // Get the configuration from Prisma
+  const config = await prisma.stylizePhotoInput.findUnique({
+    where: { id: 1 },
+  });
+
+  const input = config || DEFAULT_MODEL_INPUT;
+
   const output = await replicate.run(
     "tencentarc/photomaker-style:467d062309da518648ba89d226490e02b8ed09b5abc15026e54e31c5a8cd0769",
     {
@@ -66,7 +69,13 @@ export const styleizePhoto = async ({ imgUrl }: { imgUrl: string }) => {
     }
   );
 
-  const [styledImg] = output as [string];
-
-  return styledImg.toString();
+  return (function () {
+    try {
+      const [styledImg] = output as [string];
+      return styledImg.toString();
+    } catch (e) {
+      console.log(e);
+      return output.toString();
+    }
+  })();
 };

@@ -6,7 +6,6 @@ import { Input } from "@/components/shadcn/input";
 import { User } from "@prisma/client";
 import Image from "next/image";
 import { useState } from "react";
-import { formatEther } from "viem";
 import { CameraDrawer } from "../camera-drawer";
 
 export function AdminBooth() {
@@ -62,15 +61,21 @@ export function AdminBooth() {
     }
   };
 
+  const handleReset = async () => {
+    setFacecoinId("");
+    setUser(null);
+    setError("");
+  };
+
   //
   //// RENDER
   return (
-    <div className="flex flex-col items-center gap-6 p-4 w-full">
+    <div className="flex flex-col items-center gap-6 p-4 w-2/3">
       {isComplete ? (
         <div className="flex flex-col items-center gap-2 h-full w-full">
           <div className="relative w-3/5 aspect-[3/2]">
             <Image
-              src={user.pfp!}
+              src={`${user.pfp!}?access=${Date.now()}`}
               alt="Profile Picture"
               fill
               className="object-cover"
@@ -80,11 +85,12 @@ export function AdminBooth() {
           <div className="text-center space-y-2">
             <h2>FaceCoin terminal has given you</h2>
             <p className="text-2xl font-bold">
-              {user?.tokenAllocation_wei
-                ? formatEther(BigInt(user.tokenAllocation_wei))
+              {user?.tokenAllocation
+                ? Number(user.tokenAllocation).toLocaleString()
                 : ""}{" "}
               $facecoin
             </p>
+            <Button onClick={handleReset}>Reset</Button>
           </div>
         </div>
       ) : (
@@ -93,6 +99,7 @@ export function AdminBooth() {
           <Input
             type="text"
             placeholder="Enter FaceCoin ID"
+            disabled={isProcessing}
             value={facecoinId}
             onChange={(e) => handleIdChange(e.target.value)}
             className="text-center text-xl"

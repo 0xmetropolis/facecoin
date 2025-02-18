@@ -93,14 +93,16 @@ export const updateUserFromPrivy = async ({
     prisma.user.count(),
   ]);
 
-  console.log("maybeSavedUser", maybeSavedUser);
-  console.log("socialHandle", socialHandle);
   // return OK if they've been created and they're not reauthenticating their social platform
   if (maybeSavedUser && maybeSavedUser.socialHandle === socialHandle)
     return "OK";
 
   // snag their follower count from the platform of choice
-  const followerCount = await getFollowerCount(loginMethod, socialHandle);
+  const followerCount = await getFollowerCount(
+    loginMethod,
+    socialHandle,
+    userCount
+  );
   if (isFollowerCountError(followerCount)) return followerCount;
 
   const socialPlatform: "twitter" | "farcaster" =
@@ -122,7 +124,7 @@ export const updateUserFromPrivy = async ({
     followerCount,
     facecoinCode,
     pfp: null,
-    tokenAllocation_wei: null,
+    tokenAllocation: null,
   };
 
   // upsert the user

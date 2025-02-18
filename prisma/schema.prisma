@@ -7,17 +7,39 @@ datasource db {
 
 generator client {
     provider        = "prisma-client-js"
+    output          = "../node_modules/.prisma/client"
     previewFeatures = ["driverAdapters"]
 }
 
 model User {
-    id                  Int      @id @default(autoincrement())
-    createdAt           DateTime @default(now())
-    privyId             String   @unique
-    socialHandle        String   @unique
-    socialPlatform      String
-    facecoinCode        String      @unique
-    followerCount       Int?
-    pfp                 String?
-    tokenAllocation_wei String?
+    id              Int      @id @default(autoincrement())
+    createdAt       DateTime @default(now())
+    privyId         String   @unique
+    socialHandle    String   @unique
+    socialPlatform  String
+    facecoinCode    String   @unique
+    followerCount   Int?
+    pfp             String?
+    tokenAllocation String?
+}
+
+model StylizePhotoInput {
+    id                   Int      @id @default(1)
+    updatedAt            DateTime @updatedAt
+    prompt               String
+    num_steps            Int
+    style_name           String
+    num_outputs          Int
+    guidance_scale       Float
+    negative_prompt      String
+    style_strength_ratio Float
+}
+
+model AllocatorSettings {
+    id                  Int      @id @default(1)
+    updatedAt          DateTime @updatedAt
+    followerTiers      Json     // Record<FollowerTier, number>
+    baseAllocations    Json     // Record<CategoryKey, number>
+    minimumAllocations Json     // Record<CategoryKey, number>
+    decayFactor        Float    @default(0.99)
 }

@@ -47,57 +47,55 @@ export default function AdminLayout({
   }, [containerRef, isHovering]);
 
   return (
-    <div className="min-h-screen bg-[#002000] flex items-center justify-center overflow-hidden absolute inset-0">
-      {/* Dark gradient background */}
+    <div className="fixed inset-0 bg-[#002000] overflow-hidden b">
       <div className="absolute inset-0 bg-gradient-to-br from-[#002000] via-[#003300] to-[#004400]" />
 
-      <>
+      <div
+        ref={containerRef}
+        className="absolute inset-0"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => {
+          setIsHovering(false);
+          setTargetPosition({ x: 0, y: 0 });
+        }}
+      >
+        {/* Background container with perspective */}
         <div
-          ref={containerRef}
-          className="absolute inset-0"
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => {
-            setIsHovering(false);
-            setTargetPosition({ x: 0, y: 0 });
+          className="absolute inset-0 parallax-container"
+          style={{
+            perspective: "1000px",
+            transformStyle: "preserve-3d",
           }}
         >
-          {/* Background container with perspective */}
+          {/* Main background layer */}
           <div
-            className="absolute inset-0 parallax-container"
+            className="absolute inset-0 parallax-layer"
             style={{
-              perspective: "1000px",
-              transformStyle: "preserve-3d",
-            }}
-          >
-            {/* Main background layer */}
-            <div
-              className="absolute inset-0 parallax-layer"
-              style={{
-                transform: `
+              transform: `
                 scale(1.1)
                 rotateX(${position.y * 10}deg)
                 rotateY(${-position.x * 10}deg)
                 translateX(${-position.x * 50}px)
                 translateY(${-position.y * 50}px)
               `,
-              }}
-            >
-              <div
-                className="absolute inset-0 opacity-[0.07]"
-                style={{
-                  backgroundImage: `url('/admin-background.png')`,
-                  backgroundSize: "100% 100%",
-                  backgroundRepeat: "no-repeat",
-                  filter: "blur(0.5px)",
-                }}
-              />
-            </div>
-
-            {/* Secondary background layer for depth */}
+            }}
+          >
             <div
-              className="absolute inset-0 parallax-layer"
+              className="absolute inset-0 opacity-[0.07]"
               style={{
-                transform: `
+                backgroundImage: `url('/admin-background.png')`,
+                backgroundSize: "100% 100%",
+                backgroundRepeat: "no-repeat",
+                filter: "blur(0.5px)",
+              }}
+            />
+          </div>
+
+          {/* Secondary background layer for depth */}
+          <div
+            className="absolute inset-0 parallax-layer"
+            style={{
+              transform: `
                 scale(1.2)
                 translateZ(-20px)
                 rotateX(${position.y * 15}deg)
@@ -105,24 +103,24 @@ export default function AdminLayout({
                 translateX(${-position.x * 75}px)
                 translateY(${-position.y * 75}px)
               `,
-              }}
-            >
-              <div
-                className="absolute inset-0 opacity-[0.05]"
-                style={{
-                  backgroundImage: `url('/admin-background.png')`,
-                  backgroundSize: "120% 120%",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                }}
-              />
-            </div>
-
-            {/* Foreground layer for additional depth */}
+            }}
+          >
             <div
-              className="absolute inset-0 parallax-layer"
+              className="absolute inset-0 opacity-[0.05]"
               style={{
-                transform: `
+                backgroundImage: `url('/admin-background.png')`,
+                backgroundSize: "120% 120%",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+              }}
+            />
+          </div>
+
+          {/* Foreground layer for additional depth */}
+          <div
+            className="absolute inset-0 parallax-layer"
+            style={{
+              transform: `
                 scale(1.05)
                 translateZ(20px)
                 rotateX(${position.y * 5}deg)
@@ -130,26 +128,28 @@ export default function AdminLayout({
                 translateX(${-position.x * 25}px)
                 translateY(${-position.y * 25}px)
               `,
+            }}
+          >
+            <div
+              className="absolute inset-0 opacity-[0.03]"
+              style={{
+                backgroundImage: `url('/admin-background.png')`,
+                backgroundSize: "90% 90%",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
               }}
-            >
-              <div
-                className="absolute inset-0 opacity-[0.03]"
-                style={{
-                  backgroundImage: `url('/admin-background.png')`,
-                  backgroundSize: "90% 90%",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                }}
-              />
-            </div>
+            />
           </div>
         </div>
+      </div>
 
-        <div className="relative z-10 w-full max-w-4xl flex items-center gap-12 px-4">
+      <div className="relative z-10 w-full h-full overflow-auto">
+        <div className="min-h-full w-full max-w-4xl mx-auto py-8 px-6 flex flex-col justify-center pb-40">
           {children}
         </div>
-      </>
-      <div className="absolute bottom-0 left-0 right-0 h-[300px] bg-gradient-to-t from-[#001000] to-transparent pointer-events-none" />
+      </div>
+
+      <div className="fixed bottom-0 left-0 right-0 h-[300px] bg-gradient-to-t from-[#001000] to-transparent pointer-events-none" />
     </div>
   );
 }

@@ -1,13 +1,19 @@
+import * as Metal from "@/lib/metal";
 import prisma from "@/lib/prisma";
 import privy from "@/lib/privy";
 import * as Replicate from "@/lib/replicate";
-import { determineTokenAllocation } from "@/lib/tokenAllocation";
+import { getLiveTokenAllocator } from "@/lib/tokenAllocation";
+import {
+  LinkedAccountWithMetadata,
+  WalletWithMetadata,
+} from "@privy-io/server-auth";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
+import { Address } from "viem";
 import {
-  saveSelfieToBlobStore,
-  saveReplicatePhotoToBlobStore,
   deleteSelfieFromBlobStore,
+  saveReplicatePhotoToBlobStore,
+  saveSelfieToBlobStore,
 } from "./utils";
 
 //
@@ -26,7 +32,7 @@ export const POST = async (req: NextRequest) => {
 
   const privyResponse = await privy
     .verifyAuthToken(privyToken)
-    .then((user) => user.userId)
+    .then((user) => user)
     .catch((e) => e as Error);
 
   if (privyResponse instanceof Error)
@@ -34,50 +40,93 @@ export const POST = async (req: NextRequest) => {
 
   const user = await prisma.user.findUnique({
     where: {
-      privyId: privyResponse,
+      privyId: privyResponse.userId,
     },
   });
 
   if (!user)
-    return NextResponse.json({ error: "User not found" }, { status: 401 });
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+  // const userPreviouslyHadADistribution = user.tokenAllocation !== null;
+
+  if (user.followerCount === null || user.followerCount === 0)
+    return NextResponse.json(
+      { error: "User has no followers :/" },
+      { status: 401 }
+    );
 
   const savedImgUrl = await saveSelfieToBlobStore(user.id, photoDataUrl);
 
   const output = await Promise.all([
     // determine their token allocation
-    determineTokenAllocation(user),
+    getLiveTokenAllocator().then((allocator) =>
+      allocator.addUser({
+        followerCount: user.followerCount!,
+        // they're at the booth
+        isInPerson: false,
+      })
+    ),
     // style the photo
     Replicate.styleizePhoto({ imgUrl: savedImgUrl }).then((img) =>
       saveReplicatePhotoToBlobStore(user.id, img)
     ),
-  ]).catch(async (e) => {
-    console.error(e);
-    // delete the selfie from blob store if the photo is not styled
-    deleteSelfieFromBlobStore(user.id);
-    return e as Error;
-  });
+  ])
+    .catch((e) => {
+      console.error(e);
+
+      return e as Error;
+    })
+    .finally(() =>
+      // delete the selfie from blob store
+      deleteSelfieFromBlobStore(user.id)
+    );
 
   if (output instanceof Error)
     return NextResponse.json({ message: output.message }, { status: 500 });
 
-  const [tokenAllocation, pfpFromReplicate] = output;
+  const [allacatorResult, pfpFromReplicate] = output;
 
   const updatedUser = await prisma.user.update({
     where: {
-      privyId: privyResponse,
+      privyId: privyResponse.userId,
     },
     data: {
-      tokenAllocation_wei: tokenAllocation,
+      tokenAllocation: allacatorResult.allocation.toString(),
       pfp: pfpFromReplicate,
     },
   });
 
-  // do not await
-  // delete the selfie from blob store after stylization
-  deleteSelfieFromBlobStore(user.id);
-
   // revalidate the home page
   revalidatePath("/");
+
+  const privyUser = await privy.createWallets({
+    userId: privyResponse.userId,
+    createEthereumWallet: true,
+    numberOfEthereumWalletsToCreate: 1,
+  });
+
+  const isPrivyWallet = (
+    account: LinkedAccountWithMetadata
+  ): account is WalletWithMetadata => account.type === "wallet";
+
+  const privyUserAddress = privyUser.linkedAccounts.find(isPrivyWallet)
+    ?.address as Address;
+
+  if (!privyUserAddress)
+    return NextResponse.json(
+      { error: "No privy user address" },
+      { status: 500 }
+    );
+
+  // if (!userPreviouslyHadADistribution)
+  await Metal.sendReward({
+    to: privyUserAddress,
+    amount: allacatorResult.allocation,
+  }).catch((e) => {
+    console.error(e);
+
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  });
 
   return NextResponse.json({ message: "OK", updatedUser });
 };

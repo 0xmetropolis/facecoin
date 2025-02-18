@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type MenuOption = {
-  id: number;
   label: string;
   type: "button";
   link: string;
@@ -13,25 +12,21 @@ type MenuOption = {
 
 const MENU_OPTIONS: MenuOption[] = [
   {
-    id: 0,
     label: "BOOTH TERMINAL",
     type: "button",
     link: "/admin/booth",
   },
   {
-    id: 1,
+    label: "DISTRIBUTION DASHBOARD",
+    type: "button",
+    link: "/admin/distribution-dashboard",
+  },
+  {
     label: "REPLICATE PARAMS",
     type: "button",
     link: "/admin/replicate-params",
   },
   {
-    id: 2,
-    label: "DISTRIBUTION WEIGHTS",
-    type: "button",
-    link: "/admin/distribution-weights",
-  },
-  {
-    id: 3,
     label: "LIQUIDITY PARAMETERS",
     type: "button",
     link: "/admin/liquidity-params",
@@ -145,7 +140,7 @@ export function AdminDashboard() {
       <nav className="space-y-3" role="navigation" aria-label="Admin menu">
         {MENU_OPTIONS.map((option, index) => (
           <Link
-            key={option.id}
+            key={index}
             href={option.link}
             className={cn(
               "group relative pl-12 py-2 block focus-visible:outline-none",

@@ -1,26 +1,33 @@
 import prisma from "@/lib/prisma";
-import { styleizeInputSchema } from "@/lib/replicate";
 import { z } from "zod";
+
+const followerTierEnum = z.enum(["SUPER", "HIGH", "MEDIUM", "LOW"]);
+
+const categoryKeySchema =
+  z.custom<`${z.infer<typeof followerTierEnum>}_${"IN_PERSON" | "ONLINE"}`>();
+
+const allocatorSettingsSchema = z.object({
+  followerTiers: z.record(followerTierEnum, z.number().min(0)),
+  baseAllocations: z.record(categoryKeySchema, z.number().min(0)),
+  minimumAllocations: z.record(categoryKeySchema, z.number().min(0)),
+  decayFactor: z.number().min(0).max(1),
+});
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
     // Validate input
-    const validatedInput = styleizeInputSchema.parse(body);
+    const validatedInput = allocatorSettingsSchema.parse(body);
 
     // Upsert the configuration
-    await prisma.stylizePhotoInput.upsert({
+    await prisma.allocatorSettings.upsert({
       where: { id: 1 },
       create: {
         ...validatedInput,
-        num_outputs: 1,
         id: 1,
       },
-      update: {
-        ...validatedInput,
-        num_outputs: 1,
-      },
+      update: validatedInput,
     });
 
     return Response.json({
@@ -45,20 +52,20 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const params = await prisma.stylizePhotoInput.findUnique({
+    const settings = await prisma.allocatorSettings.findUnique({
       where: { id: 1 },
     });
 
-    if (!params) {
+    if (!settings) {
       return Response.json(
-        { success: false, error: "No parameters found" },
+        { success: false, error: "No settings found" },
         { status: 404 }
       );
     }
 
     return Response.json({
       success: true,
-      data: params,
+      data: settings,
     });
   } catch (error) {
     console.error(error);
