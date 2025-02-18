@@ -5,14 +5,14 @@ import { DEFAULT_MODEL_INPUT, type StyleizePhotoInput } from "@/lib/replicate";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage() {
-  // Fetch the single configuration record
-  const config = await prisma.stylizePhotoInput.findUnique({
-    where: { id: 1 },
-  });
-
+export default async function ReplicateParamsPage() {
+  // First check auth
   await protectPageWithAdminAuth({
     callbackToOnComplete: "/admin/replicate-params",
+  });
+  // Then do database queries
+  const config = await prisma.stylizePhotoInput.findUnique({
+    where: { id: 1 },
   });
 
   const initialParams: StyleizePhotoInput = config || DEFAULT_MODEL_INPUT;

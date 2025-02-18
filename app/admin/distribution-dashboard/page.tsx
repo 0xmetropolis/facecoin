@@ -13,12 +13,11 @@ import { AllocatorSettings, DEFAULT_SETTINGS } from "@/lib/tokenAllocation";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage() {
+export default async function DistributionDashboardPage() {
   await protectPageWithAdminAuth({
     callbackToOnComplete: "/admin/distribution-dashboard",
   });
 
-  // Fetch the single configuration record
   const config = (await prisma.allocatorSettings.findUnique({
     where: { id: 1 },
   })) as AllocatorSettings | null;
