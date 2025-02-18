@@ -149,7 +149,7 @@ export default function AdminLayout({
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 h-[300px] bg-gradient-to-t from-[#001000] to-transparent pointer-events-none z-20" />
+      <div className="fixed bottom-0 left-0 right-0 h-[300px] bg-gradient-to-t from-[#001000] to-transparent pointer-events-none" />
     </div>
   );
 }

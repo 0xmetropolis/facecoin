@@ -70,7 +70,7 @@ export function AdminBooth() {
   //
   //// RENDER
   return (
-    <div className="flex flex-col items-center gap-6 p-4">
+    <div className="flex flex-col items-center gap-6 p-4 w-2/3">
       {isComplete ? (
         <div className="flex flex-col items-center gap-2 h-full w-full">
           <div className="relative w-3/5 aspect-[3/2]">

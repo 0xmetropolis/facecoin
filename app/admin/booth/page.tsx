@@ -9,7 +9,7 @@ export default async function AdminBoothPage() {
   });
 
   return (
-    <div className="fixed left-0 top-0 flex items-center justify-center bg-theme-background h-screen w-screen">
+    <div className="fixed left-0 top-0 flex items-center justify-center bg-theme-background h-screen w-screen z-50">
       <header className="w-full bg-theme-primary text-primary-foreground py-2 top-0 fixed overscroll-contain">
         <div className={cn("container flex")}>
           <Link href="/">
