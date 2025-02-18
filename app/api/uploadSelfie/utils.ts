@@ -1,5 +1,5 @@
 import { saveDataToBlob, deleteFromBlob } from "@/lib/blob-store";
-import { User } from "@prisma/client";
+import { User } from "@/lib/types";
 
 //
 //// HELPERS
