@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar } from "@/components/avatar/avatar";
-import { InfoSection } from "@/components/info-section";
+import { InfoSection } from "@/components/base/info-section";
 import { Button } from "@/components/shadcn/button";
 import { useUser } from "@/lib/queries/user";
 import Link from "next/link";
@@ -23,7 +23,7 @@ export function SuccessView({ userId }: { userId: number }) {
       </div>
 
       {/* Avatar Section */}
-      <Avatar user={user} />
+      <Avatar user={user} containerClasses="w-48" />
 
       {/* Bonus Info Section */}
       <InfoSection

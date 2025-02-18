@@ -1,13 +1,10 @@
 "use client";
 
-import { CameraDrawer } from "@/components/camera-drawer";
-import { InfoSection } from "@/components/info-section";
-import { Profile } from "@/components/profile";
+import { CameraDrawer } from "@/components/base/camera-drawer";
+import { InfoSection } from "@/components/base/info-section";
+import { Profile } from "@/components/onboard/profile";
 import { Button } from "@/components/shadcn/button";
-import {
-  Drawer,
-  DrawerTrigger
-} from "@/components/shadcn/drawer";
+import { Drawer, DrawerTrigger } from "@/components/shadcn/drawer";
 import { Skeleton } from "@/components/shadcn/skeleton";
 import { userQueryId, useUserByPrivyId } from "@/lib/queries/user";
 import { User } from "@/lib/types";
@@ -64,7 +61,15 @@ export function UploadSelfie() {
             <div className="flex flex-col gap-4 items-center">
               <div className="flex flex-col gap-4 items-center">
                 <div className="flex flex-row items-center space-x-4">
-                  <Profile pfp={user?.pfp || "/facebook-avatar.webp"} />
+                  <Profile
+                    pfp={
+                      user?.pfp
+                        ? `${
+                            user.pfp
+                          }?lastmod=${user?.updatedAt?.toISOString?.()}`
+                        : "/facebook-avatar.webp"
+                    }
+                  />
                   <div className="text-left">
                     <h2 className="font-semibold flex items-center gap-1">
                       @

@@ -6,7 +6,7 @@ import { Input } from "@/components/shadcn/input";
 import { User } from "@prisma/client";
 import Image from "next/image";
 import { useState } from "react";
-import { CameraDrawer } from "../camera-drawer";
+import { CameraDrawer } from "../base/camera-drawer";
 
 export function AdminBooth() {
   const [facecoinId, setFacecoinId] = useState("");
@@ -75,7 +75,7 @@ export function AdminBooth() {
         <div className="flex flex-col items-center gap-2 h-full w-full">
           <div className="relative w-3/5 aspect-[3/2]">
             <Image
-              src={`${user.pfp!}?access=${Date.now()}`}
+              src={`${user.pfp!}?lastmod=${user.updatedAt?.toISOString()}`}
               alt="Profile Picture"
               fill
               className="object-cover"

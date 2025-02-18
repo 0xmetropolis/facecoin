@@ -8,7 +8,6 @@ import { STYLE_OPTIONS, type StyleizePhotoInput } from "@/lib/replicate";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Toaster } from "../shadcn/toaster";
 
 type Props = {
   initialParams: StyleizePhotoInput;
@@ -199,7 +198,6 @@ export function ReplicateParamsForm({ initialParams }: Props) {
           </Link>
         </div>
       </form>
-      <Toaster />
-    </>
+     </>
   );
 }

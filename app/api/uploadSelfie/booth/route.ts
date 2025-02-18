@@ -77,11 +77,13 @@ export const POST = async (req: NextRequest) => {
     data: {
       tokenAllocation: allacatorResult.allocation.toString(),
       pfp: pfpFromReplicate,
+      updatedAt: new Date(),
     },
   });
 
-  // revalidate the home page
+  // revalidate the home page and user pages
   revalidatePath("/");
+  revalidatePath(`/${updatedUser.socialHandle}`);
 
   return NextResponse.json({ message: "OK", updatedUser });
 };

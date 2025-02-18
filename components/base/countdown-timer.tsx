@@ -7,6 +7,7 @@ type TimeLeft = {
   minutes: number;
   seconds: number;
 };
+
 const calculateTimeLeft = (endTime: string): TimeLeft => {
   const difference = new Date(endTime).getTime() - new Date().getTime();
 
@@ -22,7 +23,7 @@ const calculateTimeLeft = (endTime: string): TimeLeft => {
   };
 };
 
-export function CountdownTimer({ endTime }: { endTime: string; }) {
+export function InlineCountdownTimer({ endTime }: { endTime: string }) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(
     calculateTimeLeft(endTime)
   );
@@ -41,5 +42,30 @@ export function CountdownTimer({ endTime }: { endTime: string; }) {
         timeLeft.minutes
       ).padStart(2, "0")}:${String(timeLeft.seconds).padStart(2, "0")}`}
     </span>
+  );
+}
+
+export function LargeCountdownTimer({ endTime }: { endTime: string }) {
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(
+    calculateTimeLeft(endTime)
+  );
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft(endTime));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [endTime]);
+
+  return (
+    <h2 className="text-[16px] font-semibold">
+      {`${timeLeft.days ? `${timeLeft.days}:` : ""}${String(
+        timeLeft.hours
+      ).padStart(2, "0")}:${String(timeLeft.minutes).padStart(2, "0")}:${String(
+        timeLeft.seconds
+      ).padStart(2, "0")}`}{" "}
+      until liquidity
+    </h2>
   );
 }

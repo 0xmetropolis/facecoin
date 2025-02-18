@@ -8,7 +8,7 @@ import {
   DrawerContent,
   DrawerDescription,
   DrawerTitle,
-} from "./shadcn/drawer";
+} from "../shadcn/drawer";
 
 export const CameraDrawer = ({
   onSnap,

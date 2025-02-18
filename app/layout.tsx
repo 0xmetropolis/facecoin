@@ -2,7 +2,8 @@ import "./globals.css";
 
 import { Inter } from "next/font/google";
 import { cn } from "../lib/utils";
-import { Header } from "@/components/header";
+import { Header } from "@/components/base/header";
+import { Toaster } from "@/components/shadcn/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
         <main className="container mx-auto px-4 py-6 flex-grow flex flex-col">
           {children}
         </main>
+        <Toaster />
       </body>
     </html>
   );

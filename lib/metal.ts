@@ -39,7 +39,7 @@ export type GetTokenHoldersResponse = {
   holders: Holder[];
 };
 
-export const getTokenInfo = async () => {
+const getTokenInfo = async () => {
   const response = await fetch(
     `${METAL_API_URL}/token/${FACECOIN_TOKEN_ADDRESS}`,
     {
@@ -55,13 +55,7 @@ export const getTokenInfo = async () => {
   return data;
 };
 
-export const sendReward = async ({
-  to,
-  amount,
-}: {
-  to: Address;
-  amount: number;
-}) => {
+const sendReward = async ({ to, amount }: { to: Address; amount: number }) => {
   const response = await fetch(
     `${METAL_API_URL}/token/${FACECOIN_TOKEN_ADDRESS}/reward`,
     {
@@ -85,4 +79,9 @@ export const sendReward = async ({
 
   const reward = await response.json();
   return reward;
+};
+
+export const Metal = {
+  getTokenInfo,
+  sendReward,
 };

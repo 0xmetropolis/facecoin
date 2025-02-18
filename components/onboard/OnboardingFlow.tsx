@@ -9,7 +9,7 @@ import {
   usePrivy,
 } from "@privy-io/react-auth";
 import { useEffect, useState } from "react";
-import { LoadingIcon } from "../loading-icon";
+import { LoadingIcon } from "../base/loading-icon";
 import { Button } from "../shadcn/button";
 import { ConnectSocials } from "./steps/ConnectSocial";
 import { UploadSelfie } from "./steps/UploadSelfie";

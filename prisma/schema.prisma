@@ -14,6 +14,7 @@ generator client {
 model User {
     id              Int      @id @default(autoincrement())
     createdAt       DateTime @default(now())
+    updatedAt       DateTime @default(now())
     privyId         String   @unique
     socialHandle    String   @unique
     socialPlatform  String
@@ -36,10 +37,10 @@ model StylizePhotoInput {
 }
 
 model AllocatorSettings {
-    id                  Int      @id @default(1)
+    id                 Int      @id @default(1)
     updatedAt          DateTime @updatedAt
-    followerTiers      Json     // Record<FollowerTier, number>
-    baseAllocations    Json     // Record<CategoryKey, number>
-    minimumAllocations Json     // Record<CategoryKey, number>
+    followerTiers      Json // Record<FollowerTier, number>
+    baseAllocations    Json // Record<CategoryKey, number>
+    minimumAllocations Json // Record<CategoryKey, number>
     decayFactor        Float    @default(0.99)
 }

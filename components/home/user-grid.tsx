@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { User } from "@/lib/types";
 import { Suspense } from "react";
-import { Avatar, LoadingAvatar } from "./avatar/avatar";
+import { Avatar, LoadingAvatar } from "../avatar/avatar";
 
 const LoadingUserGrid = () =>
   Array.from({ length: 3 }).map((_, index) => <LoadingAvatar key={index} />);

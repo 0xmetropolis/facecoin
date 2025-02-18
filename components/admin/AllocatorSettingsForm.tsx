@@ -6,7 +6,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Toaster } from "../shadcn/toaster";
 import { AllocatorSettings } from "@/lib/tokenAllocation";
 import { useRouter } from "next/navigation";
 
@@ -196,7 +195,6 @@ export function AllocatorSettingsForm({
           </Button>
         </div>
       </form>
-      <Toaster />
     </>
   );
 }

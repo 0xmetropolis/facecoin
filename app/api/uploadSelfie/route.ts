@@ -1,12 +1,8 @@
-import * as Metal from "@/lib/metal";
+import { Metal } from "@/lib/metal";
 import prisma from "@/lib/prisma";
-import privy from "@/lib/privy";
+import privy, { PRIVY_ID_TOKEN_NAME } from "@/lib/privy";
 import * as Replicate from "@/lib/replicate";
 import { getLiveTokenAllocator } from "@/lib/tokenAllocation";
-import {
-  LinkedAccountWithMetadata,
-  WalletWithMetadata,
-} from "@privy-io/server-auth";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { Address } from "viem";
@@ -25,22 +21,22 @@ export const maxDuration = 30;
 export const POST = async (req: NextRequest) => {
   const { photo: photoDataUrl } = await req.json();
 
-  const privyToken = req.cookies.get("privy-token")?.value;
+  const privyIdToken = req.cookies.get(PRIVY_ID_TOKEN_NAME)?.value;
 
-  if (!privyToken)
-    return NextResponse.json({ error: "No privy token" }, { status: 401 });
+  if (!privyIdToken)
+    return NextResponse.json({ error: "No privy id token" }, { status: 401 });
 
-  const privyResponse = await privy
-    .verifyAuthToken(privyToken)
+  const privyUser = await privy
+    .getUser({ idToken: privyIdToken })
     .then((user) => user)
     .catch((e) => e as Error);
 
-  if (privyResponse instanceof Error)
-    return NextResponse.json({ error: privyResponse.message }, { status: 401 });
+  if (privyUser instanceof Error)
+    return NextResponse.json({ error: privyUser.message }, { status: 401 });
 
   const user = await prisma.user.findUnique({
     where: {
-      privyId: privyResponse.userId,
+      privyId: privyUser.id,
     },
   });
 
@@ -88,29 +84,28 @@ export const POST = async (req: NextRequest) => {
 
   const updatedUser = await prisma.user.update({
     where: {
-      privyId: privyResponse.userId,
+      privyId: privyUser.id,
     },
     data: {
       tokenAllocation: allacatorResult.allocation.toString(),
       pfp: pfpFromReplicate,
+      updatedAt: new Date(),
     },
   });
 
-  // revalidate the home page
+  // revalidate the home page and user pages
   revalidatePath("/");
+  revalidatePath(`/${updatedUser.socialHandle}`);
 
-  const privyUser = await privy.createWallets({
-    userId: privyResponse.userId,
-    createEthereumWallet: true,
-    numberOfEthereumWalletsToCreate: 1,
-  });
-
-  const isPrivyWallet = (
-    account: LinkedAccountWithMetadata
-  ): account is WalletWithMetadata => account.type === "wallet";
-
-  const privyUserAddress = privyUser.linkedAccounts.find(isPrivyWallet)
-    ?.address as Address;
+  const privyUserAddress = privyUser.wallet?.address
+    ? privyUser.wallet.address
+    : await privy
+        .createWallets({
+          userId: privyUser.id,
+          createEthereumWallet: true,
+          numberOfEthereumWalletsToCreate: 1,
+        })
+        .then((u) => u.wallet!.address!);
 
   if (!privyUserAddress)
     return NextResponse.json(
@@ -120,7 +115,7 @@ export const POST = async (req: NextRequest) => {
 
   // if (!userPreviouslyHadADistribution)
   await Metal.sendReward({
-    to: privyUserAddress,
+    to: privyUserAddress as Address,
     amount: allacatorResult.allocation,
   }).catch((e) => {
     console.error(e);
