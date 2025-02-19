@@ -1,7 +1,6 @@
 import { Avatar } from "@/components/avatar/avatar";
 import { LargeCountdownTimer } from "@/components/base/countdown-timer";
 import { ClientSideProfileActions } from "@/components/profile/profile-actions";
-import Providers from "@/components/providers/providers";
 import prisma from "@/lib/prisma";
 import { TTL } from "@/lib/TTL-timestamp";
 import { getUserFromRequest } from "@/lib/utils/user";
