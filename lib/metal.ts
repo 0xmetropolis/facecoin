@@ -87,7 +87,7 @@ const sendReward = async ({
   return;
 };
 
-type GetHolderBalanceResponse = {
+export type GetHolderBalanceResponse = {
   name: string;
   symbol: string;
   id: string;

@@ -3,10 +3,10 @@
 import { Button } from "@/components/shadcn/button";
 import { Drawer, DrawerTrigger } from "@/components/shadcn/drawer";
 import { Input } from "@/components/shadcn/input";
-import { User } from "@prisma/client";
 import Image from "next/image";
 import { useState } from "react";
 import { CameraDrawer } from "../base/camera-drawer";
+import { User } from "@/lib/types";
 
 export function AdminBooth() {
   const [facecoinId, setFacecoinId] = useState("");

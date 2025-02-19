@@ -18,9 +18,7 @@ function getXLink(user: User): string {
 function getWPLink(user: User): string {
   //https://warpcast.com/~/compose?text=Hello%20world!&embeds[]=https://farcaster.xyz
   return `https://warpcast.com/~/compose?text=${encodeURIComponent(
-    `I just got ${Number(
-      user?.tokenAllocation
-    ).toLocaleString()} $facecoin`
+    `I just got ${Number(user?.tokenAllocation).toLocaleString()} $facecoin`
   )}&embeds[]=${encodeURIComponent(
     `https://facecoin.world/${user.socialHandle}`
   )}`;

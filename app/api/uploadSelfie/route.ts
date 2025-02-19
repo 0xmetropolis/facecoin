@@ -87,7 +87,10 @@ export const POST = async (req: NextRequest) => {
       privyId: privyUser.id,
     },
     data: {
-      tokenAllocation: allacatorResult.allocation.toString(),
+      tokenAllocation:
+        user.tokenAllocation === null
+          ? allacatorResult.allocation.toString()
+          : user.tokenAllocation,
       pfp: pfpFromReplicate,
       updatedAt: new Date(),
     },
