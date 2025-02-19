@@ -89,9 +89,6 @@ export default async function Image({
             alt={user.socialHandle}
             width="275"
             height="275"
-            style={{
-              borderRadius: "100%",
-            }}
           />
         </div>
 

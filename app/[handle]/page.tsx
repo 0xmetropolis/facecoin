@@ -48,12 +48,10 @@ export default async function UserProfilePage({
           <LargeCountdownTimer endTime={TTL} />
           <Avatar user={user} containerClasses="w-56" />
         </div>
-        <Providers>
-          <ClientSideProfileActions
-            isUser={currentUser?.id === user.id}
-            currentUser={currentUser}
-          />
-        </Providers>
+        <ClientSideProfileActions
+          isUser={currentUser?.id === user.id}
+          currentUser={currentUser}
+        />
       </div>
     </>
   );

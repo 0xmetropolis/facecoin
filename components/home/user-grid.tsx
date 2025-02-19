@@ -1,7 +1,6 @@
-import { Suspense } from "react";
-import { LoadingAvatar } from "../avatar/avatar";
-import { ResolvedUserGrid } from "./resolved-user-grid";
 import prisma from "@/lib/prisma";
+import { Suspense } from "react";
+import { Avatar, LoadingAvatar } from "../avatar/avatar";
 
 const LoadingUserGrid = () =>
   Array.from({ length: 3 }).map((_, index) => <LoadingAvatar key={index} />);
@@ -13,7 +12,7 @@ const SuspensedUserGrid = async () => {
     orderBy: { followerCount: "desc" },
   });
 
-  return <ResolvedUserGrid users={users} />;
+  return users.map((user) => <Avatar key={user.id} user={user} />);
 };
 
 export function UserGrid() {

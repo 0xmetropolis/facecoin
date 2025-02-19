@@ -1,24 +1,9 @@
-import { useFacecoinBalance } from "@/lib/queries/user";
 import { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { Skeleton } from "../shadcn/skeleton";
-
-const BalanceInfo = ({ user }: { user?: User }) => {
-  const { data: balanceInfo, isLoading } = useFacecoinBalance({
-    user,
-  });
-
-  if (isLoading) return <Skeleton className="w-24 h-5 inline-flex m-0.5" />;
-  if (!balanceInfo) return null;
-
-  return (
-    <p className="text-black whitespace-break-spaces text-center">
-      {`${Number(balanceInfo.balance).toLocaleString()} $facecoin`}
-    </p>
-  );
-};
+import { BalanceInfo } from "./balance-info";
 
 export const Avatar = ({
   user,
@@ -36,7 +21,7 @@ export const Avatar = ({
       <div className={cn("flex flex-col gap-2 w-32", containerClasses)}>
         <div className="relative aspect-square">
           <Image
-            className={cn("rounded-full aspect-square object-cover")}
+            className={cn("aspect-square object-cover")}
             alt={user?.socialHandle || "loading user..."}
             src={
               !isLoading && user?.pfp

@@ -5,6 +5,7 @@ import { cn } from "../lib/utils";
 import { Header } from "@/components/base/header";
 import { Toaster } from "@/components/shadcn/toaster";
 import { Metadata } from "next";
+import Providers from "@/components/providers/providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,11 +27,13 @@ export default function RootLayout({
           inter.className
         )}
       >
-        <Header />
-        <main className="container mx-auto px-4 py-6 flex-grow flex flex-col">
-          {children}
-        </main>
-        <Toaster />
+        <Providers>
+          <Header />
+          <main className="container mx-auto px-4 py-6 flex-grow flex flex-col">
+            {children}
+          </main>
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );

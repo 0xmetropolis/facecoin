@@ -105,7 +105,7 @@ const getHolderBalance = async (
       headers: {
         "x-api-key": process.env.METAL_API_KEY!,
       },
-      next: { tags: ["holders", holderId] },
+      next: { tags: ["holders", holderId], revalidate: 60 },
     }
   );
 
