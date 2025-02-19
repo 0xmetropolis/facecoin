@@ -1,8 +1,9 @@
 import { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { Skeleton } from "../shadcn/skeleton";
 import Link from "next/link";
+import { Skeleton } from "../shadcn/skeleton";
+import { BalanceInfo } from "./balance-info";
 
 export const Avatar = ({
   user,
@@ -20,7 +21,7 @@ export const Avatar = ({
       <div className={cn("flex flex-col gap-2 w-32", containerClasses)}>
         <div className="relative aspect-square">
           <Image
-            className={cn("rounded-full aspect-square object-cover")}
+            className={cn("aspect-square object-cover")}
             alt={user?.socialHandle || "loading user..."}
             src={
               !isLoading && user?.pfp
@@ -42,13 +43,7 @@ export const Avatar = ({
               )}
             </div>
             <div className={cn("flex flex-col items-center gap-1")}>
-              {isLoading ? (
-                <Skeleton className="w-24 h-5 inline-flex m-0.5" />
-              ) : user?.tokenAllocation ? (
-                <p className="text-black whitespace-break-spaces text-center">
-                  {`${Number(user.tokenAllocation).toLocaleString()} $facecoin`}
-                </p>
-              ) : null}
+              <BalanceInfo user={user} />
             </div>
           </div>
         )}

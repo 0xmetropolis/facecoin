@@ -8,7 +8,7 @@ export const Profile = ({ pfp }: { pfp: string }) => {
           fill
           alt="pfp"
           quality={10}
-          className="rounded-full aspect-square object-cover"
+          className="aspect-square object-cover"
           priority
           placeholder="blur"
           blurDataURL="/facebook-avatar.webp"

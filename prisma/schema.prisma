@@ -16,6 +16,7 @@ model User {
     createdAt       DateTime @default(now())
     updatedAt       DateTime @default(now())
     privyId         String   @unique
+    address         String
     socialHandle    String   @unique
     socialPlatform  String
     facecoinCode    String   @unique

@@ -1,2 +1,2 @@
 export const FACECOIN_TOKEN_ADDRESS =
-  "0x7c6afe8dbde1edaf805d039e0a64cdc12a672647";
+  "0x879ab9469718d07e6b54b4bde99a3dc0efc8ac64";

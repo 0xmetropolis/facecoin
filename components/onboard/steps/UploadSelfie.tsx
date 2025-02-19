@@ -88,8 +88,9 @@ export function UploadSelfie() {
                 </div>
               </div>
               <DrawerTrigger asChild>
-                <Button className="font-bold">Upload picture</Button>
+                <Button className="font-bold">Upload picture*</Button>
               </DrawerTrigger>
+              <p className="text-sm">* you can only upload your photo once</p>
             </div>
             {typeof processedImageState === "object" &&
               "error" in processedImageState && (
@@ -102,19 +103,27 @@ export function UploadSelfie() {
                   </p>
                 </div>
               )}
-            <div className="text-center space-y-2">
-              <h3>Your FaceCoin ID is:</h3>
-              <p className="text-2xl font-bold">{facecoinId}</p>
-            </div>
             <InfoSection
-              title="Get 10X more coins"
+              title="Wait! Get 2X more coins if you take your photo at the Facecoin booth"
               body={
-                <p className="text-sm">
-                  Show your FaceCoin ID to the FaceCoin terminal at the Metal
-                  booth
-                </p>
+                <div className="p-4 flex flex-col gap-2">
+                  {/* <p className="text-sm">
+                    Show your FaceCoin ID to the FaceCoin terminal at the Metal
+                    booth
+                  </p> */}
+                  {/* directions link */}
+                  <div className="text-center space-y-2">
+                    <h3>Your FaceCoin ID is:</h3>
+                    <p className="text-2xl font-bold">{facecoinId}</p>
+                  </div>
+                  {/* <p className="text-sm font-semibold">
+                    Warning! If you upload your photo in the app, you won&apos;t
+                    be able to get the 2X bonus at the terminal.
+                  </p> */}
+                </div>
               }
             />
+            <div />
           </>
         )}
 

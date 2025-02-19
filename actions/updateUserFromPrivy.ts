@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import privy from "@/lib/privy";
 import {
   getFollowerCount,
   isFollowerCountError,
@@ -7,6 +8,7 @@ import {
 } from "@/lib/socials";
 import { User } from "@/lib/types";
 import { PrivyEvents } from "@privy-io/react-auth";
+import { Address } from "viem";
 
 //
 //// TYPES
@@ -115,6 +117,15 @@ export const updateUserFromPrivy = async ({
         })();
 
   const facecoinCode = mapUserCountToFacecoinCode(userCount);
+  const userAddress = privyUser.wallet?.address
+    ? privyUser.wallet?.address
+    : await privy
+        .createWallets({
+          userId: privyUser.id,
+          createEthereumWallet: true,
+          numberOfEthereumWalletsToCreate: 1,
+        })
+        .then((u) => u.wallet!.address!);
 
   // user does not exist create the user
   const newUser: Omit<User, "id" | "createdAt" | "updatedAt"> = {
@@ -122,6 +133,7 @@ export const updateUserFromPrivy = async ({
     socialHandle,
     socialPlatform,
     followerCount,
+    address: userAddress as Address,
     facecoinCode,
     pfp: null,
     tokenAllocation: null,

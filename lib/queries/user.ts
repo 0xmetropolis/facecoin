@@ -1,6 +1,7 @@
-import { User } from "@prisma/client";
 import { type User as PrivyUser } from "@privy-io/react-auth";
 import { skipToken, useQuery } from "@tanstack/react-query";
+import { User } from "../types";
+import { GetHolderBalanceResponse } from "../metal";
 
 //
 // Query Key Definitions
@@ -9,8 +10,8 @@ export function userQueryId(id?: PrivyUser["id"] | User["id"]) {
   return ["user", id];
 }
 
-function facecoinBalanceQueryKey(userId?: User["id"]) {
-  return ["facecoin-balance", userId?.toString()];
+function facecoinBalanceQueryKey(user?: User) {
+  return ["facecoin-balance", user?.id?.toString()];
 }
 
 //
@@ -66,11 +67,11 @@ async function getUserById({
 }
 
 async function getFacecoinBalance({
-  userId,
+  userAddress,
 }: {
-  userId: number;
-}): Promise<{ balance: number; usdValue: number }> {
-  const response = await fetch(`/balance/${userId}`, {
+  userAddress: string;
+}): Promise<GetHolderBalanceResponse> {
+  const response = await fetch(`/api/balance/${userAddress}`, {
     headers: {
       Accept: "application/json",
     },
@@ -83,7 +84,7 @@ async function getFacecoinBalance({
 
   const data = await response.json();
 
-  return data as { balance: number; usdValue: number };
+  return data;
 }
 
 async function getUsers() {
@@ -115,12 +116,14 @@ export const useUserByPrivyId = ({ id }: { id?: PrivyUser["id"] }) =>
     enabled: !!id,
   });
 
-export const useFacecoinBalance = ({ userId }: { userId?: number }) =>
+export const useFacecoinBalance = ({ user }: { user?: User }) =>
   useQuery({
-    queryKey: facecoinBalanceQueryKey(userId),
-    queryFn: userId ? () => getFacecoinBalance({ userId }) : skipToken,
+    queryKey: facecoinBalanceQueryKey(user),
+    queryFn: user
+      ? () => getFacecoinBalance({ userAddress: user.address })
+      : skipToken,
     // staleTime: 1000 * 60 * 4,
-    enabled: !!userId,
+    enabled: !!user,
   });
 
 export const useUsers = () =>

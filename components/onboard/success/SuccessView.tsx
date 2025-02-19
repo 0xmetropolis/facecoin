@@ -11,19 +11,17 @@ function getXLink(user: User): string {
   return `https://x.com/intent/tweet?text=${encodeURIComponent(
     `I just got ${Number(
       user?.tokenAllocation
-    ).toLocaleString()} $facecoin on facecoin.world.\npowered by @metaldotbuild\n\n`
+    ).toLocaleString()} $facecoin on facecoin.world\n\n`
   )}&url=${encodeURIComponent(`https://facecoin.world/${user.socialHandle}`)}`;
 }
 
 function getWPLink(user: User): string {
   //https://warpcast.com/~/compose?text=Hello%20world!&embeds[]=https://farcaster.xyz
   return `https://warpcast.com/~/compose?text=${encodeURIComponent(
-    `I just got ${Number(
-      user?.tokenAllocation
-    ).toLocaleString()} $facecoin on facecoin.\npowered by metal`
+    `I just got ${Number(user?.tokenAllocation).toLocaleString()} $facecoin`
   )}&embeds[]=${encodeURIComponent(
     `https://facecoin.world/${user.socialHandle}`
-  )}&embeds[]=${encodeURIComponent(`https://metal.build`)}`;
+  )}`;
 }
 
 export function SuccessView({ userId }: { userId: number }) {
