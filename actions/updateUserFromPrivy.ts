@@ -117,7 +117,7 @@ export const updateUserFromPrivy = async ({
   const facecoinCode = mapUserCountToFacecoinCode(userCount);
 
   // user does not exist create the user
-  const newUser: Omit<User, "id" | "createdAt"> = {
+  const newUser: Omit<User, "id" | "createdAt" | "updatedAt"> = {
     privyId: privyUser.id,
     socialHandle,
     socialPlatform,
