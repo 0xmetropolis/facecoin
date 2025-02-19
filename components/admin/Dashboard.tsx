@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type MenuOption = {
   label: string;
@@ -53,9 +54,18 @@ const useMousePosition = () => {
 
 export function AdminDashboard() {
   const mousePosition = useMousePosition();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const success = searchParams.get("success");
 
   // Add useEffect for initial focus
   useEffect(() => {
+    if (success) {
+      const audio = new Audio("/login-sound.mp3");
+      audio.volume = 0.5;
+      audio.play();
+      router.replace("/admin");
+    }
     // Focus the first menu item on component mount
     const firstMenuItem =
       document.querySelector<HTMLAnchorElement>('[role="menuitem"]');

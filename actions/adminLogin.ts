@@ -23,8 +23,10 @@ export async function adminLoginAction(
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
+    maxAge: 60 * 60 * 24 * 1, // 1 day
   });
 
+  const redirectTo = `${callbackUrl?.toString() || "/admin"}?success=true`;
   // Redirect to callback URL or admin page
-  redirect(callbackUrl?.toString() || "/admin");
+  redirect(redirectTo);
 }
