@@ -52,6 +52,7 @@ export default async function UserProfilePage({
           isUser={currentUser?.id === user.id}
           currentUser={currentUser}
         />
+        <PokesSection user={user} viewingUser={currentUser} />
       </div>
     </>
   );
