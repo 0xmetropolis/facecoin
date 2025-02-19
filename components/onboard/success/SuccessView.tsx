@@ -4,7 +4,16 @@ import { Avatar } from "@/components/avatar/avatar";
 import { InfoSection } from "@/components/base/info-section";
 import { Button } from "@/components/shadcn/button";
 import { useUser } from "@/lib/queries/user";
+import { User } from "@/lib/types";
 import Link from "next/link";
+
+function getXLink(user: User): string {
+  return `https://x.com/intent/tweet?text=${encodeURIComponent(
+    `I just got ${Number(
+      user?.tokenAllocation
+    ).toLocaleString()} $facecoin on facecoin.world. powered by @metaldotbuild`
+  )}&url=${encodeURIComponent(`https://facecoin.world/${user.socialHandle}`)}`;
+}
 
 export function SuccessView({ userId }: { userId: number }) {
   const { data: user } = useUser({ id: userId });
@@ -27,17 +36,15 @@ export function SuccessView({ userId }: { userId: number }) {
 
       {/* Bonus Info Section */}
       <InfoSection
-        title="Get 2X more coins"
+        title="Share"
         body={
           <div className="flex flex-col gap-1">
-            <p className="text-sm">
-              Share on Twitter/X and Farcaster to earn a bonus
-            </p>
+            <p className="text-sm">Share on Twitter/X and Farcaster</p>
             <div className="flex gap-4 w-full justify-center">
-              <Link href={"google.com"}>
+              <Link href={user ? getXLink(user) : ""}>
                 <Button variant={"secondary"}>Twitter →</Button>
               </Link>
-              <Link href={"google.com"}>
+              <Link href={"https://farcaster.xyz/p/facecoin"}>
                 <Button variant={"secondary"}>Farcaster →</Button>
               </Link>
             </div>

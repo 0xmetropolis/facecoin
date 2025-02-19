@@ -4,8 +4,14 @@ import { Inter } from "next/font/google";
 import { cn } from "../lib/utils";
 import { Header } from "@/components/base/header";
 import { Toaster } from "@/components/shadcn/toaster";
+import { Metadata } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "Facecoin",
+  description: "Facecoin - Powered by Metal",
+};
 
 export default function RootLayout({
   children,

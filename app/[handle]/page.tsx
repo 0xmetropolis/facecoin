@@ -7,6 +7,19 @@ import { TTL } from "@/lib/TTL-timestamp";
 import { getUserFromRequest } from "@/lib/utils/user";
 import { notFound } from "next/navigation";
 
+export const generateMetadata = async ({
+  params,
+}: {
+  params: Promise<{ handle: string }>;
+}) => {
+  const { handle } = await params;
+
+  return {
+    title: `@${handle} | facecoin.world`,
+    description: `Facecoin - Powered by Metal`,
+  };
+};
+
 export default async function UserProfilePage({
   params,
 }: {
