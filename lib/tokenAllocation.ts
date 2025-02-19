@@ -188,7 +188,7 @@ class TokenAllocator {
     const stats: OverallStats = {
       totalUsersServed: this.userCount,
       remainingTokens: this.remainingRewardTokens,
-      currentDecayFactor: this.calculateTimeDecay(),
+      currentDecayFactor: this.settings.decayFactor,
       currentScalingFactor: this.calculatePoolScaling(),
     };
 

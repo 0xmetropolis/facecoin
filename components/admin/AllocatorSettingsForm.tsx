@@ -180,7 +180,8 @@ export function AllocatorSettingsForm({
             required
           />
           <p className="text-sm text-gray-500">
-            Decay factor for time-based reduction (0-1)
+            1 = highest rate of distribution
+            <br />0 = no distribution
           </p>
         </div>
 
