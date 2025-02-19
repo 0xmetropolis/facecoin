@@ -6,8 +6,8 @@ import { join } from "node:path";
 // Image metadata
 export const alt = "Facecoin Profile";
 export const size = {
-  width: 1200,
-  height: 630,
+  width: 800,
+  height: 400,
 };
 
 export const contentType = "image/png";
@@ -64,7 +64,7 @@ export default async function Image({
   const element = (
     <div
       style={{
-        background: "white",
+        background: "#E6E8F5",
         width: "100%",
         height: "100%",
         display: "flex",
@@ -87,8 +87,8 @@ export default async function Image({
           <img
             src={user.pfp ?? ""}
             alt={user.socialHandle}
-            width="200"
-            height="200"
+            width="275"
+            height="275"
             style={{
               borderRadius: "100%",
             }}
@@ -122,11 +122,13 @@ export default async function Image({
       <div
         style={{
           alignSelf: "flex-end",
+          display: "flex",
           position: "absolute",
           bottom: 40,
+          right: 40,
           alignItems: "center",
           gap: "8px",
-          fontSize: "16px",
+          fontSize: "24px",
           color: "#6B7280",
         }}
       >
@@ -134,7 +136,7 @@ export default async function Image({
         <img
           src="https://metal.build/logo.png"
           alt="Metal"
-          width="20"
+          width="24"
           height="24"
           style={{
             objectFit: "contain",
