@@ -114,14 +114,21 @@ export const POST = async (req: NextRequest) => {
     );
 
   // if (!userPreviouslyHadADistribution)
-  await Metal.sendReward({
+  const success = await Metal.sendReward({
     to: privyUserAddress as Address,
     amount: allacatorResult.allocation,
-  }).catch((e) => {
-    console.error(e);
+  })
+    .then(() => true)
+    .catch((e) => {
+      console.error(e);
+      return false;
+    });
 
-    return NextResponse.json({ error: e.message }, { status: 500 });
-  });
+  if (!success)
+    return NextResponse.json(
+      { error: "Failed to send reward" },
+      { status: 500 }
+    );
 
   return NextResponse.json({ message: "OK", updatedUser });
 };

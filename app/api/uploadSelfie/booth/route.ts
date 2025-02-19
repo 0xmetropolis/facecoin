@@ -1,8 +1,11 @@
+import { Metal } from "@/lib/metal";
 import prisma from "@/lib/prisma";
+import privy from "@/lib/privy";
 import * as Replicate from "@/lib/replicate";
 import { getLiveTokenAllocator } from "@/lib/tokenAllocation";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
+import { Address } from "viem";
 import {
   deleteSelfieFromBlobStore,
   saveReplicatePhotoToBlobStore,
@@ -32,6 +35,10 @@ export const POST = async (req: NextRequest) => {
 
   if (!user)
     return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+  const privyUser = await privy.getUserById(user.privyId);
+
+  // const userPreviouslyHadADistribution = user.tokenAllocation !== null;
 
   if (user.followerCount === null || user.followerCount === 0)
     return NextResponse.json(
@@ -72,7 +79,7 @@ export const POST = async (req: NextRequest) => {
 
   const updatedUser = await prisma.user.update({
     where: {
-      facecoinCode: facecoinId,
+      privyId: privyUser.id,
     },
     data: {
       tokenAllocation: allacatorResult.allocation.toString(),
@@ -84,6 +91,39 @@ export const POST = async (req: NextRequest) => {
   // revalidate the home page and user pages
   revalidatePath("/");
   revalidatePath(`/${updatedUser.socialHandle}`);
+
+  const privyUserAddress = privyUser.wallet?.address
+    ? privyUser.wallet.address
+    : await privy
+        .createWallets({
+          userId: privyUser.id,
+          createEthereumWallet: true,
+          numberOfEthereumWalletsToCreate: 1,
+        })
+        .then((u) => u.wallet!.address!);
+
+  if (!privyUserAddress)
+    return NextResponse.json(
+      { error: "No privy user address" },
+      { status: 500 }
+    );
+
+  // if (!userPreviouslyHadADistribution)
+  const success = await Metal.sendReward({
+    to: privyUserAddress as Address,
+    amount: allacatorResult.allocation,
+  })
+    .then(() => true)
+    .catch((e) => {
+      console.error(e);
+      return false;
+    });
+
+  if (!success)
+    return NextResponse.json(
+      { error: "Failed to send reward" },
+      { status: 500 }
+    );
 
   return NextResponse.json({ message: "OK", updatedUser });
 };

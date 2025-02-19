@@ -1,3 +1,4 @@
+import { Metal } from "./metal";
 import prisma from "./prisma";
 
 type FollowerTier = "SUPER" | "HIGH" | "MEDIUM" | "LOW";
@@ -200,5 +201,12 @@ export default TokenAllocator;
 
 export const getLiveTokenAllocator = async () => {
   const userCount = await prisma.user.count();
-  return TokenAllocator.new(userCount, 50_000_000, 50_000_000);
+  const { startingRewardSupply, remainingRewardSupply } =
+    await Metal.getTokenInfo();
+
+  return TokenAllocator.new(
+    userCount,
+    startingRewardSupply,
+    remainingRewardSupply
+  );
 };
