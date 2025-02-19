@@ -133,12 +133,11 @@ export function UploadSelfie() {
                   updatedUser: User;
                 },
               }))
-              .then((res) => {
+              .then(async (res) => {
                 if (res.body.message === "OK") {
-                  queryClient.setQueryData(
-                    userQueryId(user.id),
-                    res.body.updatedUser
-                  );
+                  await queryClient.refetchQueries({
+                    queryKey: userQueryId(),
+                  });
                   router.replace(`/onboard/${user.id}/success`);
                 } else
                   setProcessedImageState({

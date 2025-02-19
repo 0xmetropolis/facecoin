@@ -1,7 +1,7 @@
 import { Avatar } from "@/components/avatar/avatar";
 import { LargeCountdownTimer } from "@/components/base/countdown-timer";
 import { ClientSideProfileActions } from "@/components/profile/profile-actions";
-import PrivyProvider from "@/components/providers/privy";
+import Providers from "@/components/providers/providers";
 import prisma from "@/lib/prisma";
 import { TTL } from "@/lib/TTL-timestamp";
 import { getUserFromRequest } from "@/lib/utils/user";
@@ -35,12 +35,12 @@ export default async function UserProfilePage({
           <LargeCountdownTimer endTime={TTL} />
           <Avatar user={user} containerClasses="w-56" />
         </div>
-        <PrivyProvider>
+        <Providers>
           <ClientSideProfileActions
             isUser={currentUser?.id === user.id}
             currentUser={currentUser}
           />
-        </PrivyProvider>
+        </Providers>
       </div>
     </>
   );
