@@ -76,7 +76,14 @@ export default async function Image({
       {/* Main content container */}
       <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
         {/* Avatar container */}
-        <div style={{ marginRight: "32px" }}>
+        <div
+          style={{
+            marginRight: "32px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <img
             src={user.pfp ?? ""}
             alt={user.socialHandle}
