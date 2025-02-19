@@ -1,5 +1,6 @@
 import { Avatar } from "@/components/avatar/avatar";
 import { LargeCountdownTimer } from "@/components/base/countdown-timer";
+import { PokesSection } from "@/components/profile/pokes-section";
 import { ClientSideProfileActions } from "@/components/profile/profile-actions";
 import prisma from "@/lib/prisma";
 import { TTL } from "@/lib/TTL-timestamp";
@@ -51,6 +52,7 @@ export default async function UserProfilePage({
           isUser={currentUser?.id === user.id}
           currentUser={currentUser}
         />
+        <PokesSection user={user} viewingUser={currentUser} />
       </div>
     </>
   );
