@@ -1,5 +1,6 @@
 import { Avatar } from "@/components/avatar/avatar";
 import { LargeCountdownTimer } from "@/components/base/countdown-timer";
+import { PokesSection } from "@/components/profile/pokes-section";
 import { ClientSideProfileActions } from "@/components/profile/profile-actions";
 import Providers from "@/components/providers/providers";
 import prisma from "@/lib/prisma";
@@ -54,6 +55,7 @@ export default async function UserProfilePage({
             currentUser={currentUser}
           />
         </Providers>
+        <PokesSection user={user} viewingUser={currentUser} />
       </div>
     </>
   );

@@ -22,6 +22,8 @@ model User {
     followerCount   Int?
     pfp             String?
     tokenAllocation String?
+    pokesGiven      Poke[]   @relation("pokesGiven")
+    pokesReceived   Poke[]   @relation("pokesReceived")
 }
 
 model StylizePhotoInput {
@@ -43,4 +45,32 @@ model AllocatorSettings {
     baseAllocations    Json // Record<CategoryKey, number>
     minimumAllocations Json // Record<CategoryKey, number>
     decayFactor        Float    @default(0.99)
+}
+
+model Poke {
+    id            Int         @id @default(autoincrement())
+    between       String      @unique // For maintaining the total count between two users
+    count         Int
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
+    perpetrator   User        @relation("pokesGiven", fields: [perpetratorId], references: [id])
+    perpetratorId Int
+    victim        User        @relation("pokesReceived", fields: [victimId], references: [id])
+    victimId      Int
+    events        PokeEvent[]
+
+    @@index([between])
+}
+
+model PokeEvent {
+    id            Int      @id @default(autoincrement())
+    createdAt     DateTime @default(now())
+    poke          Poke     @relation(fields: [pokeId], references: [id])
+    pokeId        Int
+    perpetratorId Int
+    victimId      Int
+
+    @@index([perpetratorId])
+    @@index([victimId])
+    @@index([createdAt])
 }
