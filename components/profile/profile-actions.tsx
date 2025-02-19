@@ -9,7 +9,7 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger
+  DrawerTrigger,
 } from "@/components/shadcn/drawer";
 import { Input } from "@/components/shadcn/input";
 import { Label } from "@/components/shadcn/label";
@@ -84,7 +84,7 @@ export function ClientSideProfileActions({
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button variant="secondary" disabled={!currentUser || !ready}>
+        <Button variant="secondary">
           Withdraw
           <ArrowRight />
         </Button>
@@ -118,7 +118,7 @@ export function ClientSideProfileActions({
           <DrawerFooter>
             <Button
               onClick={handleWithdraw}
-              disabled={isWithdrawing || !walletAddress}
+              disabled={isWithdrawing || !walletAddress || !ready}
             >
               {isWithdrawing ? "Withdrawing..." : "Confirm Withdrawal"}
             </Button>

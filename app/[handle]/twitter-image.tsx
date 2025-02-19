@@ -34,7 +34,7 @@ export default async function Image({
       (
         <div
           style={{
-            background: "white",
+            background: "#E6E8F5",
             width: "100%",
             height: "100%",
             display: "flex",
@@ -74,7 +74,7 @@ export default async function Image({
       }}
     >
       {/* Main content container */}
-      <div style={{ display: "flex", alignItems: "center" }}>
+      <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
         {/* Avatar container */}
         <div style={{ marginRight: "32px" }}>
           <img
