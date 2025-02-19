@@ -11,7 +11,7 @@ export function userQueryId(id?: PrivyUser["id"] | User["id"]) {
 }
 
 function facecoinBalanceQueryKey(user?: User) {
-  return ["facecoin-balance", user?.id?.toString()];
+  return ["user", "facecoin-balance", user?.id?.toString()];
 }
 
 //
@@ -112,6 +112,7 @@ export const useUserByPrivyId = ({ id }: { id?: PrivyUser["id"] }) =>
   useQuery({
     queryKey: userQueryId(id),
     queryFn: id ? () => getUserByPrivyId({ privyId: id }) : skipToken,
+    // 5 minutes
     staleTime: 1000 * 60 * 5,
     enabled: !!id,
   });
@@ -122,7 +123,8 @@ export const useFacecoinBalance = ({ user }: { user?: User }) =>
     queryFn: user
       ? () => getFacecoinBalance({ userAddress: user.address })
       : skipToken,
-    // staleTime: 1000 * 60 * 4,
+    // 5 minutes
+    staleTime: 1000 * 60 * 5,
     enabled: !!user,
   });
 

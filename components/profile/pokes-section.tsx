@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { PokeButton } from "./poke-button";
+import { Button } from "../shadcn/button";
 
 const PokesList = async ({
   user,
@@ -35,29 +36,43 @@ const PokesList = async ({
   // Sort by follower count
   const pokes = pokesResult.sort(
     (a, b) =>
-      (b.perpetrator.followerCount ?? 0) - (a.perpetrator.followerCount ?? 0)
+      (b.perpetrator.tokenAllocation ? +b.perpetrator.tokenAllocation : 0) -
+      (a.perpetrator.tokenAllocation ? +a.perpetrator.tokenAllocation : 0)
   );
 
   return (
     <div className="flex flex-col gap-2">
       {pokes.map((poke) => {
-        const viewingUserIsVictim = viewingUser?.id === poke.victimId;
         const viewingUserIsPerpetrator = viewingUser?.id === poke.perpetratorId;
-        const canPokeBack =
-          viewingUser &&
-          !viewingUserIsPerpetrator &&
-          viewingUser.id !== poke.victimId;
 
-        // Determine which user to show (the other person in the interaction)
+        // Get the other user in the interaction
         const otherUser =
           user.id === poke.perpetratorId ? poke.victim : poke.perpetrator;
-        const lastEvent = poke.events[0];
-        const isLatestPerpetrator = lastEvent?.perpetratorId === otherUser.id;
+
+        // Get the last poke event
+        const lastPoke = poke.events[0];
+
+        // Determine poke direction states
+        const wasLastPokeFromOtherUser =
+          lastPoke?.perpetratorId === otherUser.id;
+        const wasLastPokeToViewingUser = viewingUser?.id === lastPoke?.victimId;
+
+        // Determine if we should show poke back button
+        const canPokeBack = viewingUser && wasLastPokeToViewingUser;
+
+        // For the message display
+        const pokeMessage = wasLastPokeFromOtherUser
+          ? wasLastPokeToViewingUser
+            ? "Poked you"
+            : `Poked ${user.socialHandle}`
+          : viewingUserIsPerpetrator
+          ? "You poked them"
+          : `${user.socialHandle} poked them`;
 
         return (
           <div
             key={poke.id}
-            className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 gap-4"
+            className="flex items-center justify-between p-2 gap-4"
           >
             <Link href={`/${otherUser.socialHandle}`}>
               <div className="flex items-center gap-2 align-top">
@@ -72,20 +87,8 @@ const PokesList = async ({
                 <div className="flex flex-col">
                   <span className="font-medium">{otherUser.socialHandle}</span>
                   <div className="text-sm text-gray-500">
-                    {isLatestPerpetrator ? (
-                      <>
-                        {viewingUserIsVictim
-                          ? "Poked you"
-                          : `Poked ${user.socialHandle}`}
-                      </>
-                    ) : (
-                      <>
-                        {viewingUserIsPerpetrator
-                          ? "You poked them"
-                          : `${user.socialHandle} poked them`}
-                      </>
-                    )}{" "}
-                    {poke.count} {poke.count === 1 ? "time" : "times"}
+                    {pokeMessage} {poke.count}{" "}
+                    {poke.count === 1 ? "time" : "times"}
                   </div>
                 </div>
               </div>
@@ -110,9 +113,14 @@ export const PokesSection = ({
 }) => {
   const isLookingAtSelf = user.id === viewingUser?.id;
   return (
-    <div className="flex flex-col gap-2 items-center">
-      <div className="w-full h-[1px] bg-gray-200" />
-      {!isLookingAtSelf && <PokeButton victim={user.id}>Poke</PokeButton>}
+    <div className="flex flex-col gap-2 items-center justify-center">
+      {!viewingUser ? (
+        <Link href={`/onboard`}>
+          <Button>Login to Poke</Button>
+        </Link>
+      ) : (
+        !isLookingAtSelf && <PokeButton victim={user.id}>👉 Poke</PokeButton>
+      )}
       <Suspense>
         <PokesList user={user} viewingUser={viewingUser} />
       </Suspense>

@@ -27,11 +27,11 @@ export const PokeButton = ({
   }, [state.error]);
 
   return (
-    <form action={formAction}>
+    <form action={formAction} className="flex flex-col gap-2 items-center">
       <input type="hidden" name="victim" value={victim} />
       <Button
         type="submit"
-        className="text-sm px-2.5"
+        className="text-sm px-2.5 w-auto"
         onClick={(event) => {
           event.stopPropagation();
         }}
