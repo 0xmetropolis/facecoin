@@ -1,7 +1,5 @@
 import prisma from "@/lib/prisma";
-import { readFile } from "fs/promises";
 import { ImageResponse } from "next/og";
-import { join } from "node:path";
 
 // Image metadata
 export const alt = "Facecoin Profile";
@@ -24,10 +22,10 @@ export default async function Image({
     },
   });
 
-  // Font loading
-  const interSemiBold = await readFile(
-    join(process.cwd(), "assets/Inter-semibold.ttf")
-  );
+  // // Font loading
+  // const interSemiBold = await readFile(
+  //   join(process.cwd(), "assets/Inter-semibold.ttf")
+  // );
 
   if (!user) {
     return new ImageResponse(
@@ -49,14 +47,14 @@ export default async function Image({
       ),
       {
         ...size,
-        fonts: [
-          {
-            name: "Inter",
-            data: interSemiBold,
-            style: "normal",
-            weight: 600,
-          },
-        ],
+        // fonts: [
+        //   {
+        //     name: "Inter",
+        //     data: interSemiBold,
+        //     style: "normal",
+        //     weight: 600,
+        //   },
+        // ],
       }
     );
   }
@@ -146,13 +144,13 @@ export default async function Image({
 
   return new ImageResponse(element, {
     ...size,
-    fonts: [
-      {
-        name: "Inter",
-        data: interSemiBold,
-        style: "normal",
-        weight: 600,
-      },
-    ],
+    // fonts: [
+    //   {
+    //     name: "Inter",
+    //     data: interSemiBold,
+    //     style: "normal",
+    //     weight: 600,
+    //   },
+    // ],
   });
 }
