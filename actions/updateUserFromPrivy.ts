@@ -128,7 +128,10 @@ export const updateUserFromPrivy = async ({
         .then((u) => u.wallet!.address!);
 
   // user does not exist create the user
-  const newUser: Omit<User, "id" | "createdAt" | "updatedAt"> = {
+  const newUser: Omit<
+    User,
+    "id" | "createdAt" | "updatedAt" | "lastCheckedProfile"
+  > = {
     privyId: privyUser.id,
     socialHandle,
     socialPlatform,
