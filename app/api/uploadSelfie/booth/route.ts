@@ -1,4 +1,4 @@
-import { Metal } from "@/lib/metal";
+import * as Metal from "@/lib/metal";
 import prisma from "@/lib/prisma";
 import privy from "@/lib/privy";
 import * as Replicate from "@/lib/replicate";

@@ -1,4 +1,4 @@
-import { Metal } from "@/lib/metal";
+import * as Metal from "@/lib/metal";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(

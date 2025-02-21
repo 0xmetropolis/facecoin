@@ -1,4 +1,4 @@
-import { Metal } from "@/lib/metal";
+import * as Metal from "@/lib/metal";
 import prisma from "@/lib/prisma";
 import privy, { PRIVY_ID_TOKEN_NAME } from "@/lib/privy";
 import * as Replicate from "@/lib/replicate";
