@@ -51,7 +51,10 @@ const getTokenInfo = async () => {
       next: { revalidate: 60 },
     }
   );
-  if (!response.ok) throw new Error("Failed to fetch token info");
+  if (!response.ok) {
+    console.error(await response.json());
+    throw new Error("Failed to fetch token info");
+  }
 
   const data = (await response.json()) as GetTokenHoldersResponse;
   return data;
@@ -100,16 +103,19 @@ const getHolderBalance = async (
   holderId: string
 ): Promise<GetHolderBalanceResponse> => {
   const response = await fetch(
-    `${METAL_API_URL}/token/${FACECOIN_TOKEN_ADDRESS}/holder/${holderId}`,
+    `${METAL_API_URL}/holder/${holderId}/token/${FACECOIN_TOKEN_ADDRESS}`,
     {
       headers: {
         "x-api-key": process.env.METAL_API_KEY!,
       },
-      next: { tags: ["holders", holderId], revalidate: 60 },
+      next: { tags: ["holders"], revalidate: false },
     }
   );
 
-  if (!response.ok) throw new Error("Failed to fetch holder balance");
+  if (!response.ok) {
+    console.log(await response.json());
+    throw new Error("Failed to fetch holder balance");
+  }
 
   const data = (await response.json()) as GetHolderBalanceResponse;
   return data;

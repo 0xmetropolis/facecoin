@@ -43,7 +43,7 @@ export default async function UserProfilePage({
 
   return (
     <>
-      <div className="flex flex-col flex-1 space-y-6 max-w-md mx-auto items-center">
+      <div className="flex flex-col flex-1 max-w-md mx-auto w-full">
         <div className="flex flex-col items-center gap-8 h-2/3 py-8">
           <LargeCountdownTimer endTime={TTL} />
           <Avatar user={user} containerClasses="w-56" />

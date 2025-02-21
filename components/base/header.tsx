@@ -4,7 +4,7 @@ import Link from "next/link";
 export function Header() {
   return (
     <>
-      <header className="w-full bg-theme-primary text-primary-foreground py-2 top-0 fixed overscroll-contain">
+      <header className="w-full bg-theme-primary text-primary-foreground py-2 top-0 fixed z-10">
         <div className={cn("container flex items-center justify-center")}>
           <Link
             href="/"

@@ -29,7 +29,7 @@ export default function RootLayout({
       >
         <Providers>
           <Header />
-          <main className="container mx-auto px-4 py-6 flex-grow flex flex-col">
+          <main className="container mx-auto px-4 py-6 flex-grow flex flex-col overscroll-contain">
             {children}
           </main>
           <Toaster />

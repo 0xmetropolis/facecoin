@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import privy, { PRIVY_ID_TOKEN_NAME } from "@/lib/privy";
 import * as Replicate from "@/lib/replicate";
 import { getLiveTokenAllocator } from "@/lib/tokenAllocation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { Address } from "viem";
 import {
@@ -99,6 +99,7 @@ export const POST = async (req: NextRequest) => {
   // revalidate the home page and user pages
   revalidatePath("/");
   revalidatePath(`/${updatedUser.socialHandle}`);
+  revalidateTag(`holders`);
 
   const privyUserAddress = privyUser.wallet?.address
     ? privyUser.wallet.address
