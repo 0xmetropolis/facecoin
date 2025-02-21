@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Poke } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
-import { Suspense } from "react";
+import { JSX, Suspense } from "react";
 import { PokeButton } from "./poke-button";
 import { Button } from "../shadcn/button";
 import { getRelativeTime } from "@/lib/time";
@@ -33,47 +33,38 @@ async function queryViewingUserPokeBetweens(
 }
 
 async function queryUsersPokes(user: User) {
-  return await prisma.poke
-    .findMany({
-      where: {
-        OR: [{ victimId: user.id }, { perpetratorId: user.id }],
-      },
-      include: {
-        perpetrator: true,
-        victim: true,
-        events: {
-          orderBy: {
-            createdAt: "desc",
-          },
-          take: 1,
+  return await prisma.poke.findMany({
+    where: {
+      OR: [{ victimId: user.id }, { perpetratorId: user.id }],
+    },
+    include: {
+      perpetrator: true,
+      victim: true,
+      events: {
+        orderBy: {
+          createdAt: "desc",
         },
+        take: 1,
       },
-      orderBy: {
-        updatedAt: "desc",
-      },
-    })
-    // sort by follower count
-    .then(
-      (pokes) =>
-        pokes.sort(
-          (a, b) =>
-            (b.perpetrator.followerCount ? b.perpetrator.followerCount : 0) -
-            (a.perpetrator.followerCount ? a.perpetrator.followerCount : 0)
-        )
-      // .filter((pokeGame) => {
-      //   if (!viewingUser) return true;
+    },
+    orderBy: {
+      updatedAt: "asc",
+    },
+  });
 
-      //   // filter out our game
-      //   if (
-      //     (viewingUser.id === pokeGame.perpetratorId &&
-      //       user.id === pokeGame.victimId) ||
-      //     (viewingUser.id === pokeGame.victimId &&
-      //       user.id === pokeGame.perpetratorId)
-      //   )
-      //     return false;
-      //   else return true;
-      // })
-    );
+  // .filter((pokeGame) => {
+  //   if (!viewingUser) return true;
+
+  //   // filter out our game
+  //   if (
+  //     (viewingUser.id === pokeGame.perpetratorId &&
+  //       user.id === pokeGame.victimId) ||
+  //     (viewingUser.id === pokeGame.victimId &&
+  //       user.id === pokeGame.perpetratorId)
+  //   )
+  //     return false;
+  //   else return true;
+  // })
 }
 
 // user stories
@@ -81,7 +72,7 @@ async function queryUsersPokes(user: User) {
 //  should see poke button
 //  should see "you poked them"
 // 2.
-const PokesList = async ({
+const UserPokesList = async ({
   user,
   viewingUser,
 }: {
@@ -92,8 +83,6 @@ const PokesList = async ({
     queryViewingUserPokeBetweens(viewingUser),
     queryUsersPokes(user),
   ]);
-
-  // const pokes = [...pokes_, ...pokes_, ...pokes_];
 
   const isMutual = (p: Poke): boolean => {
     const [id_a, id_b] = p.between.split("<>").map(Number);
@@ -135,13 +124,10 @@ const PokesList = async ({
     else return true;
   });
 
-  // const userIsViewingSelf = viewingUser?.id === user.id;
   const mutualOmittedCount =
     thisUsersPokesWithoutOurGame.length -
     thisUsersPokesWithoutOurGame.filter(isMutual).length;
   const showCover = !userIsLoggedIn || mutualOmittedCount > 0;
-
-  console.log({ thisUsersPokesWithoutOurGame });
 
   return (
     <>
@@ -190,7 +176,7 @@ const PokesList = async ({
             //// RECIPIENT
             const [lastPoke] = pokeGame.events;
             const otherUser =
-              lastPoke.perpetratorId === user.id
+              pokeGame.perpetratorId === user.id
                 ? pokeGame.victim
                 : pokeGame.perpetrator;
 
@@ -291,6 +277,150 @@ const PokesList = async ({
   );
 };
 
+const MyPokesList = async ({ user }: { user: User }) => {
+  const pokes = await queryUsersPokes(user);
+  type Item = {
+    isUnread: boolean;
+    canPokeBack: boolean;
+    lastPokeTs: Date;
+    otherFollowerCount: number;
+    component: JSX.Element;
+  };
+  return (
+    <div className="flex flex-col gap-2 relative p-2">
+      <div className={`flex flex-col gap-2`}>
+        <h3 className="font-bold text-2xl">Pokes</h3>
+        {Object.entries(
+          pokes
+            .map((pokeGame) => {
+              //
+              //// RECIPIENT
+              const [lastPoke] = pokeGame.events;
+              const otherUser =
+                pokeGame.perpetratorId === user.id
+                  ? pokeGame.victim
+                  : pokeGame.perpetrator;
+
+              const canPokeBack = user.id === lastPoke.victimId;
+
+              //
+              //// POKE SENTENCE
+              const [sendingNoun, receivingNoun] = (() => {
+                if (user.id === lastPoke.perpetratorId)
+                  return ["You", otherUser.socialHandle];
+                if (user.id === lastPoke.victimId)
+                  return [otherUser.socialHandle, "you"];
+
+                return ["", ""];
+              })();
+              const verb = "poked";
+              const pokeSentence_arr = [
+                sendingNoun,
+                verb,
+                receivingNoun,
+                ...(Math.ceil(pokeGame.count / 2) > 1
+                  ? [`${Math.ceil(pokeGame.count / 2)} times!`]
+                  : ["once"]),
+              ];
+              const pokeSentence = pokeSentence_arr.join(" ");
+
+              const imgSrc = `${
+                otherUser.pfp
+              }?lastModified=${otherUser.updatedAt.toISOString()}`;
+
+              const isUnread =
+                user.lastCheckedProfile &&
+                lastPoke.createdAt > user.lastCheckedProfile;
+
+              return {
+                isUnread,
+                canPokeBack,
+                lastPokeTs: lastPoke.createdAt,
+                otherFollowerCount: otherUser.followerCount!,
+                component: (
+                  <div
+                    key={pokeGame.id}
+                    className={cn(
+                      "flex items-center justify-between p-2 gap-4 w-full relative",
+                      isUnread && "bg-gray-100"
+                    )}
+                  >
+                    <Link href={`/${otherUser.socialHandle}`}>
+                      <div className="flex items-center gap-2 align-top">
+                        <div className="relative w-14 h-14">
+                          <Image
+                            src={imgSrc}
+                            alt={otherUser.socialHandle}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-theme-primary hover:underline">
+                            @{otherUser.socialHandle}
+                          </span>
+                          <div className="text-sm text-gray-500">
+                            {pokeSentence}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {getRelativeTime(lastPoke.createdAt)}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                    {canPokeBack && (
+                      <PokeButton victim={otherUser.id}>
+                        Poke back 👈
+                      </PokeButton>
+                    )}
+                    {isUnread && (
+                      <div className="absolute -top-1 -right-1 bg-theme-primary text-white w-3 h-3 rounded-full" />
+                    )}
+                  </div>
+                ),
+              };
+            })
+            // sort unreads first,
+            // then needsPokeBack,
+            // then by follower count
+            .reduce<{
+              unreads: Item[];
+              needsPokeBack: Item[];
+              followers: Item[];
+            }>(
+              (acc, curr) => {
+                if (curr.isUnread) acc.unreads.push(curr);
+                else if (curr.canPokeBack) acc.needsPokeBack.push(curr);
+                else acc.followers.push(curr);
+                return acc;
+              },
+              { unreads: [], needsPokeBack: [], followers: [] }
+            )
+        )
+          .map((t) => {
+            console.log(t);
+            return t;
+          })
+          .map(([key, value]) => {
+            return value
+              .map(({ component, lastPokeTs, otherFollowerCount }) => ({
+                component,
+                lastPokeTs,
+                otherFollowerCount,
+              }))
+              .sort((a, b) =>
+                key === "followers"
+                  ? b.otherFollowerCount - a.otherFollowerCount
+                  : b.lastPokeTs.getTime() - a.lastPokeTs.getTime()
+              );
+          })
+          .flat()
+          .map(({ component }) => component)}
+      </div>
+    </div>
+  );
+};
+
 export const PokesSection = ({
   user,
   viewingUser,
@@ -301,7 +431,11 @@ export const PokesSection = ({
   return (
     <div className="flex flex-col gap-2 items-center p-2 w-full flex-1">
       <Suspense>
-        <PokesList user={user} viewingUser={viewingUser} />
+        {user.id === viewingUser?.id ? (
+          <MyPokesList user={user} />
+        ) : (
+          <UserPokesList user={user} viewingUser={viewingUser} />
+        )}
       </Suspense>
     </div>
   );

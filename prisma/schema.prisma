@@ -12,19 +12,20 @@ generator client {
 }
 
 model User {
-    id              Int      @id @default(autoincrement())
-    createdAt       DateTime @default(now())
-    updatedAt       DateTime @default(now())
-    privyId         String   @unique
-    address         String
-    socialHandle    String   @unique
-    socialPlatform  String
-    facecoinCode    String   @unique
-    followerCount   Int?
-    pfp             String?
-    tokenAllocation String?
-    pokesGiven      Poke[]   @relation("pokesGiven")
-    pokesReceived   Poke[]   @relation("pokesReceived")
+    id                 Int      @id @default(autoincrement())
+    createdAt          DateTime @default(now())
+    updatedAt          DateTime @default(now())
+    lastCheckedProfile DateTime @default(now())
+    privyId            String   @unique
+    address            String
+    socialHandle       String   @unique
+    socialPlatform     String
+    facecoinCode       String   @unique
+    followerCount      Int?
+    pfp                String?
+    tokenAllocation    String?
+    pokesGiven         Poke[]   @relation("pokesGiven")
+    pokesReceived      Poke[]   @relation("pokesReceived")
 }
 
 model StylizePhotoInput {

@@ -21,20 +21,12 @@ import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { encodeFunctionData, parseAbi, parseEther } from "viem";
 
-export function ClientSideProfileActions({
-  isUser,
-  currentUser,
-}: {
-  isUser: boolean;
-  currentUser: User | null;
-}) {
+export function WithdrawPrompt({ currentUser }: { currentUser: User | null }) {
   const { toast } = useToast();
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const { ready, sendTransaction } = usePrivy();
-
-  if (!isUser) return <div />;
 
   const handleWithdraw = async () => {
     if (!ready || !currentUser) return;

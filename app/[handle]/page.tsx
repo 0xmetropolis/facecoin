@@ -1,7 +1,7 @@
 import { Avatar } from "@/components/avatar/avatar";
 import { LargeCountdownTimer } from "@/components/base/countdown-timer";
 import { PokesSection } from "@/components/profile/pokes-section";
-import { ClientSideProfileActions } from "@/components/profile/profile-actions";
+import { WithdrawPrompt } from "@/components/profile/withdraw-prompt";
 import prisma from "@/lib/prisma";
 import { TTL } from "@/lib/TTL-timestamp";
 import { getUserFromRequest } from "@/lib/utils/user";
@@ -36,10 +36,12 @@ export default async function UserProfilePage({
         socialHandle: cleanHandle,
       },
     }),
-    getUserFromRequest(),
+    getUserFromRequest({ updateReadTime: true }),
   ]);
 
   if (!user) notFound();
+
+  const canWithdraw = new Date() > new Date(TTL) && currentUser?.id === user.id;
 
   return (
     <>
@@ -48,10 +50,7 @@ export default async function UserProfilePage({
           <LargeCountdownTimer endTime={TTL} />
           <Avatar user={user} containerClasses="w-56" />
         </div>
-        <ClientSideProfileActions
-          isUser={currentUser?.id === user.id}
-          currentUser={currentUser}
-        />
+        {canWithdraw && <WithdrawPrompt currentUser={currentUser} />}
         <PokesSection user={user} viewingUser={currentUser} />
       </div>
     </>
