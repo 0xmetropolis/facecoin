@@ -145,11 +145,9 @@ const PokesList = async ({
 
   return (
     <>
-      {/* {userIsLoggedIn ? (
-        <PokeButton victim={user.id}>
-          {hasAnUnansweredPokeWithThisUser ? "👉 Poke back" : "👉 Poke"}
-        </PokeButton>
-      ) : null} */}
+      {userIsLoggedIn && !ourPokeGame ? (
+        <PokeButton victim={user.id}>👉 Poke</PokeButton>
+      ) : null}
       <div className="flex flex-col gap-2 relative p-2">
         <div className={`flex flex-col gap-2`}>
           {ourPokeGame && (
@@ -160,7 +158,7 @@ const PokesList = async ({
                     {hasAnUnansweredPokeWithThisUser
                       ? `@${user.socialHandle} poked you`
                       : `You poked @${user.socialHandle}`}{" "}
-                    {ourPokeGame.count > 1
+                    {Math.ceil(ourPokeGame.count / 2) > 1
                       ? [`${Math.ceil(ourPokeGame.count / 2)} times in a row!`]
                       : ["once"]}
                   </div>
