@@ -32,7 +32,7 @@ async function queryViewingUserPokeBetweens(
     );
 }
 
-async function queryUserPokes(user: User) {
+async function queryUsersPokes(user: User) {
   return await prisma.poke
     .findMany({
       where: {
@@ -60,8 +60,19 @@ async function queryUserPokes(user: User) {
             (b.perpetrator.followerCount ? b.perpetrator.followerCount : 0) -
             (a.perpetrator.followerCount ? a.perpetrator.followerCount : 0)
         )
-      // TODO: filter perp pokes
-      // .filter(p => p.)
+      // .filter((pokeGame) => {
+      //   if (!viewingUser) return true;
+
+      //   // filter out our game
+      //   if (
+      //     (viewingUser.id === pokeGame.perpetratorId &&
+      //       user.id === pokeGame.victimId) ||
+      //     (viewingUser.id === pokeGame.victimId &&
+      //       user.id === pokeGame.perpetratorId)
+      //   )
+      //     return false;
+      //   else return true;
+      // })
     );
 }
 
@@ -77,9 +88,9 @@ const PokesList = async ({
   user: User;
   viewingUser: User | null;
 }) => {
-  const [viewingUsersPokeBetweens, pokes] = await Promise.all([
+  const [viewingUsersPokeBetweens, thisUsersPokes] = await Promise.all([
     queryViewingUserPokeBetweens(viewingUser),
-    queryUserPokes(user),
+    queryUsersPokes(user),
   ]);
 
   // const pokes = [...pokes_, ...pokes_, ...pokes_];
@@ -93,26 +104,81 @@ const PokesList = async ({
         id_b === pokeIdA ||
         id_b === pokeIdB
     );
-    // if (i > 3) return false;
     return isAMutual;
   };
 
   //
   //// DERIVED VALUES
   const userIsLoggedIn = !!viewingUser;
-  const userIsViewingSelf = viewingUser?.id === user.id;
-  const mutualOmittedCount = pokes.length - pokes.filter(isMutual).length;
+  //
+  /// Game between viewingUser and this user
+  const ourPokeGame = thisUsersPokes.find(
+    (pokeGame) =>
+      viewingUser?.id === pokeGame.perpetratorId ||
+      viewingUser?.id === pokeGame.victimId
+  );
+
+  const hasAnUnansweredPokeWithThisUser =
+    // we have a poke game
+    ourPokeGame &&
+    // and we are the victim
+    viewingUser?.id === ourPokeGame.events[0].victimId;
+
+  // the list to be displayed
+  const thisUsersPokesWithoutOurGame = thisUsersPokes.filter((pokeGame) => {
+    if (!viewingUser) return true;
+    if (
+      viewingUser.id === pokeGame.perpetratorId ||
+      viewingUser.id === pokeGame.victimId
+    )
+      return false;
+    else return true;
+  });
+
+  // const userIsViewingSelf = viewingUser?.id === user.id;
+  const mutualOmittedCount =
+    thisUsersPokesWithoutOurGame.length -
+    thisUsersPokesWithoutOurGame.filter(isMutual).length;
   const showCover = !userIsLoggedIn || mutualOmittedCount > 0;
+
+  console.log({ thisUsersPokesWithoutOurGame });
 
   return (
     <>
-      {!userIsViewingSelf && userIsLoggedIn ? (
-        <PokeButton victim={user.id}>👉 Poke</PokeButton>
-      ) : null}
-      {pokes.length > 0 && <h3 className="font-bold text-2xl">Pokes</h3>}
+      {/* {userIsLoggedIn ? (
+        <PokeButton victim={user.id}>
+          {hasAnUnansweredPokeWithThisUser ? "👉 Poke back" : "👉 Poke"}
+        </PokeButton>
+      ) : null} */}
       <div className="flex flex-col gap-2 relative p-2">
         <div className={`flex flex-col gap-2`}>
-          {pokes.map((pokeGame, i) => {
+          {ourPokeGame && (
+            <div className="flex flex-col gap-2">
+              <div className="text-sm text-gray-500 flex justify-between items-start gap-2">
+                <div className="flex flex-col gap-2">
+                  <div>
+                    {hasAnUnansweredPokeWithThisUser
+                      ? `@${user.socialHandle} poked you`
+                      : `You poked @${user.socialHandle}`}{" "}
+                    {ourPokeGame.count > 1
+                      ? [`${Math.ceil(ourPokeGame.count / 2)} times in a row!`]
+                      : ["once"]}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {getRelativeTime(ourPokeGame.events[0].createdAt)}
+                  </div>
+                </div>
+                {hasAnUnansweredPokeWithThisUser && (
+                  <PokeButton victim={user.id}>Poke back 👈</PokeButton>
+                )}
+              </div>
+              <div className="h-[1px] bg-gray-400" />
+            </div>
+          )}
+          {thisUsersPokesWithoutOurGame.length > 0 && (
+            <h3 className="font-bold text-2xl">Pokes</h3>
+          )}
+          {thisUsersPokesWithoutOurGame.map((pokeGame, i) => {
             //
             //// CARD TYPE
             const type: "reveal" | "login-gate" | "non-mutual" =
@@ -126,7 +192,7 @@ const PokesList = async ({
             //// RECIPIENT
             const [lastPoke] = pokeGame.events;
             const otherUser =
-              pokeGame.perpetratorId === user.id
+              lastPoke.perpetratorId === user.id
                 ? pokeGame.victim
                 : pokeGame.perpetrator;
 
@@ -143,7 +209,7 @@ const PokesList = async ({
                     ? otherUser.socialHandle
                     : user.socialHandle,
                 ];
-              if (viewingUser?.id === lastPoke.victimId) return ["", "you"];
+              if (viewingUser?.id === lastPoke.victimId) return ["you", "you"];
 
               return ["", user.socialHandle];
             })();
