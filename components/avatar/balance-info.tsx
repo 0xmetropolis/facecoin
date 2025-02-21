@@ -11,9 +11,11 @@ export const BalanceInfo = ({ user }: { user?: User }) => {
   if (isLoading) return <Skeleton className="w-24 h-5 inline-flex m-0.5" />;
   if (!balanceInfo) return null;
 
+  const text = balanceInfo.value
+    ? `$${balanceInfo.value.toLocaleString()}`
+    : `${balanceInfo.balance.toLocaleString()} $facecoin`;
+
   return (
-    <p className="text-black whitespace-break-spaces text-center">
-      {`${Number(balanceInfo.balance).toLocaleString()} $facecoin`}
-    </p>
+    <p className="text-black whitespace-break-spaces text-center">{text}</p>
   );
 };

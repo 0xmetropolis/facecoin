@@ -4,63 +4,121 @@ import { FACECOIN_TOKEN_ADDRESS } from "./facecoin-token";
 export const METAL_API_URL = "https://api.metal.build";
 
 export type Holder = {
-  /** the id of the holder */
+  /**
+   * The ID of the holder
+   */
   id: string;
-  /** the address of the holder */
+  /**
+   * The Ethereum address of the holder
+   * @example "0x1234567890123456789012345678901234567890"
+   */
   address: Address;
-  /** the balance in wei */
-  balance: string;
-  /** the value of the holder: in ${dollars}.{cents} format: eg $2.50 */
-  value: string;
+  /**
+   * The token balance amount
+   * @example 2000 for 2,000 tokens
+   */
+  balance: number;
+  /**
+   * The value in USD
+   * @example 20.25 for $20.25
+   */
+  value: number | null;
 };
 
 export type GetTokenHoldersResponse = {
-  /** the id of the token */
+  /**
+   * The ID of the token
+   */
   id: string;
-  /** the address of the token */
+  /**
+   * The Ethereum address of the token
+   * @example "0x1234567890123456789012345678901234567890"
+   */
   address: Address;
-  /** the name of the token */
+  /**
+   * The display name of the token
+   * @example "Facecoin"
+   */
   name: string;
-  /** the ticker symbol of the token */
+  /**
+   * The ticker symbol of the token
+   * @example "FACECOIN"
+   */
   symbol: string;
-  /** the total supply of the token: */
+  /**
+   * The total token supply
+   * @example 1000000
+   */
   totalSupply: number;
-  /** the starting supply of the token that was available to reward: */
+  /**
+   * The initial supply allocated for rewards
+   * @example 100000
+   */
   startingRewardSupply: number;
-  /** the supply of the token that is available for rewards: */
+  /**
+   * The current supply available for rewards
+   * @example 95000
+   */
   remainingRewardSupply: number;
-  /** the supply of the token that is available for merchant rewards: */
+  /**
+   * The supply allocated for merchant rewards
+   * @example 50000
+   */
   merchantSupply: number;
-  /** the address of the merchant that is selling the token */
+  /**
+   * The Ethereum address of the merchant
+   * @example "0x1234567890123456789012345678901234567890"
+   */
   merchantAddress: Address;
-  /** the price of the token: in ${dollars}.{cents} format: eg $2.50 */
-  price: string | null;
-  /** the fee value of the token: in ${dollars}.{cents} format: eg $2.50 */
+  /**
+   * The token price in USD
+   * @example if the value is `$2.50`: 2.50
+   */
+  price: number | null;
+  /**
+   * The fee value in USD
+   * @example if the value is `$2.50`: 2.50
+   */
   feeValue: string;
-  /** the holders of the token */
+  /** Array of token holders */
   holders: Holder[];
 };
 
-const getTokenInfo = async () => {
+/**
+ * Gets the Metal API key from environment variables
+ * @throws {Error} If METAL_API_KEY is not defined
+ * @returns {string} The Metal API key
+ */
+const getMetalApiKey = (): string => {
+  const apiKey = process.env.METAL_API_KEY;
+  if (!apiKey) {
+    throw new Error("METAL_API_KEY environment variable is not defined");
+  }
+  return apiKey;
+};
+
+export const getTokenInfo = async () => {
   const response = await fetch(
     `${METAL_API_URL}/token/${FACECOIN_TOKEN_ADDRESS}`,
     {
       headers: {
-        "x-api-key": process.env.METAL_API_KEY!,
+        "x-api-key": getMetalApiKey(),
       },
       next: { revalidate: 60 },
     }
   );
+
   if (!response.ok) {
     console.error(await response.json());
     throw new Error("Failed to fetch token info");
   }
+  debugger;
 
   const data = (await response.json()) as GetTokenHoldersResponse;
   return data;
 };
 
-const sendReward = async ({
+export const sendReward = async ({
   to,
   amount,
 }: {
@@ -73,7 +131,7 @@ const sendReward = async ({
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.METAL_API_KEY!,
+        "x-api-key": getMetalApiKey(),
       },
       body: JSON.stringify({
         sendTo: to,
@@ -81,6 +139,7 @@ const sendReward = async ({
       }),
     }
   );
+  debugger;
 
   if (response.status !== 202) {
     const error = await response.json();
@@ -91,22 +150,45 @@ const sendReward = async ({
 };
 
 export type GetHolderBalanceResponse = {
+  /**
+   * The display name of the token
+   * @example "Facecoin"
+   */
   name: string;
+  /**
+   * The ticker symbol of the token
+   * @example "FACECOIN"
+   */
   symbol: string;
+  /**
+   * The unique identifier of the holder
+   */
   id: string;
+  /**
+   * The Ethereum address of the holder
+   * @example "0x1234567890123456789012345678901234567890"
+   */
   address: Address;
+  /**
+   * The token balance amount
+   * @example if the balance is 2,000 tokens: 2000
+   */
   balance: number;
-  value: string | null;
+  /**
+   * The value in USD
+   * @example if the value is `$20.25` USD: 20.25
+   */
+  value: number | null;
 };
 
-const getHolderBalance = async (
+export const getHolderBalance = async (
   holderId: string
 ): Promise<GetHolderBalanceResponse> => {
   const response = await fetch(
     `${METAL_API_URL}/holder/${holderId}/token/${FACECOIN_TOKEN_ADDRESS}`,
     {
       headers: {
-        "x-api-key": process.env.METAL_API_KEY!,
+        "x-api-key": getMetalApiKey(),
       },
       next: { tags: ["holders"], revalidate: false },
     }
@@ -119,10 +201,4 @@ const getHolderBalance = async (
 
   const data = (await response.json()) as GetHolderBalanceResponse;
   return data;
-};
-
-export const Metal = {
-  getTokenInfo,
-  sendReward,
-  getHolderBalance,
 };

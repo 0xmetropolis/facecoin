@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { PokeButton } from "./poke-button";
 import { Button } from "../shadcn/button";
+import { getRelativeTime } from "@/lib/time";
 
 //
 //// QUERIES
@@ -52,12 +53,15 @@ async function queryUserPokes(user: User) {
       },
     })
     // sort by follower count
-    .then((pokes) =>
-      pokes.sort(
-        (a, b) =>
-          (b.perpetrator.followerCount ? b.perpetrator.followerCount : 0) -
-          (a.perpetrator.followerCount ? a.perpetrator.followerCount : 0)
-      )
+    .then(
+      (pokes) =>
+        pokes.sort(
+          (a, b) =>
+            (b.perpetrator.followerCount ? b.perpetrator.followerCount : 0) -
+            (a.perpetrator.followerCount ? a.perpetrator.followerCount : 0)
+        )
+      // TODO: filter perp pokes
+      // .filter(p => p.)
     );
 }
 
@@ -96,14 +100,17 @@ const PokesList = async ({
   //
   //// DERIVED VALUES
   const userIsLoggedIn = !!viewingUser;
+  const userIsViewingSelf = viewingUser?.id === user.id;
   const mutualOmittedCount = pokes.length - pokes.filter(isMutual).length;
-  const showCover = !userIsLoggedIn || mutualOmittedCount;
+  const showCover = !userIsLoggedIn || mutualOmittedCount > 0;
 
   return (
     <>
-      <h3 className="font-bold text-2xl">Pokes</h3>
-      <div className="flex flex-col gap-2 relative">
+      {!userIsViewingSelf && userIsLoggedIn ? (
         <PokeButton victim={user.id}>👉 Poke</PokeButton>
+      ) : null}
+      {pokes.length > 0 && <h3 className="font-bold text-2xl">Pokes</h3>}
+      <div className="flex flex-col gap-2 relative p-2">
         <div className={`flex flex-col gap-2`}>
           {pokes.map((pokeGame, i) => {
             //
@@ -111,7 +118,7 @@ const PokesList = async ({
             const type: "reveal" | "login-gate" | "non-mutual" =
               !userIsLoggedIn && i > 0
                 ? "login-gate"
-                : !isMutual(pokeGame, i) && i > 4
+                : !isMutual(pokeGame) && i > 4
                 ? "non-mutual"
                 : "reveal";
 
@@ -122,6 +129,7 @@ const PokesList = async ({
               pokeGame.perpetratorId === user.id
                 ? pokeGame.victim
                 : pokeGame.perpetrator;
+
             const canPokeBack =
               userIsLoggedIn && viewingUser.id === lastPoke.victimId;
 
@@ -129,8 +137,13 @@ const PokesList = async ({
             //// POKE SENTENCE
             const [sendingNoun, receivingNoun] = (() => {
               if (viewingUser?.id === lastPoke.perpetratorId)
-                return ["You", "them"];
-              if (viewingUser?.id === lastPoke.victimId) return ["They", "you"];
+                return [
+                  "You",
+                  viewingUser.id === user.id
+                    ? otherUser.socialHandle
+                    : user.socialHandle,
+                ];
+              if (viewingUser?.id === lastPoke.victimId) return ["", "you"];
 
               return ["", user.socialHandle];
             })();
@@ -139,7 +152,7 @@ const PokesList = async ({
               sendingNoun,
               verb,
               receivingNoun,
-              ...(pokeGame.count > 1 ? [`${pokeGame.count} times`] : []),
+              ...(pokeGame.count > 1 ? [`${pokeGame.count} times!`] : ["once"]),
             ];
             const pokeSentence = pokeSentence_arr.join(" ");
 
@@ -162,7 +175,7 @@ const PokesList = async ({
               >
                 <Link href={`/${otherUser.socialHandle}`}>
                   <div className="flex items-center gap-2 align-top">
-                    <div className="relative w-10 h-10">
+                    <div className="relative w-14 h-14">
                       <Image
                         src={imgSrc}
                         alt={otherUser.socialHandle}
@@ -171,18 +184,21 @@ const PokesList = async ({
                       />
                     </div>
                     <div className="flex flex-col">
-                      <span className="font-medium">
-                        {type !== "reveal" ? "???" : otherUser.socialHandle}
+                      <span className="font-bold text-theme-primary hover:underline">
+                        @{type !== "reveal" ? "???" : otherUser.socialHandle}
                       </span>
                       <div className="text-sm text-gray-500">
                         {pokeSentence}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {getRelativeTime(lastPoke.createdAt)}
                       </div>
                     </div>
                   </div>
                 </Link>
 
                 {canPokeBack && (
-                  <PokeButton victim={user.id}>Poke back 👈</PokeButton>
+                  <PokeButton victim={otherUser.id}>Poke back 👈</PokeButton>
                 )}
               </div>
             );
@@ -191,19 +207,19 @@ const PokesList = async ({
 
         {showCover && (
           <div
-            className={`absolute inset-0 flex pt-20 justify-center top-[${
-              mutualOmittedCount * 60
-            }px] backdrop-blur-[3px] h-full w-full`}
+            className={`absolute inset-0 flex justify-center top-[${
+              mutualOmittedCount === 0 ? 0 : mutualOmittedCount * 84
+            }px] backdrop-blur-[3px] pt-8 h-full w-full`}
           >
-            {mutualOmittedCount > 0 ? (
-              <div className="text-black text-lg font-bold pt-2">
-                👀 non-mutual pokes are hidden
-              </div>
-            ) : (
+            {!userIsLoggedIn ? (
               <Link href="/onboard">
                 <Button>Login to view pokes</Button>
               </Link>
-            )}
+            ) : mutualOmittedCount > 0 ? (
+              <div className="text-black text-lg font-bold pt-2">
+                👀 non-mutual pokes are hidden
+              </div>
+            ) : null}
           </div>
         )}
       </div>

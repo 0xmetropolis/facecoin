@@ -34,7 +34,7 @@ export const Avatar = ({
         </div>
         {!iconOnly && (
           <div className="flex flex-col items-center">
-            <div className="flex flex-row items-center text-black font-semibold justify-center">
+            <div className="flex flex-row items-center text-theme-primary font-semibold justify-center">
               <p>@</p>
               {isLoading ? (
                 <Skeleton className="w-14 h-5 m-0.5 inline-flex" />
