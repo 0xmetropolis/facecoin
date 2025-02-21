@@ -1,4 +1,4 @@
-import { Metal } from "./metal";
+import * as Metal from "./metal";
 import prisma from "./prisma";
 
 type FollowerTier = "SUPER" | "HIGH" | "MEDIUM" | "LOW";
