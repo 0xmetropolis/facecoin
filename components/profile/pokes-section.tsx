@@ -140,7 +140,7 @@ const UserPokesList = async ({
             <div className="flex flex-col gap-2">
               <div className="text-sm text-gray-500 flex justify-between items-start gap-2">
                 <div className="flex flex-col gap-2">
-                  <div>
+                  <div className="whitespace-nowrap">
                     {hasAnUnansweredPokeWithThisUser
                       ? `@${user.socialHandle} poked you`
                       : `You poked @${user.socialHandle}`}{" "}
@@ -330,6 +330,7 @@ const MyPokesList = async ({ user }: { user: User }) => {
 
               const isUnread =
                 user.lastCheckedProfile &&
+                canPokeBack &&
                 lastPoke.createdAt > user.lastCheckedProfile;
 
               return {
@@ -385,22 +386,26 @@ const MyPokesList = async ({ user }: { user: User }) => {
             // then by follower count
             .reduce<{
               unreads: Item[];
-              needsPokeBack: Item[];
+              // needsPokeBack: Item[];
               followers: Item[];
             }>(
               (acc, curr) => {
                 if (curr.isUnread) acc.unreads.push(curr);
-                else if (curr.canPokeBack) acc.needsPokeBack.push(curr);
+                // else if (curr.canPokeBack) acc.needsPokeBack.push(curr);
                 else acc.followers.push(curr);
                 return acc;
               },
-              { unreads: [], needsPokeBack: [], followers: [] }
+              {
+                unreads: [],
+                // needsPokeBack: [],
+                followers: [],
+              }
             )
         )
-          .map((t) => {
-            console.log(t);
-            return t;
-          })
+          // .map((t) => {
+          //   console.log(t);
+          //   return t;
+          // })
           .map(([key, value]) => {
             return value
               .map(({ component, lastPokeTs, otherFollowerCount }) => ({

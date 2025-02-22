@@ -112,33 +112,6 @@ export default async function Image({
           </p>
         </div>
       </div>
-
-      {/* Powered by Metal logo */}
-      <div
-        style={{
-          alignSelf: "flex-end",
-          display: "flex",
-          position: "absolute",
-          bottom: 40,
-          right: 40,
-          alignItems: "center",
-          gap: "8px",
-          fontSize: "24px",
-          color: "#6B7280",
-        }}
-      >
-        <span>powered by</span>
-        <img
-          src="https://metal.build/logo.png"
-          alt="Metal"
-          width="24"
-          height="24"
-          style={{
-            objectFit: "contain",
-          }}
-        />
-        <span>metal</span>
-      </div>
     </div>
   );
 

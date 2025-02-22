@@ -16,7 +16,7 @@ export const generateMetadata = async ({
 
   return {
     title: `@${handle} | facecoin.world`,
-    description: `Facecoin - Powered by Metal`,
+    description: `Upload face. Earn $facecoin`,
   };
 };
 

@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Facecoin",
-  description: "Facecoin - Powered by Metal",
+  description: "Facecoin",
 };
 
 export default function RootLayout({
