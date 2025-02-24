@@ -51,27 +51,8 @@ async function queryUsersPokes(user: User) {
       updatedAt: "asc",
     },
   });
-
-  // .filter((pokeGame) => {
-  //   if (!viewingUser) return true;
-
-  //   // filter out our game
-  //   if (
-  //     (viewingUser.id === pokeGame.perpetratorId &&
-  //       user.id === pokeGame.victimId) ||
-  //     (viewingUser.id === pokeGame.victimId &&
-  //       user.id === pokeGame.perpetratorId)
-  //   )
-  //     return false;
-  //   else return true;
-  // })
 }
 
-// user stories
-// 1. i have never poked you before
-//  should see poke button
-//  should see "you poked them"
-// 2.
 const UserPokesList = async ({
   user,
   viewingUser,
@@ -131,23 +112,25 @@ const UserPokesList = async ({
 
   return (
     <>
-      {userIsLoggedIn && !ourPokeGame ? (
-        <PokeButton victim={user.id}>👉 Poke</PokeButton>
-      ) : null}
-      <div className="flex flex-col gap-2 relative p-2">
-        <div className={`flex flex-col gap-2`}>
+      <div className="flex flex-col gap-2 relative w-full">
+        <div className={`flex flex-col gap-4 items-center w-full`}>
+          <h3 className="font-bold text-2xl pt-2">Pokes</h3>
+          {userIsLoggedIn && !ourPokeGame ? (
+            <PokeButton victim={user.id}>👉 Poke help</PokeButton>
+          ) : null}
+          {thisUsersPokes.length === 0 && (
+            <p className="text-gray-500">no pokes yet...</p>
+          )}
           {ourPokeGame && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 w-full px-4">
               <div className="text-sm text-gray-500 flex justify-between items-start gap-2">
                 <div className="flex flex-col gap-2">
-                  <div className="whitespace-nowrap">
-                    {hasAnUnansweredPokeWithThisUser
-                      ? `@${user.socialHandle} poked you`
-                      : `You poked @${user.socialHandle}`}{" "}
-                    {Math.ceil(ourPokeGame.count / 2) > 1
-                      ? [`${Math.ceil(ourPokeGame.count / 2)} times in a row!`]
-                      : ["once"]}
-                  </div>
+                  {hasAnUnansweredPokeWithThisUser
+                    ? `@${user.socialHandle} poked you`
+                    : `You poked @${user.socialHandle}`}{" "}
+                  {Math.ceil(ourPokeGame.count / 2) > 1
+                    ? [`${Math.ceil(ourPokeGame.count / 2)} times in a row!`]
+                    : ["once"]}
                   <div className="text-sm text-gray-500">
                     {getRelativeTime(ourPokeGame.events[0].createdAt)}
                   </div>
@@ -159,119 +142,113 @@ const UserPokesList = async ({
               <div className="h-[1px] bg-gray-400" />
             </div>
           )}
-          {thisUsersPokesWithoutOurGame.length > 0 && (
-            <h3 className="font-bold text-2xl">Pokes</h3>
-          )}
-          {thisUsersPokesWithoutOurGame.map((pokeGame, i) => {
-            //
-            //// CARD TYPE
-            const type: "reveal" | "login-gate" | "non-mutual" =
-              !userIsLoggedIn && i > 0
-                ? "login-gate"
-                : !isMutual(pokeGame) && i > 4
-                ? "non-mutual"
-                : "reveal";
 
-            //
-            //// RECIPIENT
-            const [lastPoke] = pokeGame.events;
-            const otherUser =
-              pokeGame.perpetratorId === user.id
-                ? pokeGame.victim
-                : pokeGame.perpetrator;
-
-            const canPokeBack =
-              userIsLoggedIn && viewingUser.id === lastPoke.victimId;
-
-            //
-            //// POKE SENTENCE
-            const [sendingNoun, receivingNoun] = (() => {
-              if (viewingUser?.id === lastPoke.perpetratorId)
-                return [
-                  "You",
-                  viewingUser.id === user.id
-                    ? otherUser.socialHandle
-                    : user.socialHandle,
-                ];
-              if (viewingUser?.id === lastPoke.victimId) return ["you", "you"];
-
-              return ["", user.socialHandle];
-            })();
-            const verb = "poked";
-            const pokeSentence_arr = [
-              sendingNoun,
-              verb,
-              receivingNoun,
-              ...(pokeGame.count > 1 ? [`${pokeGame.count} times!`] : ["once"]),
-            ];
-            const pokeSentence = pokeSentence_arr.join(" ");
-
-            const imgSrc =
-              type === "reveal"
-                ? `${
-                    otherUser.pfp
-                  }?lastModified=${otherUser.updatedAt.toISOString()}`
-                : "/facebook-avatar.webp";
-
-            // truncate the list for unauthed users
-            if (i > 2 && !userIsLoggedIn) return null;
-            return (
+          <div className="flex flex-col flex-1 relative">
+            {thisUsersPokesWithoutOurGame.map((pokeGame, i) => {
+              //
+              //// CARD TYPE
+              const type: "reveal" | "login-gate" | "non-mutual" =
+                !userIsLoggedIn && i > 0
+                  ? "login-gate"
+                  : !isMutual(pokeGame) && i > 4
+                  ? "non-mutual"
+                  : "reveal";
+              //
+              //// RECIPIENT
+              const [lastPoke] = pokeGame.events;
+              const otherUser =
+                pokeGame.perpetratorId === user.id
+                  ? pokeGame.victim
+                  : pokeGame.perpetrator;
+              const canPokeBack =
+                userIsLoggedIn && viewingUser.id === lastPoke.victimId;
+              //
+              //// POKE SENTENCE
+              const [sendingNoun, receivingNoun] = (() => {
+                if (viewingUser?.id === lastPoke.perpetratorId)
+                  return [
+                    "You",
+                    viewingUser.id === user.id
+                      ? otherUser.socialHandle
+                      : user.socialHandle,
+                  ];
+                if (viewingUser?.id === lastPoke.victimId)
+                  return ["you", "you"];
+                return ["", user.socialHandle];
+              })();
+              const verb = "poked";
+              const pokeSentence_arr = [
+                sendingNoun,
+                verb,
+                receivingNoun,
+                ...(pokeGame.count > 1
+                  ? [`${pokeGame.count} times!`]
+                  : ["once"]),
+              ];
+              const pokeSentence = pokeSentence_arr.join(" ");
+              const imgSrc =
+                type === "reveal"
+                  ? `${
+                      otherUser.pfp
+                    }?lastModified=${otherUser.updatedAt.toISOString()}`
+                  : "/facebook-avatar.webp";
+              // truncate the list for unauthed users
+              if (i > 2 && !userIsLoggedIn) return null;
+              return (
+                <div
+                  key={pokeGame.id}
+                  className={cn(
+                    "flex items-center justify-between p-2 gap-4 w-full"
+                  )}
+                >
+                  <Link href={`/${otherUser.socialHandle}`}>
+                    <div className="flex items-center gap-2 align-top">
+                      <div className="relative w-14 h-14">
+                        <Image
+                          src={imgSrc}
+                          alt={otherUser.socialHandle}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-bold text-theme-primary hover:underline">
+                          @{type !== "reveal" ? "???" : otherUser.socialHandle}
+                        </span>
+                        <div className="text-sm text-gray-500">
+                          {pokeSentence}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {getRelativeTime(lastPoke.createdAt)}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                  {canPokeBack && (
+                    <PokeButton victim={otherUser.id}>Poke back 👈</PokeButton>
+                  )}
+                </div>
+              );
+            })}
+            {!showCover && (
               <div
-                key={pokeGame.id}
-                className={cn(
-                  "flex items-center justify-between p-2 gap-4 w-full"
-                  // type !== "reveal" && "blur-sm"
-                )}
+                className={`absolute inset-0 flex justify-center top-[${
+                  mutualOmittedCount === 0 ? 0 : mutualOmittedCount * 84
+                }px] backdrop-blur-[3px] pt-8 h-full w-full`}
               >
-                <Link href={`/${otherUser.socialHandle}`}>
-                  <div className="flex items-center gap-2 align-top">
-                    <div className="relative w-14 h-14">
-                      <Image
-                        src={imgSrc}
-                        alt={otherUser.socialHandle}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-bold text-theme-primary hover:underline">
-                        @{type !== "reveal" ? "???" : otherUser.socialHandle}
-                      </span>
-                      <div className="text-sm text-gray-500">
-                        {pokeSentence}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {getRelativeTime(lastPoke.createdAt)}
-                      </div>
-                    </div>
+                {!userIsLoggedIn ? (
+                  <Link href="/onboard">
+                    <Button>Login to view pokes</Button>
+                  </Link>
+                ) : mutualOmittedCount > 0 ? (
+                  <div className="text-black text-lg font-bold pt-2">
+                    👀 non-mutual pokes are hidden
                   </div>
-                </Link>
-
-                {canPokeBack && (
-                  <PokeButton victim={otherUser.id}>Poke back 👈</PokeButton>
-                )}
+                ) : null}
               </div>
-            );
-          })}
-        </div>
-
-        {showCover && (
-          <div
-            className={`absolute inset-0 flex justify-center top-[${
-              mutualOmittedCount === 0 ? 0 : mutualOmittedCount * 84
-            }px] backdrop-blur-[3px] pt-8 h-full w-full`}
-          >
-            {!userIsLoggedIn ? (
-              <Link href="/onboard">
-                <Button>Login to view pokes</Button>
-              </Link>
-            ) : mutualOmittedCount > 0 ? (
-              <div className="text-black text-lg font-bold pt-2">
-                👀 non-mutual pokes are hidden
-              </div>
-            ) : null}
+            )}
           </div>
-        )}
+        </div>
       </div>
     </>
   );
@@ -287,8 +264,8 @@ const MyPokesList = async ({ user }: { user: User }) => {
     component: JSX.Element;
   };
   return (
-    <div className="flex flex-col gap-2 relative p-2">
-      <div className={`flex flex-col gap-2`}>
+    <div className="flex flex-col gap-2 relative p-2 w-full">
+      <div className={`flex flex-col gap-2 w-full items-center`}>
         <h3 className="font-bold text-2xl">Pokes</h3>
         {Object.entries(
           pokes
@@ -347,8 +324,8 @@ const MyPokesList = async ({ user }: { user: User }) => {
                     )}
                   >
                     <Link href={`/${otherUser.socialHandle}`}>
-                      <div className="flex items-center gap-2 align-top">
-                        <div className="relative w-14 h-14">
+                      <div className="flex gap-2 align-top">
+                        <div className="relative w-14 h-14 flex-shrink-0">
                           <Image
                             src={imgSrc}
                             alt={otherUser.socialHandle}
@@ -434,8 +411,8 @@ export const PokesSection = ({
   viewingUser: User | null;
 }) => {
   return (
-    <div className="flex flex-col gap-2 items-center p-2 w-full flex-1">
-      <Suspense>
+    <div className="flex flex-col gap-2 items-center w-full flex-1 pt-2">
+      <Suspense fallback={<h3 className="font-bold text-2xl pt-2">Pokes</h3>}>
         {user.id === viewingUser?.id ? (
           <MyPokesList user={user} />
         ) : (

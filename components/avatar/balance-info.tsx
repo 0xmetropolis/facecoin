@@ -11,6 +11,7 @@ export const BalanceInfo = ({ user }: { user?: User }) => {
   if (isLoading) return <Skeleton className="w-24 h-5 inline-flex m-0.5" />;
   if (!balanceInfo) return null;
 
+  // display the usd price / the facecoin amount
   const text = balanceInfo.value
     ? `$${balanceInfo.value.toLocaleString()}`
     : `${balanceInfo.balance.toLocaleString()} $facecoin`;

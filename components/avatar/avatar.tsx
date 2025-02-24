@@ -17,8 +17,8 @@ export const Avatar = ({
   const isLoading = !user;
 
   return (
-    <Link href={`/${user?.socialHandle}`} className="hover:opacity-80">
-      <div className={cn("flex flex-col gap-2 w-32", containerClasses)}>
+    <div className={cn("flex flex-col gap-2 w-32", containerClasses)}>
+      <Link href={`/${user?.socialHandle}`} className="hover:opacity-80">
         <div className="relative aspect-square">
           <Image
             className={cn("aspect-square object-cover")}
@@ -32,23 +32,23 @@ export const Avatar = ({
             fill
           />
         </div>
-        {!iconOnly && (
-          <div className="flex flex-col items-center">
-            <div className="flex flex-row items-center text-theme-primary font-semibold justify-center">
-              <p>@</p>
-              {isLoading ? (
-                <Skeleton className="w-14 h-5 m-0.5 inline-flex" />
-              ) : (
-                <p>{user?.socialHandle}</p>
-              )}
-            </div>
-            <div className={cn("flex flex-col items-center gap-1")}>
-              <BalanceInfo user={user} />
-            </div>
+      </Link>
+      {!iconOnly && (
+        <div className="flex flex-col items-center">
+          <div className="flex flex-row items-center text-theme-primary font-semibold justify-center">
+            <p>@</p>
+            {isLoading ? (
+              <Skeleton className="w-14 h-5 m-0.5 inline-flex" />
+            ) : (
+              <p>{user?.socialHandle}</p>
+            )}
           </div>
-        )}
-      </div>
-    </Link>
+          <div className={cn("flex flex-col items-center gap-1")}>
+            <BalanceInfo user={user} />
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -1,26 +1,23 @@
-import prisma from "@/lib/prisma";
 import { Suspense } from "react";
-import { Avatar, LoadingAvatar } from "../avatar/avatar";
+import { LoadingAvatar } from "../avatar/avatar";
+import { SuspendedUserGrid } from "./suspended-user-grid";
+import { SearchInput } from "./search-bar";
 
-const LoadingUserGrid = () =>
-  Array.from({ length: 6 }).map((_, index) => <LoadingAvatar key={index} />);
-
-const SuspensedUserGrid = async () => {
-  const users = await prisma.user.findMany({
-    skip: 0,
-    take: 20,
-    orderBy: { followerCount: "desc" },
-  });
-
-  return users.map((user) => <Avatar key={user.id} user={user} />);
-};
-
-export function UserGrid() {
+export async function UserGrid({ query }: { query: string }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-[600px] mx-auto justify-items-center">
-      <Suspense fallback={<LoadingUserGrid />}>
-        <SuspensedUserGrid />
-      </Suspense>
+    <div>
+      <SearchInput />
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-[600px] mx-auto justify-items-center">
+        <Suspense
+          fallback={Array(6)
+            .fill(0)
+            .map((_, i) => (
+              <LoadingAvatar key={i} />
+            ))}
+        >
+          <SuspendedUserGrid searchTerm={query} />
+        </Suspense>
+      </div>
     </div>
   );
 }

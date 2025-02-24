@@ -3,7 +3,7 @@
 import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
 import { Textarea } from "@/components/shadcn/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/lib/hooks/use-toast";
 import { STYLE_OPTIONS, type StyleizePhotoInput } from "@/lib/replicate";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";

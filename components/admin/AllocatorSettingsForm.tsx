@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/lib/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";

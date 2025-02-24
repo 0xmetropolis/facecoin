@@ -2,7 +2,6 @@
 
 import { CameraDrawer } from "@/components/base/camera-drawer";
 import { InfoSection } from "@/components/base/info-section";
-import { Profile } from "@/components/onboard/profile";
 import { Button } from "@/components/shadcn/button";
 import { Drawer, DrawerTrigger } from "@/components/shadcn/drawer";
 import { Skeleton } from "@/components/shadcn/skeleton";
@@ -12,6 +11,7 @@ import { useUser } from "@privy-io/react-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export function UploadSelfie() {
   const { user: privyUser } = useUser();
@@ -61,15 +61,22 @@ export function UploadSelfie() {
             <div className="flex flex-col gap-4 items-center">
               <div className="flex flex-col gap-4 items-center">
                 <div className="flex flex-row items-center space-x-4">
-                  <Profile
-                    pfp={
-                      user?.pfp
-                        ? `${
-                            user.pfp
-                          }?lastmod=${user?.updatedAt?.toISOString?.()}`
-                        : "/facebook-avatar.webp"
-                    }
-                  />
+                  <div className="flex flex-col gap-2 w-[60px]">
+                    <div className="relative aspect-square">
+                      <Image
+                        fill
+                        alt="pfp"
+                        quality={10}
+                        className="aspect-square object-cover"
+                        priority
+                        placeholder="blur"
+                        blurDataURL="/facebook-avatar.webp"
+                        src={`${
+                          user?.pfp
+                        }?lastmod=${user?.updatedAt?.toISOString?.()}`}
+                      />
+                    </div>
+                  </div>
                   <div className="text-left">
                     <h2 className="font-semibold flex items-center gap-1">
                       @

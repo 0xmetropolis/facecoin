@@ -3,7 +3,7 @@
 import { pokeAction } from "@/actions";
 import { useActionState, useEffect } from "react";
 import { Button } from "../shadcn/button";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/lib/hooks/use-toast";
 
 export const PokeButton = ({
   victim,

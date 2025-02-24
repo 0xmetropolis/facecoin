@@ -13,7 +13,7 @@ import {
 } from "@/components/shadcn/drawer";
 import { Input } from "@/components/shadcn/input";
 import { Label } from "@/components/shadcn/label";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/lib/hooks/use-toast";
 import { FACECOIN_TOKEN_ADDRESS } from "@/lib/facecoin-token";
 import { User } from "@/lib/types";
 import { usePrivy } from "@privy-io/react-auth";

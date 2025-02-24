@@ -12,11 +12,16 @@ const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 export const getRelativeTime = (d1: Date, d2 = new Date()) => {
   const elapsed = d1.getTime() - d2.getTime();
 
+  let time: string;
   // "Math.abs" accounts for both "past" & "future" scenarios
   for (const u in units)
-    if (Math.abs(elapsed) > units[u as keyof typeof units] || u == "second")
-      return rtf.format(
+    if (Math.abs(elapsed) > units[u as keyof typeof units] || u == "second") {
+      time = rtf.format(
         Math.round(elapsed / units[u as keyof typeof units]),
         u as Intl.RelativeTimeFormatUnit
       );
+      break;
+    }
+
+  return time!.replace("now", "1 second ago");
 };
