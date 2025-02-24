@@ -70,7 +70,7 @@ export function AdminDashboard() {
     const firstMenuItem =
       document.querySelector<HTMLAnchorElement>('[role="menuitem"]');
     firstMenuItem?.focus();
-  }, []);
+  }, [router, success]);
 
   // Add keyboard navigation handler
   const handleKeyDown = (event: React.KeyboardEvent, currentIndex: number) => {

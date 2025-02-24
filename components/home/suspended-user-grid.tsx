@@ -1,10 +1,9 @@
 import prisma from "@/lib/prisma";
+import { User } from "@/lib/types";
+import { getUserFromRequest } from "@/lib/utils/user";
+import { Suspense } from "react";
 import { Avatar } from "../avatar/avatar";
 import { PokeButton } from "../profile/poke-button";
-import { getUserFromRequest } from "@/lib/utils/user";
-import { User } from "@/lib/types";
-import { Suspense } from "react";
-import { getRelativeTime } from "@/lib/time";
 
 async function SuspendedPokeButton({
   user,
