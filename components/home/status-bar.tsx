@@ -27,7 +27,7 @@ export const RightSide = async () => {
     <div className="relative">
       <Avatar user={user} containerClasses="w-[60px] h-[60px]" iconOnly />
       {!!unreadPokeCount && (
-        <div className="rounded-full bg-red-600 absolute -top-2 -right-2 text-white text-sm w-5 h-5 flex items-center justify-center">
+        <div className="rounded-sm bg-red-600 absolute -top-2.5 -right-2.5 text-white text-sm w-5 h-5 flex items-center justify-center">
           {unreadPokeCount}
         </div>
       )}
