@@ -6,8 +6,8 @@ import { cn } from "../../lib/utils";
 // Base styles are applied directly in cva, not wrapped in cn()
 const buttonVariants = cva(
   [
-    "disabled:pointer-events-none h-9 px-3 py-2 rounded-[4px] disabled:opacity-50",
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-bold",
+    "disabled:pointer-events-none h-9 px-3 py-2 disabled:opacity-50",
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap font-normal",
     "ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
     "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   ],

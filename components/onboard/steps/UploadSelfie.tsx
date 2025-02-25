@@ -11,6 +11,8 @@ import { useUser } from "@privy-io/react-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import uploadSelfie from "@/components/onboard/upload-selfie.png";
+import generatePfp from "@/components/onboard/generate-pfp.png";
 import Image from "next/image";
 
 export function UploadSelfie() {
@@ -94,6 +96,39 @@ export function UploadSelfie() {
                   </div>
                 </div>
               </div>
+            </div>
+            <div className="flex items-center gap-2 w-full ">
+              <div className="flex flex-col items-center gap-2">
+                <p className="font-bold">1. Upload Selfie</p>
+                <div className="w-[100px] h-[100px] relative">
+                  <Image
+                    src={uploadSelfie}
+                    alt="upload selfie"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <p className="font-bold">2. Generate PFP</p>
+                <div className="w-[100px] h-[100px] relative">
+                  <Image
+                    src={generatePfp}
+                    alt="generate pfp"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <p className="font-bold">3. Earn Facecoin</p>
+                <div className="w-[100px] h-[100px] bg-white pointer-events-none flex flex-col items-center justify-center gap-2">
+                  <p className="text-3xl">🪂</p>
+                  <p className="font-bold">$facecoin</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col items-center gap-2">
               <DrawerTrigger asChild>
                 <Button className="font-bold">Upload picture*</Button>
               </DrawerTrigger>

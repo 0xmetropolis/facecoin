@@ -1,13 +1,22 @@
 import "./globals.css";
 
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import { cn } from "../lib/utils";
 import { Header } from "@/components/base/header";
 import { Toaster } from "@/components/shadcn/toaster";
 import { Metadata } from "next";
 import Providers from "@/components/providers/providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const tahoma = localFont({
+  src: [
+    {
+      path: "../public/lucida-sans-regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    { path: "../public/lucida-sans-bold.ttf", weight: "700", style: "bold" },
+  ],
+});
 
 export const metadata: Metadata = {
   title: "Facecoin",
@@ -23,8 +32,8 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "min-h-screen bg-theme-background font-sans antialiased flex flex-col",
-          inter.className
+          "min-h-screen bg-theme-background font-sans flex flex-col",
+          tahoma.className
         )}
       >
         <Providers>

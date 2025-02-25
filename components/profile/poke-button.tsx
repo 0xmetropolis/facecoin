@@ -4,6 +4,7 @@ import { pokeAction } from "@/actions";
 import { useActionState, useEffect } from "react";
 import { Button } from "../shadcn/button";
 import { toast } from "@/lib/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 export const PokeButton = ({
   victim,
@@ -12,7 +13,7 @@ export const PokeButton = ({
   victim: number;
   children: React.ReactNode;
 }) => {
-  const [state, formAction] = useActionState<
+  const [state, formAction, isPending] = useActionState<
     { error: null | string; success: null | string },
     FormData
   >(pokeAction, { error: null, success: null });
@@ -25,18 +26,24 @@ export const PokeButton = ({
       });
     }
   }, [state.error]);
-  console.log(state);
+
   return (
     <form action={formAction} className="flex flex-col gap-2 items-center">
       <input type="hidden" name="victim" value={victim} />
       {state.success ? (
-        <p className="whitespace-nowrap text-gray-500 font-medium text-sm">{state.success}</p>
+        <p className="whitespace-nowrap text-gray-500 font-medium text-sm">
+          {state.success}
+        </p>
       ) : (
         <Button
           type="submit"
-          className="text-sm px-2.5 w-auto"
+          className={cn(
+            "text-sm px-2.5 w-auto",
+            isPending && "opacity-70 cursor-not-allowed"
+          )}
           onClick={(event) => {
             event.stopPropagation();
+            if (isPending) event.preventDefault();
           }}
         >
           {children}

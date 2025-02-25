@@ -328,7 +328,8 @@ const MyPokesList = async ({ user }: { user: User }) => {
                     key={pokeGame.id}
                     className={cn(
                       "flex items-center justify-between p-2 gap-4 w-full relative",
-                      isUnread && "bg-gray-100"
+                      isUnread && "bg-gray-100",
+                      !canPokeBack && "opacity-70"
                     )}
                   >
                     <Link href={`/${otherUser.socialHandle}`}>

@@ -112,7 +112,6 @@ export const getTokenInfo = async () => {
     console.error(await response.json());
     throw new Error("Failed to fetch token info");
   }
-  debugger;
 
   const data = (await response.json()) as GetTokenHoldersResponse;
   return data;
@@ -139,7 +138,6 @@ export const sendReward = async ({
       }),
     }
   );
-  debugger;
 
   if (response.status !== 202) {
     const error = await response.json();
