@@ -193,7 +193,7 @@ const UserPokesList = async ({
                 type === "reveal"
                   ? `${
                       otherUser.pfp
-                    }?lastModified=${otherUser.updatedAt.toISOString()}`
+                    }?lastModified=${otherUser.updatedAt}`
                   : "/facebook-avatar.webp";
               // truncate the list for unauthed users
               if (i > 2 && !userIsLoggedIn) return null;
@@ -275,138 +275,142 @@ const MyPokesList = async ({ user }: { user: User }) => {
     <div className="flex flex-col gap-2 relative p-2 w-full">
       <div className={`flex flex-col gap-2 w-full items-center`}>
         <h3 className="font-bold text-2xl">Pokes</h3>
-        {Object.entries(
-          pokes
-            .map((pokeGame) => {
-              //
-              //// RECIPIENT
-              const [lastPoke] = pokeGame.events;
-              const otherUser =
-                pokeGame.perpetratorId === user.id
-                  ? pokeGame.victim
-                  : pokeGame.perpetrator;
+        {pokes.length === 0 ? (
+          <p className="text-gray-500">no pokes yet...</p>
+        ) : (
+          Object.entries(
+            pokes
+              .map((pokeGame) => {
+                //
+                //// RECIPIENT
+                const [lastPoke] = pokeGame.events;
+                const otherUser =
+                  pokeGame.perpetratorId === user.id
+                    ? pokeGame.victim
+                    : pokeGame.perpetrator;
 
-              const canPokeBack = user.id === lastPoke.victimId;
+                const canPokeBack = user.id === lastPoke.victimId;
 
-              //
-              //// POKE SENTENCE
-              const [sendingNoun, receivingNoun] = (() => {
-                if (user.id === lastPoke.perpetratorId)
-                  return ["You", otherUser.socialHandle];
-                if (user.id === lastPoke.victimId)
-                  return [otherUser.socialHandle, "you"];
+                //
+                //// POKE SENTENCE
+                const [sendingNoun, receivingNoun] = (() => {
+                  if (user.id === lastPoke.perpetratorId)
+                    return ["You", otherUser.socialHandle];
+                  if (user.id === lastPoke.victimId)
+                    return [otherUser.socialHandle, "you"];
 
-                return ["", ""];
-              })();
-              const verb = "poked";
-              const pokeSentence_arr = [
-                sendingNoun,
-                verb,
-                receivingNoun,
-                ...(Math.ceil(pokeGame.count / 2) > 1
-                  ? [`${Math.ceil(pokeGame.count / 2)} times!`]
-                  : ["once"]),
-              ];
-              const pokeSentence = pokeSentence_arr.join(" ");
+                  return ["", ""];
+                })();
+                const verb = "poked";
+                const pokeSentence_arr = [
+                  sendingNoun,
+                  verb,
+                  receivingNoun,
+                  ...(Math.ceil(pokeGame.count / 2) > 1
+                    ? [`${Math.ceil(pokeGame.count / 2)} times!`]
+                    : ["once"]),
+                ];
+                const pokeSentence = pokeSentence_arr.join(" ");
 
-              const imgSrc = `${
-                otherUser.pfp
-              }?lastModified=${otherUser.updatedAt.toISOString()}`;
+                const imgSrc = `${
+                  otherUser.pfp
+                }?lastModified=${otherUser.updatedAt}`;
 
-              const isUnread =
-                user.lastCheckedProfile &&
-                canPokeBack &&
-                lastPoke.createdAt > user.lastCheckedProfile;
+                const isUnread =
+                  user.lastCheckedProfile &&
+                  canPokeBack &&
+                  lastPoke.createdAt > user.lastCheckedProfile;
 
-              return {
-                isUnread,
-                canPokeBack,
-                lastPokeTs: lastPoke.createdAt,
-                otherFollowerCount: otherUser.followerCount!,
-                component: (
-                  <div
-                    key={pokeGame.id}
-                    className={cn(
-                      "flex items-center justify-between p-2 gap-4 w-full relative",
-                      isUnread && "bg-gray-100",
-                      !canPokeBack && "opacity-70"
-                    )}
-                  >
-                    <Link href={`/${otherUser.socialHandle}`}>
-                      <div className="flex gap-2 align-top">
-                        <div className="relative w-14 h-14 flex-shrink-0">
-                          <Image
-                            src={imgSrc}
-                            alt={otherUser.socialHandle}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-theme-primary hover:underline">
-                            @{otherUser.socialHandle}
-                          </span>
-                          <div className="text-sm text-gray-500">
-                            {pokeSentence}
+                return {
+                  isUnread,
+                  canPokeBack,
+                  lastPokeTs: lastPoke.createdAt,
+                  otherFollowerCount: otherUser.followerCount!,
+                  component: (
+                    <div
+                      key={pokeGame.id}
+                      className={cn(
+                        "flex items-center justify-between p-2 gap-4 w-full relative",
+                        isUnread && "bg-gray-100",
+                        !canPokeBack && "opacity-70"
+                      )}
+                    >
+                      <Link href={`/${otherUser.socialHandle}`}>
+                        <div className="flex gap-2 align-top">
+                          <div className="relative w-14 h-14 flex-shrink-0">
+                            <Image
+                              src={imgSrc}
+                              alt={otherUser.socialHandle}
+                              fill
+                              className="object-cover"
+                            />
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {getRelativeTime(lastPoke.createdAt)}
+                          <div className="flex flex-col">
+                            <span className="font-bold text-theme-primary hover:underline">
+                              @{otherUser.socialHandle}
+                            </span>
+                            <div className="text-sm text-gray-500">
+                              {pokeSentence}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {getRelativeTime(lastPoke.createdAt)}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                    {canPokeBack && (
-                      <PokeButton victim={otherUser.id}>
-                        Poke back 👈
-                      </PokeButton>
-                    )}
-                    {isUnread && (
-                      <div className="absolute -top-1 -right-1 bg-theme-primary text-white w-3 h-3 rounded-full" />
-                    )}
-                  </div>
-                ),
-              };
+                      </Link>
+                      {canPokeBack && (
+                        <PokeButton victim={otherUser.id}>
+                          Poke back 👈
+                        </PokeButton>
+                      )}
+                      {isUnread && (
+                        <div className="absolute -top-1 -right-1 bg-theme-primary text-white w-3 h-3 rounded-full" />
+                      )}
+                    </div>
+                  ),
+                };
+              })
+              // sort unreads first,
+              // then needsPokeBack,
+              // then by follower count
+              .reduce<{
+                unreads: Item[];
+                // needsPokeBack: Item[];
+                followers: Item[];
+              }>(
+                (acc, curr) => {
+                  if (curr.isUnread) acc.unreads.push(curr);
+                  // else if (curr.canPokeBack) acc.needsPokeBack.push(curr);
+                  else acc.followers.push(curr);
+                  return acc;
+                },
+                {
+                  unreads: [],
+                  // needsPokeBack: [],
+                  followers: [],
+                }
+              )
+          )
+            // .map((t) => {
+            //   console.log(t);
+            //   return t;
+            // })
+            .map(([key, value]) => {
+              return value
+                .map(({ component, lastPokeTs, otherFollowerCount }) => ({
+                  component,
+                  lastPokeTs,
+                  otherFollowerCount,
+                }))
+                .sort((a, b) =>
+                  key === "followers"
+                    ? b.otherFollowerCount - a.otherFollowerCount
+                    : b.lastPokeTs.getTime() - a.lastPokeTs.getTime()
+                );
             })
-            // sort unreads first,
-            // then needsPokeBack,
-            // then by follower count
-            .reduce<{
-              unreads: Item[];
-              // needsPokeBack: Item[];
-              followers: Item[];
-            }>(
-              (acc, curr) => {
-                if (curr.isUnread) acc.unreads.push(curr);
-                // else if (curr.canPokeBack) acc.needsPokeBack.push(curr);
-                else acc.followers.push(curr);
-                return acc;
-              },
-              {
-                unreads: [],
-                // needsPokeBack: [],
-                followers: [],
-              }
-            )
-        )
-          // .map((t) => {
-          //   console.log(t);
-          //   return t;
-          // })
-          .map(([key, value]) => {
-            return value
-              .map(({ component, lastPokeTs, otherFollowerCount }) => ({
-                component,
-                lastPokeTs,
-                otherFollowerCount,
-              }))
-              .sort((a, b) =>
-                key === "followers"
-                  ? b.otherFollowerCount - a.otherFollowerCount
-                  : b.lastPokeTs.getTime() - a.lastPokeTs.getTime()
-              );
-          })
-          .flat()
-          .map(({ component }) => component)}
+            .flat()
+            .map(({ component }) => component)
+        )}
       </div>
     </div>
   );

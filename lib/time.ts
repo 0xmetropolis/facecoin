@@ -9,7 +9,8 @@ const units = {
 
 const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 
-export const getRelativeTime = (d1: Date, d2 = new Date()) => {
+export const getRelativeTime = (_d1: Date, d2 = new Date()) => {
+  const d1 = new Date(_d1);
   const elapsed = d1.getTime() - d2.getTime();
 
   let time: string;

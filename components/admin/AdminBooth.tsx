@@ -36,7 +36,7 @@ export function AdminBooth() {
     try {
       await fetch("/api/uploadSelfie/booth", {
         method: "POST",
-        body: JSON.stringify({ photo, facecoinId }),
+        body: JSON.stringify({ photo, facecoinId, useBoothFlow: true }),
       })
         .then(async (response) => ({
           ...response,
@@ -73,11 +73,11 @@ export function AdminBooth() {
     <div className="flex flex-col items-center gap-6 p-4 w-2/3">
       {isComplete ? (
         <div className="flex flex-col items-center gap-2 h-full w-full">
-          <div className="relative w-3/5 aspect-[3/2]">
+          <div className="relative w-full aspect-[3/2]">
             <Image
               src={
                 user.pfp
-                  ? `${user.pfp}?lastmod=${user?.updatedAt?.toISOString()}`
+                  ? `${user.pfp}?lastmod=${user?.updatedAt}`
                   : "facebook-avatar.webp"
               }
               quality={40}

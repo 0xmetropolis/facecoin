@@ -51,7 +51,17 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
 
-export const styleizePhoto = async ({ imgUrl }: { imgUrl: string }) => {
+const MAX_RETRY_COUNT = 2;
+
+export const styleizePhoto = async ({
+  imgUrl,
+  retryCount = 0,
+}: {
+  imgUrl: string;
+  retryCount?: number;
+}): Promise<string> => {
+  if (retryCount > MAX_RETRY_COUNT) throw new Error("Failed to styleize photo");
+
   // Get the configuration from Prisma
   const config = await prisma.stylizePhotoInput.findUnique({
     where: { id: 1 },
@@ -74,8 +84,13 @@ export const styleizePhoto = async ({ imgUrl }: { imgUrl: string }) => {
       const [styledImg] = output as [string];
       return styledImg.toString();
     } catch (e) {
-      console.log(e);
-      return output.toString();
+      console.error(e);
+      try {
+        return output.toString();
+      } catch (e) {
+        console.error(e);
+        return styleizePhoto({ imgUrl, retryCount: retryCount + 1 });
+      }
     }
   })();
 };

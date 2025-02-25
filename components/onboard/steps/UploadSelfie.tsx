@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import uploadSelfie from "@/components/onboard/upload-selfie.png";
 import generatePfp from "@/components/onboard/generate-pfp.png";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 export function UploadSelfie() {
   const { user: privyUser } = useUser();
@@ -36,27 +37,39 @@ export function UploadSelfie() {
   const followerCount = user?.followerCount;
   const isProcessing = processedImageState === "processing";
 
-  const [dots, setDots] = useState("");
+  const [secondsSinceProcessingStarted, setSecondsSinceProcessingStarted] =
+    useState(0);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isProcessing) {
       interval = setInterval(() => {
-        setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
-      }, 800);
+        setSecondsSinceProcessingStarted((prev) => prev + 1);
+      }, 1000);
     }
     return () => interval && clearInterval(interval);
   }, [isProcessing]);
+
+  const dots = Array(secondsSinceProcessingStarted % 4).fill(".");
 
   return (
     <div className="flex-1 flex flex-col items-center gap-4 justify-between">
       <Drawer>
         {processedImageState === "processing" ? (
-          <div className="flex-1 flex items-center">
+          <div className="flex-1 flex items-center flex-col gap-2 justify-center">
             <h3 className="font-semibold flex items-center">
               <span>FaceCoin is processing your face</span>
               <span className="w-[18px]">{dots}</span>
             </h3>
+
+            <p
+              className={cn(
+                "text-sm text-gray-500 hidden",
+                secondsSinceProcessingStarted > 12 && "block"
+              )}
+            >
+              [looks like your face will take a while...]
+            </p>
           </div>
         ) : (
           <>
@@ -73,9 +86,7 @@ export function UploadSelfie() {
                         priority
                         placeholder="blur"
                         blurDataURL="/facebook-avatar.webp"
-                        src={`${
-                          user?.pfp
-                        }?lastmod=${user?.updatedAt?.toISOString?.()}`}
+                        src={`${user?.pfp}?lastmod=${new Date()}`}
                       />
                     </div>
                   </div>
@@ -97,9 +108,9 @@ export function UploadSelfie() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2 w-full ">
+            <div className="flex items-center gap-2 w-full justify-center">
               <div className="flex flex-col items-center gap-2">
-                <p className="font-bold">1. Upload Selfie</p>
+                <p className="font-bold px-2">1. Upload Selfie</p>
                 <div className="w-[100px] h-[100px] relative">
                   <Image
                     src={uploadSelfie}
@@ -110,7 +121,7 @@ export function UploadSelfie() {
                 </div>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <p className="font-bold">2. Generate PFP</p>
+                <p className="font-bold px-2">2. Generate PFP</p>
                 <div className="w-[100px] h-[100px] relative">
                   <Image
                     src={generatePfp}
@@ -121,7 +132,7 @@ export function UploadSelfie() {
                 </div>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <p className="font-bold">3. Earn Facecoin</p>
+                <p className="font-bold px-2">3. Earn Facecoin</p>
                 <div className="w-[100px] h-[100px] bg-white pointer-events-none flex flex-col items-center justify-center gap-2">
                   <p className="text-3xl">🪂</p>
                   <p className="font-bold">$facecoin</p>
@@ -130,7 +141,7 @@ export function UploadSelfie() {
             </div>
             <div className="flex flex-col items-center gap-2">
               <DrawerTrigger asChild>
-                <Button className="font-bold">Upload picture*</Button>
+                <Button className="font-bold">Take selfie*</Button>
               </DrawerTrigger>
               <p className="text-sm">* you can only upload your photo once</p>
             </div>
@@ -185,15 +196,16 @@ export function UploadSelfie() {
                 },
               }))
               .then(async (res) => {
+                await queryClient.refetchQueries({
+                  queryKey: userQueryId(),
+                });
+                router.replace(`/onboard/${user.id}/success`);
                 if (res.body.message === "OK") {
-                  await queryClient.refetchQueries({
-                    queryKey: userQueryId(),
-                  });
-                  router.replace(`/onboard/${user.id}/success`);
-                } else
+                } else {
                   setProcessedImageState({
                     error: new Error(res.body.message),
                   });
+                }
               })
               .catch((error: Error) => {
                 console.error(error);

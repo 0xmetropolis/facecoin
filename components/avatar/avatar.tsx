@@ -25,7 +25,7 @@ export const Avatar = ({
             alt={user?.socialHandle || "loading user..."}
             src={
               !isLoading && user?.pfp
-                ? `${user.pfp}?lastmod=${user?.updatedAt?.toISOString?.()}`
+                ? `${user.pfp}?lastmod=${user?.updatedAt}`
                 : "/facebook-avatar.webp"
             }
             priority

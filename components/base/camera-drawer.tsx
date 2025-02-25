@@ -39,7 +39,6 @@ export const CameraDrawer = ({
         </div>
         <Camera
           videoReadyCallback={() => setCameraLoading(false)}
-          aspectRatio={"cover"}
           ref={camera}
           errorMessages={{
             noCameraAccessible:
