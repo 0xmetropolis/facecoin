@@ -10,11 +10,11 @@ import Providers from "@/components/providers/providers";
 const tahoma = localFont({
   src: [
     {
-      path: "/public/lucida-sans-regular.ttf",
+      path: "./assets/lucida-sans-regular.ttf",
       weight: "400",
       style: "normal",
     },
-    { path: "/public/lucida-sans-bold.ttf", weight: "700", style: "bold" },
+    { path: "./assets/lucida-sans-bold.ttf", weight: "700", style: "bold" },
   ],
 });
 
