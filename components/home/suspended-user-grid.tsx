@@ -12,18 +12,26 @@ async function SuspendedPokeButton({
   user: User;
   viewingUser: User;
 }) {
-  const [theyPokedMeEvent, iPokedThemEvent] = await Promise.all([
-    prisma.pokeEvent.findFirst({
+  const [[theyPokedMeEvent], [iPokedThemEvent]] = await Promise.all([
+    prisma.pokeEvent.findMany({
       where: {
         perpetratorId: user.id,
         victimId: viewingUser.id,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 1,
     }),
-    prisma.pokeEvent.findFirst({
+    prisma.pokeEvent.findMany({
       where: {
         perpetratorId: viewingUser.id,
         victimId: user.id,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 1,
     }),
   ]);
 
@@ -43,8 +51,7 @@ async function SuspendedPokeButton({
 
   if (theyPokedMeLast) return <PokeButton victim={user.id}>👈 Poke</PokeButton>;
 
-  if (IpokedThemLast)
-    return <p>poked ✅</p>;
+  if (IpokedThemLast) return <div className="h-9"/>;
 
   return null;
 }
@@ -72,10 +79,10 @@ export async function SuspendedUserGrid({
 
   return users.map((user) => {
     return (
-      <div key={user.id} className="flex flex-col gap-2">
+      <div key={user.id} className="flex flex-col gap-2 items-center">
         <Avatar key={user.id} user={user} />
         {user.id && viewingUser && (
-          <Suspense fallback={<p>loading...</p>}>
+          <Suspense fallback={<div className="h-9"/>}>
             <SuspendedPokeButton user={user} viewingUser={viewingUser} />
           </Suspense>
         )}

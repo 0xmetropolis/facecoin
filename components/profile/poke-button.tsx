@@ -13,9 +13,9 @@ export const PokeButton = ({
   children: React.ReactNode;
 }) => {
   const [state, formAction] = useActionState<
-    { error: null | string },
+    { error: null | string; success: null | string },
     FormData
-  >(pokeAction, { error: null });
+  >(pokeAction, { error: null, success: null });
 
   useEffect(() => {
     if (state.error) {
@@ -25,19 +25,23 @@ export const PokeButton = ({
       });
     }
   }, [state.error]);
-
+  console.log(state);
   return (
     <form action={formAction} className="flex flex-col gap-2 items-center">
       <input type="hidden" name="victim" value={victim} />
-      <Button
-        type="submit"
-        className="text-sm px-2.5 w-auto"
-        onClick={(event) => {
-          event.stopPropagation();
-        }}
-      >
-        {children}
-      </Button>
+      {state.success ? (
+        <p className="whitespace-nowrap text-gray-500 font-medium text-sm">{state.success}</p>
+      ) : (
+        <Button
+          type="submit"
+          className="text-sm px-2.5 w-auto"
+          onClick={(event) => {
+            event.stopPropagation();
+          }}
+        >
+          {children}
+        </Button>
+      )}
       {state.error && <p className="text-red-500">{state.error}</p>}
     </form>
   );

@@ -3,21 +3,21 @@ import { getUserFromRequest } from "@/lib/utils/user";
 import { revalidatePath } from "next/cache";
 
 export const poke = async (
-  prevState: { error: null | string },
+  prevState: { error: null | string; success: null | string },
   formData: FormData
 ) => {
   const victim = formData.get("victim");
-  if (!victim) return { error: "No victim" };
+  if (!victim) return { error: "No victim", success: null };
 
   const victimUser = await prisma.user.findUnique({
     where: { id: +victim },
   });
 
-  if (!victimUser) return { error: "User not found" };
+  if (!victimUser) return { error: "User not found", success: null };
 
   const perpetratorUser = await getUserFromRequest();
 
-  if (!perpetratorUser) return { error: "Not authorized" };
+  if (!perpetratorUser) return { error: "Not authorized", success: null };
 
   const [a_id, b_id] = [perpetratorUser.id, victimUser.id].sort();
   const between_id = `${a_id}<>${b_id}`;
@@ -55,5 +55,5 @@ export const poke = async (
   revalidatePath(`/${victimUser.socialHandle}`);
   revalidatePath(`/${perpetratorUser.socialHandle}`);
 
-  return { success: "Poke sent", error: null };
+  return { success: "Poked ✅", error: null };
 };

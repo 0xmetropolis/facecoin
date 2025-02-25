@@ -109,6 +109,8 @@ const UserPokesList = async ({
     thisUsersPokesWithoutOurGame.length -
     thisUsersPokesWithoutOurGame.filter(isMutual).length;
   const showCover = !userIsLoggedIn || mutualOmittedCount > 0;
+  const totalShownCount =
+    thisUsersPokesWithoutOurGame.length - mutualOmittedCount;
 
   return (
     <>
@@ -143,7 +145,7 @@ const UserPokesList = async ({
             </div>
           )}
 
-          <div className="flex flex-col flex-1 relative">
+          <div className="flex flex-col flex-1 relative w-full">
             {thisUsersPokesWithoutOurGame.map((pokeGame, i) => {
               //
               //// CARD TYPE
@@ -153,6 +155,7 @@ const UserPokesList = async ({
                   : !isMutual(pokeGame) && i > 4
                   ? "non-mutual"
                   : "reveal";
+
               //
               //// RECIPIENT
               const [lastPoke] = pokeGame.events;
@@ -201,7 +204,11 @@ const UserPokesList = async ({
                     "flex items-center justify-between p-2 gap-4 w-full"
                   )}
                 >
-                  <Link href={`/${otherUser.socialHandle}`}>
+                  <Link
+                    href={
+                      type === "reveal" ? `/${otherUser.socialHandle}` : "#"
+                    }
+                  >
                     <div className="flex items-center gap-2 align-top">
                       <div className="relative w-14 h-14">
                         <Image
@@ -230,11 +237,12 @@ const UserPokesList = async ({
                 </div>
               );
             })}
-            {!showCover && (
+            {showCover && (
               <div
-                className={`absolute inset-0 flex justify-center top-[${
-                  mutualOmittedCount === 0 ? 0 : mutualOmittedCount * 84
-                }px] backdrop-blur-[3px] pt-8 h-full w-full`}
+                className={
+                  "absolute inset-0 flex justify-center backdrop-blur-[3px] pt-8 h-full w-full"
+                }
+                style={{ top: `${totalShownCount * 84}px` }}
               >
                 {!userIsLoggedIn ? (
                   <Link href="/onboard">

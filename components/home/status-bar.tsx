@@ -21,10 +21,7 @@ export const RightSide = async () => {
             },
           },
         })
-        .then((res) => {
-          console.log(res);
-          return res.length;
-        });
+        .then((res) => res.length);
 
   return user ? (
     <div className="relative">
