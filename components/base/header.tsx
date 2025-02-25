@@ -19,7 +19,7 @@ export function Header() {
             <span className="inline-block underline font-bold">
               <u>
                 apply here{" "}
-                <ExternalLinkIcon className="inline-block w-4 h-4 -mt-0.5" />
+                <ExternalLinkIcon className="inline-block w-3.5 h-3.5 -mt-0.5 " strokeWidth={2.4} />
               </u>
             </span>
           </Link>
