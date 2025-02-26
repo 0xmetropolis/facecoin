@@ -1,5 +1,2 @@
-// Feb 5th
-export const TTL = "2025-02-28T21:37:18.841Z";
-
-// in 5 days
-// export const TTL = new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000);
+// March 7 @ noon EST
+export const TTL = "2025-03-07T17:00:00.000Z";

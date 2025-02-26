@@ -23,11 +23,16 @@ export const SearchInput = () => {
   }, [debouncedSearch, pathname, replace, searchParams]);
 
   return (
-    <Input
-      placeholder="Search users..."
-      onChange={(e) => setSearchTerm(e.target.value)}
-      defaultValue={searchParams.get("search") || ""}
-      className="mb-4 max-w-[600px] mx-auto"
-    />
+    <div className="flex flex-col gap-2 mb-4 items-center">
+      <Input
+        placeholder="Search users..."
+        onChange={(e) => setSearchTerm(e.target.value)}
+        defaultValue={searchParams.get("search") || ""}
+        className="max-w-[600px] mx-auto"
+      />
+      <p className="text-sm text-gray-500">
+        Showing top 20 users. Search to find more...
+      </p>
+    </div>
   );
 };

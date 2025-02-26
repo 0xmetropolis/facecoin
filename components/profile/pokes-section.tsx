@@ -330,7 +330,7 @@ const MyPokesList = async ({ user }: { user: User }) => {
                     <div
                       key={pokeGame.id}
                       className={cn(
-                        "flex items-center justify-between p-2 gap-4 w-full relative",
+                        "flex items-center justify-between p-2 gap-2 w-full relative",
                         isUnread && "bg-gray-100",
                         !canPokeBack && "opacity-70"
                       )}
