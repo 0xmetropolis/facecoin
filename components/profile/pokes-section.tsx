@@ -120,7 +120,7 @@ const UserPokesList = async ({
           {userIsLoggedIn && !ourPokeGame ? (
             <PokeButton victim={user.id}>👉 Poke help</PokeButton>
           ) : null}
-          {thisUsersPokes.length === 0 && (
+          {thisUsersPokes.length === 0 && userIsLoggedIn && (
             <p className="text-gray-500">no pokes yet...</p>
           )}
           {ourPokeGame && (
@@ -191,9 +191,7 @@ const UserPokesList = async ({
               const pokeSentence = pokeSentence_arr.join(" ");
               const imgSrc =
                 type === "reveal"
-                  ? `${
-                      otherUser.pfp
-                    }?lastModified=${otherUser.updatedAt}`
+                  ? `${otherUser.pfp}?lastModified=${otherUser.updatedAt}`
                   : "/facebook-avatar.webp";
               // truncate the list for unauthed users
               if (i > 2 && !userIsLoggedIn) return null;
@@ -312,9 +310,7 @@ const MyPokesList = async ({ user }: { user: User }) => {
                 ];
                 const pokeSentence = pokeSentence_arr.join(" ");
 
-                const imgSrc = `${
-                  otherUser.pfp
-                }?lastModified=${otherUser.updatedAt}`;
+                const imgSrc = `${otherUser.pfp}?lastModified=${otherUser.updatedAt}`;
 
                 const isUnread =
                   user.lastCheckedProfile &&
