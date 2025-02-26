@@ -18,7 +18,6 @@ export const SearchInput = () => {
     else params.delete("search");
 
     const nextUrl = `${pathname}?${params.toString()}`;
-    console.log(nextUrl);
     replace(nextUrl);
   }, [debouncedSearch, pathname, replace, searchParams]);
 

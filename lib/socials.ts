@@ -78,7 +78,7 @@ const getFarcasterFollowerCount = async (
   );
 
   const response = await fetch(
-    `https://api.neynar.com/v2/farcaster/user/by_username/${handle}`,
+    `https://api.neynar.com/v2/farcaster/user/search?q=${handle}&limit=1`,
     {
       headers: {
         accept: "application/json",
@@ -94,7 +94,7 @@ const getFarcasterFollowerCount = async (
 
   const data = await response.json();
 
-  return data.user.follower_count;
+  return data.result.users[0].follower_count;
 };
 
 export const getFollowerCount = async (

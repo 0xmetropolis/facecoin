@@ -68,7 +68,7 @@ export function UploadSelfie() {
                 secondsSinceProcessingStarted > 12 && "block"
               )}
             >
-              [looks like your face will take a while...]
+              [looks like your face will take a while]
             </p>
           </div>
         ) : (
@@ -86,7 +86,11 @@ export function UploadSelfie() {
                         priority
                         placeholder="blur"
                         blurDataURL="/facebook-avatar.webp"
-                        src={`${user?.pfp}?lastmod=${new Date()}`}
+                        src={
+                          user?.pfp
+                            ? `${user?.pfp}?lastmod=${new Date()}`
+                            : "/facebook-avatar.webp"
+                        }
                       />
                     </div>
                   </div>
@@ -191,21 +195,19 @@ export function UploadSelfie() {
               .then(async (response) => ({
                 ...response,
                 body: (await response.json()) as {
+                  error?: string;
                   message: string;
                   updatedUser: User;
                 },
               }))
               .then(async (res) => {
+                if (res.body.message !== "OK")
+                  throw new Error(res.body.error || res.body.message);
+
                 await queryClient.refetchQueries({
                   queryKey: userQueryId(),
                 });
                 router.replace(`/onboard/${user.id}/success`);
-                if (res.body.message === "OK") {
-                } else {
-                  setProcessedImageState({
-                    error: new Error(res.body.message),
-                  });
-                }
               })
               .catch((error: Error) => {
                 console.error(error);

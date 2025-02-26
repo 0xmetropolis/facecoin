@@ -91,6 +91,15 @@ export const uploadSelfieHandler = async (req: NextRequest) => {
   const { user, privyUser } = request;
 
   const userPreviouslyHadADistribution = user.tokenAllocation !== null;
+  const isAuthenticated =
+    process.env.ADMIN_PASSWORD === req.cookies.get("admin_token")?.value;
+
+  if (userPreviouslyHadADistribution && !isAuthenticated) {
+    return NextResponse.json(
+      { error: "User has already onboarded" },
+      { status: 401 }
+    );
+  }
 
   if (user.followerCount === null || user.followerCount === 0)
     return NextResponse.json(
@@ -160,7 +169,7 @@ export const uploadSelfieHandler = async (req: NextRequest) => {
       { status: 500 }
     );
 
-  const success = userPreviouslyHadADistribution
+  const success = !userPreviouslyHadADistribution
     ? await Metal.sendReward({
         to: privyUserAddress as Address,
         amount: allacatorResult.allocation,

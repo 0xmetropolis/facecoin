@@ -8,7 +8,7 @@ import {
 } from "@/lib/socials";
 import { User } from "@/lib/types";
 import { PrivyEvents } from "@privy-io/react-auth";
-import { Address } from "viem";
+import { Address, zeroAddress } from "viem";
 
 //
 //// TYPES
@@ -67,7 +67,7 @@ export const updateUserFromPrivy = async ({
   "OK" | InvalidSocialError | MissingUserFieldsError | FollowerCountFetchError
 > => {
   // if the user was already authenticated, we don't need to do anything
-  if (wasAlreadyAuthenticated) return "OK";
+  if (wasAlreadyAuthenticated && !loginAccount && !loginMethod) return "OK";
   // check if the social is valid
   if (
     !isValidSocial(loginAccount) ||
@@ -87,16 +87,24 @@ export const updateUserFromPrivy = async ({
 
   // check if the user exists based on privy id
   const [maybeSavedUser, userCount] = await Promise.all([
-    prisma.user.findUnique({
+    prisma.user.findFirst({
       where: {
-        privyId: privyUser.id,
+        OR: [
+          { privyId: privyUser.id },
+          { address: (privyUser.wallet?.address as Address) || zeroAddress },
+          { socialHandle },
+        ],
       },
     }),
     prisma.user.count(),
   ]);
 
   // return OK if they've been created and they're not reauthenticating their social platform
-  if (maybeSavedUser && maybeSavedUser.socialHandle === socialHandle)
+  if (
+    maybeSavedUser &&
+    maybeSavedUser.socialHandle === socialHandle &&
+    maybeSavedUser.socialPlatform === loginMethod
+  )
     return "OK";
 
   // snag their follower count from the platform of choice
@@ -143,11 +151,19 @@ export const updateUserFromPrivy = async ({
   };
 
   // upsert the user
-  await prisma.user.upsert({
-    where: { privyId: privyUser.id },
-    update: newUser,
-    create: newUser,
-  });
+  await prisma.user
+    .upsert({
+      where: { privyId: privyUser.id },
+      update: newUser,
+      create: newUser,
+    })
+    .catch(async () => {
+      await prisma.user.upsert({
+        where: { socialHandle },
+        update: newUser,
+        create: newUser,
+      });
+    });
 
   return "OK";
 };
