@@ -27,7 +27,7 @@ export function Header() {
       )}
       <div
         className={cn(
-          "container flex items-center justify-center bg-theme-primary text-primary-foreground py-2"
+          "flex items-center justify-center bg-theme-primary text-primary-foreground py-2"
         )}
       >
         <Link href="/" className="text-[32px] font-bold w-fit" prefetch={false}>
