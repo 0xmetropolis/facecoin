@@ -19,7 +19,7 @@ export const CameraDrawer = ({
   const [cameraLoading, setCameraLoading] = useState(true);
 
   return (
-    <DrawerContent className="h-[calc(100%_-_44px)] rounded-none">
+    <DrawerContent className="h-[calc(100%_-_64px)] rounded-none">
       <VisuallyHidden>
         <DrawerDescription>selfie</DrawerDescription>
       </VisuallyHidden>
