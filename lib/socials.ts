@@ -110,3 +110,9 @@ export const getFollowerCount = async (
       return getFarcasterFollowerCount(handle);
   }
 };
+
+export const getSocialLink = (platform: string, handle: string) => {
+  if (platform === "twitter") return `https://x.com/${handle}`;
+  if (platform === "farcaster") return `https://warpcast.com/${handle}`;
+  return "#";
+};

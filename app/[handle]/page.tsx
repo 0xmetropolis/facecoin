@@ -48,7 +48,7 @@ export default async function UserProfilePage({
       <div className="flex flex-col flex-1 max-w-md mx-auto w-full px-4 gap-6">
         <div className="flex flex-col items-center gap-8 h-2/3 pt-8 pb-2">
           <LargeCountdownTimer endTime={TTL} />
-          <Avatar user={user} containerClasses="w-56" />
+          <Avatar user={user} containerClasses="w-56" showLink />
           {canWithdraw && <WithdrawPrompt currentUser={currentUser} />}
         </div>
         <PokesSection user={user} viewingUser={currentUser} />
