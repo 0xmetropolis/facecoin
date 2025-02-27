@@ -58,7 +58,7 @@ export function UploadSelfie() {
         {processedImageState === "processing" ? (
           <div className="flex-1 flex items-center flex-col gap-2 justify-center">
             <h3 className="font-semibold flex items-center">
-              <span>FaceCoin is processing your face</span>
+              <span>Facecoin is processing your face</span>
               <span className="w-[18px]">{dots}</span>
             </h3>
 
