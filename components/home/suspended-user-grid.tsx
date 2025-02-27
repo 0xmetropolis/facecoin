@@ -81,7 +81,7 @@ export async function SuspendedUserGrid({
         : undefined,
       skip: 0,
       take: 20,
-      orderBy: [{ followerCount: "asc" }],
+      orderBy: [{ followerCount: { sort: "desc" } }],
     }),
     getUserFromRequest(),
   ]);
