@@ -18,7 +18,7 @@ export default async function ReplicateParamsPage() {
   const initialParams: StyleizePhotoInput = config || DEFAULT_MODEL_INPUT;
 
   return (
-    <div className="container max-w-2xl py-8 bg-slate-100 rounded-lg">
+    <div className="container py-8 bg-slate-100 rounded-lg">
       <h1 className="text-2xl font-bold mb-6">Admin - Replicate Parameters</h1>
       <ReplicateParamsForm initialParams={initialParams} />
     </div>

@@ -49,7 +49,7 @@ class TokenAllocator {
   //// CONSTRUCTOR
   ///
 
-  /** (use {@link new}) */
+  /** constructor is private, use .{@link new} */
   private constructor(
     private readonly startingRewardTokens: number,
     private remainingRewardTokens: number,

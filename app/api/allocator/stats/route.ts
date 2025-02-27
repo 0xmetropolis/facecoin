@@ -29,11 +29,9 @@ export async function POST(request: Request) {
 
     const allocator = await TokenAllocator.new(
       validatedInput.targetUserCount,
-      50_000_000,
-      50_000_000
+      5_000_000,
+      5_000_000
     );
-
-    
 
     const allocationStats = allocator.getDistributionStats();
 

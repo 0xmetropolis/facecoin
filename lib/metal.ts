@@ -104,7 +104,7 @@ export const getTokenInfo = async () => {
       headers: {
         "x-api-key": getMetalApiKey(),
       },
-      next: { revalidate: 60 },
+      next: { revalidate: 0 },
     }
   );
 

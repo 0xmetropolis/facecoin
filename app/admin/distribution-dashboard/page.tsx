@@ -11,7 +11,8 @@ import { Button } from "@/components/shadcn/button";
 import { protectPageWithAdminAuth } from "@/lib/adminAuth";
 import prisma from "@/lib/prisma";
 import { AllocatorSettings, DEFAULT_SETTINGS } from "@/lib/tokenAllocation";
-import { ArrowLeft, Link } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 

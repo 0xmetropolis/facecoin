@@ -109,7 +109,7 @@ export function AdminDashboard() {
 
   return (
     <div
-      className="flex-1 transition-transform duration-200 ease-out"
+      className="flex-1 transition-transform duration-200 ease-out w-full"
       style={transformStyle}
     >
       {/* Update orb transform for more pronounced effect */}

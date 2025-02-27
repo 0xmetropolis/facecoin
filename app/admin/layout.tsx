@@ -144,7 +144,7 @@ export default function AdminLayout({
       </div>
 
       <div className="relative z-10 w-full h-full overflow-auto">
-        <div className="min-h-full w-full max-w-4xl mx-auto py-8 px-6 flex flex-col justify-center pb-40">
+        <div className="container max-w-4xl py-8 px-6 flex flex-col w-full h-full items-center justify-center pt-[60px]">
           {children}
         </div>
       </div>
