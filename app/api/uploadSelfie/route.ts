@@ -2,7 +2,7 @@ import { uploadSelfieHandler } from "./handler";
 
 //
 //// CONFIG
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 //
 //// ROUTE HANDLER
