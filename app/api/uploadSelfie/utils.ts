@@ -5,12 +5,8 @@ import { User } from "@/lib/types";
 //// HELPERS
 export const saveReplicatePhotoToBlobStore = async (
   userId: User["id"],
-  replicateUrl: string
+  photo: Blob
 ) => {
-  const photo: ArrayBuffer = await fetch(replicateUrl).then((res) =>
-    res.arrayBuffer()
-  );
-
   const filename = `pfp/${userId}.jpeg`;
   const url = await saveDataToBlob(filename, photo);
 

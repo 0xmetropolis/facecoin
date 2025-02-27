@@ -3,12 +3,11 @@ import privy from "@/lib/privy";
 import {
   getFollowerCount,
   isFollowerCountError,
-  isValidSocial,
   type FollowerCountFetchError,
 } from "@/lib/socials";
 import { User } from "@/lib/types";
 import { PrivyEvents } from "@privy-io/react-auth";
-import { Address, zeroAddress } from "viem";
+import { Address } from "viem";
 
 //
 //// TYPES
@@ -39,20 +38,9 @@ export type MissingUserFieldsError = ReturnType<typeof MissingUserFieldsError>;
 //
 //// UTILS
 
-function mapUserCountToFacecoinCode(userCount: number) {
+function getFacecoinCode() {
   // eg: 9 users means
-  const nextUserId = userCount.toString();
-
-  const trailingUserIdNumber = nextUserId.at(-1)!;
-
-  const facecoinCode = nextUserId.padEnd(
-    // facecoin codes will be 5 digs long
-    // 88888
-    5,
-    trailingUserIdNumber
-  );
-
-  return facecoinCode;
+  return Math.random().toString().substring(2, 7);
 }
 
 //
@@ -60,71 +48,69 @@ function mapUserCountToFacecoinCode(userCount: number) {
 
 export const updateUserFromPrivy = async ({
   user: privyUser,
-  loginAccount,
+  // loginAccount,
   wasAlreadyAuthenticated,
   loginMethod,
 }: PrivyOnCompleteParams): Promise<
   "OK" | InvalidSocialError | MissingUserFieldsError | FollowerCountFetchError
 > => {
-  // if the user was already authenticated, we don't need to do anything
-  if (wasAlreadyAuthenticated && !loginAccount && !loginMethod) return "OK";
-  // check if the social is valid
-  if (
-    !isValidSocial(loginAccount) ||
-    (loginMethod !== "twitter" && loginMethod !== "farcaster")
-  )
-    return InvalidSocialError("Invalid social login account");
-
-  const socialHandle =
-    loginAccount.type === "farcaster"
-      ? // use the farcaster username
-        loginAccount.username
-      : // or the twitter handle
-        loginAccount.username;
-
-  // check if the social handle exists
-  if (!socialHandle) return MissingUserFieldsError("Social handle is missing");
-
   // check if the user exists based on privy id
   const [maybeSavedUser, userCount] = await Promise.all([
     prisma.user.findFirst({
       where: {
         OR: [
           { privyId: privyUser.id },
-          { address: (privyUser.wallet?.address as Address) || zeroAddress },
-          { socialHandle },
+          // { address: (privyUser.wallet?.address as Address) || zeroAddress },
         ],
       },
     }),
     prisma.user.count(),
   ]);
 
+  if (maybeSavedUser) {
+    if (loginMethod && loginMethod === maybeSavedUser.socialPlatform)
+      return "OK";
+    else if (wasAlreadyAuthenticated) return "OK";
+  }
+
+  const socialPlatform = (loginMethod ||
+    (!!privyUser.farcaster
+      ? "farcaster"
+      : !!privyUser.twitter
+      ? "twitter"
+      : null)) as "farcaster" | "twitter" | null;
+
+  // // check if the social is valid
+  if (socialPlatform === null)
+    return InvalidSocialError("Invalid social login account");
+
+  const socialHandle =
+    socialPlatform === "twitter"
+      ? // or the twitter handle
+        privyUser.twitter?.username
+      : // use the farcaster username
+        privyUser.farcaster?.username;
+
+  // check if the social handle exists
+  if (!socialHandle) return MissingUserFieldsError("Social handle is missing");
+
   // return OK if they've been created and they're not reauthenticating their social platform
   if (
     maybeSavedUser &&
     maybeSavedUser.socialHandle === socialHandle &&
-    maybeSavedUser.socialPlatform === loginMethod
+    maybeSavedUser.socialPlatform === socialPlatform
   )
     return "OK";
 
   // snag their follower count from the platform of choice
   const followerCount = await getFollowerCount(
-    loginMethod,
+    socialPlatform,
     socialHandle,
     userCount
   );
   if (isFollowerCountError(followerCount)) return followerCount;
 
-  const socialPlatform: "twitter" | "farcaster" =
-    loginMethod === "twitter"
-      ? "twitter"
-      : loginMethod === "farcaster"
-      ? "farcaster"
-      : (() => {
-          throw Error("unimplmented social account");
-        })();
-
-  const facecoinCode = mapUserCountToFacecoinCode(userCount);
+  const facecoinCode = getFacecoinCode();
   const userAddress = privyUser.wallet?.address
     ? privyUser.wallet?.address
     : await privy
@@ -142,12 +128,13 @@ export const updateUserFromPrivy = async ({
   > = {
     privyId: privyUser.id,
     socialHandle,
-    socialPlatform,
+    socialPlatform: socialPlatform,
     followerCount,
     address: userAddress as Address,
     facecoinCode,
     pfp: null,
     tokenAllocation: null,
+    tokensSent: false,
   };
 
   // upsert the user
@@ -158,10 +145,11 @@ export const updateUserFromPrivy = async ({
       create: newUser,
     })
     .catch(async () => {
+      console.log("upsert failed, trying social handle upsert");
       await prisma.user.upsert({
         where: { socialHandle },
-        update: newUser,
-        create: newUser,
+        update: { ...newUser, facecoinCode: getFacecoinCode() },
+        create: { ...newUser, facecoinCode: getFacecoinCode() },
       });
     });
 

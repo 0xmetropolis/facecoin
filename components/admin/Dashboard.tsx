@@ -32,6 +32,11 @@ const MENU_OPTIONS: MenuOption[] = [
     type: "button",
     link: "/admin/liquidity-params",
   },
+  {
+    label: "RESET USER",
+    type: "button",
+    link: "/admin/reset-user",
+  },
 ];
 
 const useMousePosition = () => {

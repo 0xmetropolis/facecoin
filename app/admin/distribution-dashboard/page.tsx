@@ -7,9 +7,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/shadcn/accordion";
+import { Button } from "@/components/shadcn/button";
 import { protectPageWithAdminAuth } from "@/lib/adminAuth";
 import prisma from "@/lib/prisma";
 import { AllocatorSettings, DEFAULT_SETTINGS } from "@/lib/tokenAllocation";
+import { ArrowLeft, Link } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +57,11 @@ export default async function DistributionDashboardPage() {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+      <Link href="/admin">
+        <Button type="button" variant="secondary">
+          <ArrowLeft />
+        </Button>
+      </Link>
     </div>
   );
 }

@@ -24,6 +24,7 @@ model User {
     followerCount      Int?
     pfp                String?
     tokenAllocation    String?
+    tokensSent         Boolean?
     pokesGiven         Poke[]   @relation("pokesGiven")
     pokesReceived      Poke[]   @relation("pokesReceived")
 }

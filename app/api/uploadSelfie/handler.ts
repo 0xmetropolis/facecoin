@@ -90,11 +90,25 @@ export const uploadSelfieHandler = async (req: NextRequest) => {
 
   const { user, privyUser } = request;
 
-  const userPreviouslyHadADistribution = user.tokenAllocation !== null;
+  // use their privy wallet or create one for them
+  const privyUserAddress = privyUser.wallet?.address
+    ? privyUser.wallet.address
+    : await privy
+        .createWallets({
+          userId: privyUser.id,
+          createEthereumWallet: true,
+          numberOfEthereumWalletsToCreate: 1,
+        })
+        .then((u) => u.wallet!.address!);
+
   const isAuthenticated =
     process.env.ADMIN_PASSWORD === req.cookies.get("admin_token")?.value;
 
-  if (userPreviouslyHadADistribution && !isAuthenticated) {
+  const previousDistribution = await Metal.getHolderBalance(privyUserAddress)
+    .then((h) => h.balance)
+    .catch(() => 0);
+
+  if (previousDistribution > 0 && !!user.pfp && !isAuthenticated) {
     return NextResponse.json(
       { error: "User has already onboarded" },
       { status: 401 }
@@ -136,12 +150,43 @@ export const uploadSelfieHandler = async (req: NextRequest) => {
 
   const [allacatorResult, pfpFromReplicate] = output;
 
+  if (!privyUserAddress)
+    return NextResponse.json(
+      { error: "No privy user address" },
+      { status: 500 }
+    );
+
+  const tokensToDistribute = Math.max(
+    allacatorResult.allocation - previousDistribution,
+    0
+  );
+
+  const success =
+    tokensToDistribute > 0
+      ? await Metal.sendReward({
+          to: privyUserAddress as Address,
+          amount: tokensToDistribute,
+        })
+          .then(() => true)
+          .catch((e) => {
+            console.error(e);
+            return false;
+          })
+      : true;
+
+  if (!success)
+    return NextResponse.json(
+      { error: "Failed to send reward" },
+      { status: 500 }
+    );
+
   const updatedUser = await prisma.user.update({
     where: {
       id: user.id,
     },
     data: {
       tokenAllocation: allacatorResult.allocation.toString(),
+      tokensSent: true,
       pfp: pfpFromReplicate,
       updatedAt: new Date(),
     },
@@ -151,41 +196,6 @@ export const uploadSelfieHandler = async (req: NextRequest) => {
   revalidatePath("/");
   revalidatePath(`/${updatedUser.socialHandle}`);
   revalidateTag(`holders`);
-
-  // use their privy wallet or create one for them
-  const privyUserAddress = privyUser.wallet?.address
-    ? privyUser.wallet.address
-    : await privy
-        .createWallets({
-          userId: privyUser.id,
-          createEthereumWallet: true,
-          numberOfEthereumWalletsToCreate: 1,
-        })
-        .then((u) => u.wallet!.address!);
-
-  if (!privyUserAddress)
-    return NextResponse.json(
-      { error: "No privy user address" },
-      { status: 500 }
-    );
-
-  const success = !userPreviouslyHadADistribution
-    ? await Metal.sendReward({
-        to: privyUserAddress as Address,
-        amount: allacatorResult.allocation,
-      })
-        .then(() => true)
-        .catch((e) => {
-          console.error(e);
-          return false;
-        })
-    : true;
-
-  if (!success)
-    return NextResponse.json(
-      { error: "Failed to send reward" },
-      { status: 500 }
-    );
 
   return NextResponse.json({ message: "OK", updatedUser });
 };

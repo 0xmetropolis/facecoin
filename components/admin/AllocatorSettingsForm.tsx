@@ -3,11 +3,9 @@
 import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
 import { useToast } from "@/lib/hooks/use-toast";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
 import { AllocatorSettings } from "@/lib/tokenAllocation";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type FollowerTier = "SUPER" | "HIGH" | "MEDIUM" | "LOW";
 type AttendanceType = "IN_PERSON" | "ONLINE";
@@ -186,11 +184,6 @@ export function AllocatorSettingsForm({
         </div>
 
         <div className="flex gap-2">
-          <Link href="/admin">
-            <Button type="button" variant="secondary">
-              <ArrowLeft />
-            </Button>
-          </Link>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Updating..." : "Update Parameters"}
           </Button>

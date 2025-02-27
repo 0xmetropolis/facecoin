@@ -49,6 +49,7 @@ export const DEFAULT_MODEL_INPUT: StyleizePhotoInput = {
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
+  useFileOutput: true,
 });
 
 const MAX_RETRY_COUNT = 2;
@@ -59,7 +60,7 @@ export const styleizePhoto = async ({
 }: {
   imgUrl: string;
   retryCount?: number;
-}): Promise<string> => {
+}): Promise<Blob> => {
   if (retryCount > MAX_RETRY_COUNT) throw new Error("Failed to styleize photo");
 
   // Get the configuration from Prisma
@@ -69,26 +70,28 @@ export const styleizePhoto = async ({
 
   const input = config || DEFAULT_MODEL_INPUT;
 
-  const output = await replicate.run(
+  const output = (await replicate.run(
     "tencentarc/photomaker-style:467d062309da518648ba89d226490e02b8ed09b5abc15026e54e31c5a8cd0769",
     {
       input: {
         ...input,
         input_image: imgUrl,
       },
+      wait: { mode: "block", interval: 500, timeout: 60 },
     }
-  );
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  )) as any;
 
   return (function () {
     try {
-      const [styledImg] = output as [string];
-      return styledImg.toString();
+      return output[0].blob();
     } catch (e) {
-      console.error(e);
+      console.error("replicate error", e);
       try {
-        return output.toString();
+        return output.blob();
       } catch (e) {
-        console.error(e);
+        console.error("replicate error 2", e);
         return styleizePhoto({ imgUrl, retryCount: retryCount + 1 });
       }
     }

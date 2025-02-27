@@ -68,7 +68,7 @@ export function UploadSelfie() {
                 secondsSinceProcessingStarted > 12 && "block"
               )}
             >
-              [looks like your face will take a while]
+              [looks like your face might take a while]
             </p>
           </div>
         ) : (
