@@ -118,7 +118,7 @@ const UserPokesList = async ({
         <div className={`flex flex-col gap-4 items-center w-full`}>
           <h3 className="font-bold text-2xl pt-2">Pokes</h3>
           {userIsLoggedIn && !ourPokeGame ? (
-            <PokeButton victim={user.id}>👉 Poke help</PokeButton>
+            <PokeButton victim={user.id}>👉 Poke</PokeButton>
           ) : null}
           {thisUsersPokes.length === 0 && userIsLoggedIn && (
             <p className="text-gray-500">no pokes yet...</p>
