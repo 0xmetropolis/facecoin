@@ -52,7 +52,7 @@ const replicate = new Replicate({
   useFileOutput: true,
 });
 
-const MAX_RETRY_COUNT = 2;
+const MAX_RETRY_COUNT = 3;
 
 export const styleizePhoto = async ({
   imgUrl,
