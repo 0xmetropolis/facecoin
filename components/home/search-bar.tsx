@@ -5,7 +5,7 @@ import { Input } from "../shadcn/input";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export const SearchInput = () => {
+export const SearchInput = ({ userCount }: { userCount: number }) => {
   const searchParams = useSearchParams();
   const { replace } = useRouter();
   const pathname = usePathname();
@@ -30,7 +30,7 @@ export const SearchInput = () => {
         className="max-w-[600px] mx-auto"
       />
       <p className="text-sm text-gray-500">
-        Showing top 20 users. Search to find more...
+        Showing top 20 of <b>{userCount}</b> users. Search to find more...
       </p>
     </div>
   );
